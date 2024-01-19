@@ -1,0 +1,53 @@
+import React from 'react';
+import { FC } from 'react';
+import { Image, Pressable, View } from 'react-native';
+import { CurrentTheme } from '../../types/theme';
+
+interface Icon_ButtonProps {
+    size: number;
+    onPress?: () => void;
+    onLongPress?: () => void;
+    icon: React.ReactNode;
+    theme: CurrentTheme;
+}
+const Icon_Button: FC<Icon_ButtonProps> = ({
+    size,
+    onPress,
+    onLongPress,
+    icon,
+    theme
+}) => {
+    return (
+        <View style={{
+            width: size,
+            height: size,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderRadius: 100,
+            backgroundColor: theme.background,
+            overflow: 'hidden',
+            padding: 10,
+        }}>
+            <Pressable style={{
+            width: size,
+            height: size,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderRadius: 100,
+            padding: 10,
+        }}
+
+            android_ripple={{
+                color: theme.iconActiveColor,
+                borderless: true,
+                radius: size,
+            }}
+            onPress={onPress}
+            onLongPress={onLongPress}>
+            {icon}
+        </Pressable>
+        </View>
+    );
+};
+
+export default Icon_Button;
