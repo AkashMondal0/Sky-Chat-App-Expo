@@ -3,7 +3,7 @@ import {FC} from 'react';
 import { View } from 'react-native';
 
 interface PaddingProps {
-    size: number;
+    size?: number | undefined ;
     horizontal?: boolean;
 }
 const Padding:FC<PaddingProps> = ({

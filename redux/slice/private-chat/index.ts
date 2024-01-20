@@ -115,6 +115,12 @@ export const Private_Chat_Slice = createSlice({
         })
       }
     },
+    addMoreMessagesToPrivateChatList: (state, action: PayloadAction<PrivateMessage[]>) => {
+      const index = state.List.findIndex(item => item._id === action.payload[0].conversationId)
+      if (index !== -1) {
+        state.List[index].messages = new Array<PrivateMessage>().concat(action.payload, state.List[index].messages!)
+      }
+    },
     addToPrivateChatListMessageTyping: (state, action: PayloadAction<typingState>) => {
       const index = state.List.findIndex(item => item._id === action.payload.conversationId)
       if (index !== -1) {
@@ -154,7 +160,8 @@ export const {
   addToPrivateChatListMessage,
   addToPrivateChatListMessageSeen,
   recentChatSetter,
-  addToPrivateChatListMessageTyping
+  addToPrivateChatListMessageTyping,
+  addMoreMessagesToPrivateChatList
 } = Private_Chat_Slice.actions
 
 export default Private_Chat_Slice.reducer

@@ -39,6 +39,7 @@ export default function HomeScreen({ navigation }: any) {
             }
         }).filter(item => item !== undefined).length
     }
+    const array = [...usePrivateChat.List]
 
     return (
         <SafeAreaView style={{
@@ -50,7 +51,7 @@ export default function HomeScreen({ navigation }: any) {
                 <>
                     {usePrivateChat.List.length <= 0 && !usePrivateChat.loading ? <NoItem them={useTheme} /> :
                         <FlatList
-                            data={usePrivateChat.List}
+                            data={array.sort((a, b) => new Date(b.updatedAt as string).getTime() - new Date(a.updatedAt as string).getTime())}
                             renderItem={({ item }) => {
                                 const userId = item.users?.filter((userId) => userId !== useProfile.user?._id)[0]
                                 // console.log("user", item)
@@ -62,7 +63,7 @@ export default function HomeScreen({ navigation }: any) {
                                     profile={useProfile?.user}
                                     title={user?.username || "user"}
                                     // @ts-ignore
-                                    date={item?.messages[item?.messages?.length -1]?.createdAt || item.updatedAt as string}
+                                    date={item?.messages[item?.messages?.length - 1]?.createdAt || item.updatedAt as string}
                                     isTyping={item.typing}
                                     onPress={() => navigation.navigate('Chat', { chatId: item._id, userId: userId })}
                                     lastMessage={item.lastMessageContent} /> :

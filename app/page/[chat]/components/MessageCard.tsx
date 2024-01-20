@@ -29,6 +29,7 @@ const MessageCard: FC<MessageCardProps> = ({
             alignItems: "center",
             justifyContent: sender ? "flex-end" : "flex-start",
             padding: 8,
+            // height:200,
         }}>
             <View style={{
                 backgroundColor: sender ? senderColor : receiverColor,

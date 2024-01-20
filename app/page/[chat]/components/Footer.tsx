@@ -1,12 +1,12 @@
 import React, { FC, useCallback, useEffect, useRef } from 'react';
-import { Keyboard, Pressable, TextInput, TouchableOpacity, View } from 'react-native';
+import { Keyboard, TextInput, View } from 'react-native';
 import { Camera, Paperclip, Send, Smile } from 'lucide-react-native';
 import { useDispatch } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { CurrentTheme } from '../../../../types/theme';
 import { User } from '../../../../types/profile';
 import { PrivateChat, PrivateMessage, typingState } from '../../../../types/private-chat';
-import { addToPrivateChatListMessage, sendMessagePrivate } from '../../../../redux/slice/private-chat';
+import { sendMessagePrivate } from '../../../../redux/slice/private-chat';
 import socket from '../../../../utils/socket-connect';
 import MyButton from '../../../../components/shared/Button';
 
@@ -103,7 +103,7 @@ const FooterChat: FC<FooterChatProps> = ({
         borderRadius: 100,
         flexDirection: "row",
         alignItems: "center",
-        height: 45,
+        maxHeight: 100,
         paddingHorizontal: 10,
       }}>
         <View style={{
@@ -111,6 +111,7 @@ const FooterChat: FC<FooterChatProps> = ({
           alignItems: "center",
           justifyContent: "space-between",
           elevation: 5,
+          gap: 5,
         }}>
           <Smile
             size={25}
@@ -119,7 +120,7 @@ const FooterChat: FC<FooterChatProps> = ({
           <Controller
             control={control}
             rules={{
-              maxLength: 100,
+              // maxLength: 100,
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
@@ -132,8 +133,9 @@ const FooterChat: FC<FooterChatProps> = ({
                 onChangeText={onChange}
                 ref={inputRef}
                 value={value}
+                multiline={true}
                 style={{
-                  height: 50,
+                  minHeight: 45,
                   width: "85%",
                   borderRadius: 100,
                   color: _color,

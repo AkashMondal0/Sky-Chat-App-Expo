@@ -70,6 +70,7 @@ export default function ChatScreen({ navigation, route }: {
                 defaultWallpaper
                 backgroundColor={useThem.borderColor}>
                 <Body
+                conversationId={PrivateConversationData?._id}
                 user={userData}
                 privateChat={PrivateConversationData}
                 profile={profile.user}

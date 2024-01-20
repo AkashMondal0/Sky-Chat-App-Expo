@@ -5,16 +5,20 @@ import { useDispatch } from 'react-redux';
 import { CurrentTheme } from '../../../../types/theme';
 import { PrivateChat, PrivateMessage, PrivateMessageSeen } from '../../../../types/private-chat';
 import { User } from '../../../../types/profile';
-import { sendMessageSeenPrivate } from '../../../../redux/slice/private-chat';
+import { addMoreMessagesToPrivateChatList, sendMessageSeenPrivate } from '../../../../redux/slice/private-chat';
 import { dateFormat } from '../../../../utils/timeFormat';
 import { debounce } from 'lodash';
-
+import axios from 'axios';
+import { localhost } from '../../../../keys';
+import Padding from '../../../../components/shared/Padding';
+import { Dimensions } from 'react-native';
 interface BodyChatProps {
     theme: CurrentTheme
     messages: PrivateMessage[]
     profile: User | null | undefined
     privateChat: PrivateChat | null | undefined
     user: User | null | undefined
+    conversationId: string | undefined
 }
 const BodyChat: FC<BodyChatProps> = ({
     theme,
@@ -22,12 +26,19 @@ const BodyChat: FC<BodyChatProps> = ({
     profile,
     privateChat,
     user,
+    conversationId
 }) => {
     const scrollViewRef = React.useRef<ScrollView | any>(null);
+    const [page, setPage] = React.useState(2);
+    const [loading, setLoading] = React.useState(false);
+    const [stopMoreData, setStopMoreData] = React.useState(true);
     const dispatch = useDispatch()
-    // const scrollToBottom = () => {
-    //     scrollViewRef.current?.scrollToEnd({ animated: true });
-    // }
+
+    const scrollToBottom = () => {
+        scrollViewRef.current?.scrollToEnd({ animated: false });
+    }
+
+
     const seenCount = () => {
         return messages.map(item => {
             if (!item.seenBy.includes(profile?._id as string)) {
@@ -36,7 +47,7 @@ const BodyChat: FC<BodyChatProps> = ({
         }).filter(item => item !== undefined)
     }
 
-  
+
 
     const messageSeen = () => {
 
@@ -50,25 +61,56 @@ const BodyChat: FC<BodyChatProps> = ({
         dispatch(sendMessageSeenPrivate({ seen }) as any)
     }
 
-    // const debouncedHandleSearch = useCallback(debounce(messageSeen, 3000), []);
-    
+    const getMoreData = () => {
+        setLoading(true)
+        // increment height of view
+        axios.get(`${localhost}/private/chat/list/messages/${conversationId}?page=${page}&size=${20}`)
+            .then((res) => {
+                if (res.data) {
+                    dispatch(addMoreMessagesToPrivateChatList(res.data))
+                    setPage(page + 1)
+                    scrollViewRef?.current?.scrollTo({ y: 1000, animated: false })
+                    return res.data
+                }
+            })
+            .catch((err) => {
+                setStopMoreData(false)
+                ToastAndroid.show('No more messages', ToastAndroid.SHORT)
+            }).finally(() => {
+                setLoading(false)
+            })
+    }
+
     useEffect(() => {
         //debounce
-        if (messages.length > 0&& messages[messages.length - 1].memberId !== profile?._id) {
+        if (!loading) {
+        if (messages.length > 0 && messages[messages.length - 1].memberId !== profile?._id) {
             messageSeen()
+        }
+            scrollToBottom()
+            console.log('messages')
         }
     }, [messages])
 
+    const handleScroll = ({ nativeEvent }: any) => {
+        if (nativeEvent.contentOffset.y === 0 && stopMoreData) {
+            getMoreData()
+        }
+    };
     return (
         <ScrollView
-            ref={scrollViewRef}
-            onContentSizeChange={() => scrollViewRef?.current.scrollToEnd({ animated: true })}>
-
+            scrollEventThrottle={400}
+            onScroll={handleScroll}
+            ref={scrollViewRef}>
+            {loading && <Text style={{ textAlign: 'center', color: theme.subTextColor }}>Loading...</Text>}
             {messages?.filter((value, index, dateArr) => index === dateArr
                 .findIndex((time) => (dateFormat(time.createdAt) === dateFormat(value.createdAt))))
-                .map((item) => {
+                .sort((a, b) => {
+                    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                })
+                .map((item, i) => {
 
-                    return <View key={item.createdAt}>
+                    return <View key={i}>
                         <>
                             <Text style={{
                                 textAlign: 'center',
@@ -82,10 +124,13 @@ const BodyChat: FC<BodyChatProps> = ({
                             }}>{dateFormat(item.createdAt)}</Text>
                         </>
                         {messages.filter((value) => dateFormat(value.createdAt) === dateFormat(item.createdAt))
-                            .map((message) => {
+                            .sort((a, b) => {
+                                return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                            })
+                            .map((message, i) => {
                                 // console.log(message)
                                 return <ChatCard
-                                    key={message._id}
+                                    key={i}
                                     sender={message.memberId === profile?._id}
                                     seen={message.seenBy.length >= 2 && message.seenBy.includes(profile?._id as string)}
                                     theme={theme}
@@ -104,6 +149,7 @@ const BodyChat: FC<BodyChatProps> = ({
                 }}
                 keyExtractor={item => item._id}
             /> */}
+            {/* <Padding size={600}/> */}
         </ScrollView>
     );
 };

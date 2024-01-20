@@ -117,7 +117,8 @@ export default function NewMessageScreen({ navigation }: any) {
                     }}>Suggested</Text>
                 </View>
                 <MultipleCard theme={useTheme}>
-                    {searchResult.map((item, index) => (
+                    {searchResult.filter((item) => item._id !== user?._id)
+                    .map((item, index) => (
                         <UserCard
                             key={index}
                             theme={useTheme}
