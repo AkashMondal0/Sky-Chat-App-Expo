@@ -60,7 +60,7 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
                 dispatch(Logout())
             })
             .finally(() => {
-
+                SplashScreen.hideAsync()
             })
     }, [])
 
@@ -77,10 +77,9 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
         }
     }
     useEffect(() => {
-        SplashScreen.hideAsync()
-        Current_theme()
-        fetchUserData()
-
+        Current_theme().then(() => {
+            fetchUserData()
+        })
         // const unsubscribe = NetInfo.addEventListener(state => {
         //     console.log('Connection type', state.type);
         //     console.log('Is connected?', state.isConnected);
@@ -108,7 +107,7 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
             dispatch(addToPrivateChatListMessage(data))
         })
 
-        socket.on("message_seen_receiver", (data:PrivateMessageSeen) => {
+        socket.on("message_seen_receiver", (data: PrivateMessageSeen) => {
             dispatch(addToPrivateChatListMessageSeen(data))
         })
         socket.on("message_typing_receiver", (data) => {
