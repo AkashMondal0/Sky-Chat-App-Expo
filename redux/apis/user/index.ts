@@ -10,7 +10,7 @@ export const fetchSearchUser = createAsyncThunk(
     async (searchKeyWord: string, thunkApi) => {
         try {
             const response = await axios.get(`${localhost}/user/search/${searchKeyWord}`);
-            console.log(response.data)
+            // console.log(response.data)
             return response.data;
         } catch (error: any) {
             return thunkApi.rejectWithValue(error.response.data);

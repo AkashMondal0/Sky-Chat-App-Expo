@@ -5,7 +5,11 @@ import { Theme, Theme_Toggle_State, changeTheme } from '../redux/slice/theme';
 import MyStatusBar from '../components/shared/status-bar';
 import { RootState } from '../redux/store';
 import { Profile_State, fetchProfileData } from '../redux/slice/profile';
-import { Private_Chat_State, addToPrivateChatListMessage, addToPrivateChatListMessageSeen, addToPrivateChatListMessageTyping, getProfileChatList } from '../redux/slice/private-chat';
+import {
+    Private_Chat_State, addToPrivateChatListMessage,
+    addToPrivateChatListMessageSeen, addToPrivateChatListMessageTyping,
+    getProfileChatList
+} from '../redux/slice/private-chat';
 import { Users_State } from '../redux/apis/user';
 import * as SplashScreen from 'expo-splash-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -13,6 +17,10 @@ import { Appearance } from 'react-native';
 import socket from '../utils/socket-connect';
 import { PrivateMessage } from '../types/private-chat';
 import { Login, Logout } from '../redux/slice/auth';
+import NetInfo from '@react-native-community/netinfo'
+
+SplashScreen.preventAutoHideAsync();
+
 interface ProfileContextType {
     fetchUserData?: () => void
 }
@@ -33,13 +41,9 @@ interface Profile_ProviderProps {
 const Profile_Provider: FC<Profile_ProviderProps> = ({
     children
 }) => {
-    // const navigation = React.useContext(NavigationContext);
-    // const notificationContext = useContext(NotificationContext)
     const dispatch = useDispatch()
     const ThemeState = useSelector((state: RootState) => state.ThemeMode)
-    const PrivateChatState = useSelector((state: RootState) => state.privateChat)
     const { isLogin } = useSelector((state: RootState) => state.authState)
-    const UsersState = useSelector((state: RootState) => state.users)
 
 
 
@@ -47,7 +51,7 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
         AsyncStorage.getItem("token")
             .then((token) => {
                 if (token && !isLogin) {
-                    dispatch(Login({token: token}))
+                    dispatch(Login({ token }))
                     dispatch(fetchProfileData(token) as any)
                     dispatch(getProfileChatList(token) as any)
                 }
@@ -56,7 +60,7 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
                 dispatch(Logout())
             })
             .finally(() => {
-                
+
             })
     }, [])
 
@@ -76,6 +80,11 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
         SplashScreen.hideAsync()
         Current_theme()
         fetchUserData()
+
+        const unsubscribe = NetInfo.addEventListener(state => {
+            console.log('Connection type', state.type);
+            console.log('Is connected?', state.isConnected);
+        });
 
         Appearance.addChangeListener(({ colorScheme }) => {
             if (ThemeState.Theme === "system") {
@@ -110,6 +119,7 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
             socket.off("update_Chat_List_Receiver")
             socket.off("message_receiver")
             socket.off("message_seen_receiver")
+            // unsubscribe();
         }
     }, [])
 

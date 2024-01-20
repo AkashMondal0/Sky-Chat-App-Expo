@@ -10,11 +10,10 @@ import Tabs from './app/tabs';
 import SettingsScreen from './app/page/setting/page';
 import LoginScreen from './app/page/auth/login/page';
 import RegisterScreen from './app/page/auth/register/page';
-import * as SplashScreen from 'expo-splash-screen';
 import NewMessageScreen from './app/page/home/newMessage/page';
 import ChatScreen from './app/page/[chat]/page';
 
-SplashScreen.preventAutoHideAsync();
+
 
 
 function Routes() {
