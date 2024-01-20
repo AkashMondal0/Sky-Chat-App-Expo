@@ -50,7 +50,7 @@ const DarkTheme = {
 
     //icon
     iconColor: "#F2F3F5",
-    primaryIconColor: "#949BA4",
+    primaryIconColor: "#F2F3F5",
     iconActiveColor: "#80848E",
     iconButtonBackground: "#2B2D31",
 

@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useEffect } from 'react';
-import { FlatList, ScrollView, Text, View } from 'react-native';
+import { FlatList, ScrollView, Text, ToastAndroid, View } from 'react-native';
 import ChatCard from './MessageCard';
 import { useDispatch } from 'react-redux';
 import { CurrentTheme } from '../../../../types/theme';
@@ -7,6 +7,7 @@ import { PrivateChat, PrivateMessage, PrivateMessageSeen } from '../../../../typ
 import { User } from '../../../../types/profile';
 import { sendMessageSeenPrivate } from '../../../../redux/slice/private-chat';
 import { dateFormat } from '../../../../utils/timeFormat';
+import { debounce } from 'lodash';
 
 interface BodyChatProps {
     theme: CurrentTheme
@@ -20,7 +21,7 @@ const BodyChat: FC<BodyChatProps> = ({
     messages,
     profile,
     privateChat,
-    user
+    user,
 }) => {
     const scrollViewRef = React.useRef<ScrollView | any>(null);
     const dispatch = useDispatch()
@@ -35,7 +36,7 @@ const BodyChat: FC<BodyChatProps> = ({
         }).filter(item => item !== undefined)
     }
 
-    // console.log(seenCount())
+  
 
     const messageSeen = () => {
 
@@ -48,11 +49,14 @@ const BodyChat: FC<BodyChatProps> = ({
 
         dispatch(sendMessageSeenPrivate({ seen }) as any)
     }
+
+    // const debouncedHandleSearch = useCallback(debounce(messageSeen, 3000), []);
+    
     useEffect(() => {
-        if (messages.length > 0) {
+        //debounce
+        if (messages.length > 0&& messages[messages.length - 1].memberId !== profile?._id) {
             messageSeen()
         }
-        // scrollToBottom()
     }, [messages])
 
     return (
@@ -79,10 +83,11 @@ const BodyChat: FC<BodyChatProps> = ({
                         </>
                         {messages.filter((value) => dateFormat(value.createdAt) === dateFormat(item.createdAt))
                             .map((message) => {
+                                // console.log(message)
                                 return <ChatCard
                                     key={message._id}
                                     sender={message.memberId === profile?._id}
-                                    seen={message.seenBy.includes(message.receiverId)}
+                                    seen={message.seenBy.length >= 2 && message.seenBy.includes(profile?._id as string)}
                                     theme={theme}
                                     data={message}
                                     content={message.content} />

@@ -37,7 +37,7 @@ const Avatar: FC<AvatarProps> = ({
         }}>
             <Text style={{
                 fontSize: size / 2,
-                color: theme?.textColor,
+                color: theme?.color,
             }}>
                 {text?.charAt(0).toUpperCase()}
             </Text>

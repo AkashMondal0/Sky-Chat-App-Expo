@@ -16,10 +16,11 @@ export const sendMessagePrivate = createAsyncThunk(
     try {
 
       // console.log(message)
-      // const response = await axios.get(`${localhost}/private/chat/list`, {
-      // });
       thunkApi.dispatch(addToPrivateChatListMessage(message))
       socket.emit('message_sender', message)
+      // await axios.post(`${localhost}/PrivateMessage/send`, {
+      //   message
+      // });
     } catch (error: any) {
       return thunkApi.rejectWithValue(error.response.data)
     }
@@ -36,10 +37,11 @@ export const sendMessageSeenPrivate = createAsyncThunk(
     try {
 
       // console.log(message)
-      // const response = await axios.get(`${localhost}/private/chat/list`, {
-      // });
       socket.emit('message_seen_sender', seen)
       thunkApi.dispatch(addToPrivateChatListMessageSeen(seen))
+      // await axios.post(`${localhost}/PrivateMessage/seen`, {
+      //   messages: seen
+      // });
       // return response.data;
     } catch (error: any) {
       return thunkApi.rejectWithValue(error.response.data)
@@ -80,7 +82,7 @@ const initialState: Private_Chat_State = {
   error: null,
   success: null,
   updateList: "false",
-  recentChat: null
+  recentChat: null,
 }
 
 export const Private_Chat_Slice = createSlice({

@@ -13,9 +13,9 @@ import {
 import { Users_State } from '../redux/apis/user';
 import * as SplashScreen from 'expo-splash-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Appearance } from 'react-native';
+import { Appearance, ToastAndroid } from 'react-native';
 import socket from '../utils/socket-connect';
-import { PrivateMessage } from '../types/private-chat';
+import { PrivateMessage, PrivateMessageSeen } from '../types/private-chat';
 import { Login, Logout } from '../redux/slice/auth';
 import NetInfo from '@react-native-community/netinfo'
 
@@ -81,10 +81,10 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
         Current_theme()
         fetchUserData()
 
-        const unsubscribe = NetInfo.addEventListener(state => {
-            console.log('Connection type', state.type);
-            console.log('Is connected?', state.isConnected);
-        });
+        // const unsubscribe = NetInfo.addEventListener(state => {
+        //     console.log('Connection type', state.type);
+        //     console.log('Is connected?', state.isConnected);
+        // });
 
         Appearance.addChangeListener(({ colorScheme }) => {
             if (ThemeState.Theme === "system") {
@@ -108,7 +108,7 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
             dispatch(addToPrivateChatListMessage(data))
         })
 
-        socket.on("message_seen_receiver", (data) => {
+        socket.on("message_seen_receiver", (data:PrivateMessageSeen) => {
             dispatch(addToPrivateChatListMessageSeen(data))
         })
         socket.on("message_typing_receiver", (data) => {

@@ -12,7 +12,7 @@ import Padding from '../../../../components/shared/Padding';
 
 interface PrivateChatCardProps {
     title: string;
-    date: Date | string;
+    date: Date | string | any;
     lastMessage: string;
     onPress: () => void;
     onLongPress?: () => void;

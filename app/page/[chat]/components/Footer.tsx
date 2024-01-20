@@ -42,6 +42,26 @@ const FooterChat: FC<FooterChatProps> = ({
     };
   }, []);
 
+  const onFocus = useCallback(() => {
+    const message: typingState = {
+      conversationId: conversation?._id as string,
+      senderId: profile?._id as string,
+      receiverId: user?._id as string,
+      typing: true
+    }
+    socket.emit('message_typing_sender', message)
+  }, [])
+
+  const onBlurType = useCallback(() => {
+    const message: typingState = {
+      conversationId: conversation?._id as string,
+      senderId: profile?._id as string,
+      receiverId: user?._id as string,
+      typing: false
+    }
+    socket.emit('message_typing_sender', message)
+  }, [])
+
   const sendMessageHandle = useCallback((data: {
     message: string
   }) => {
@@ -66,27 +86,6 @@ const FooterChat: FC<FooterChatProps> = ({
       }) as any)
       reset()
     }
-  }, [])
-
-
-  const onFocus = useCallback(() => {
-    const message: typingState = {
-      conversationId: conversation?._id as string,
-      senderId: profile?._id as string,
-      receiverId: user?._id as string,
-      typing: true
-    }
-    socket.emit('message_typing_sender', message)
-  }, [])
-
-  const onBlurType = useCallback(() => {
-    const message: typingState = {
-      conversationId: conversation?._id as string,
-      senderId: profile?._id as string,
-      receiverId: user?._id as string,
-      typing: false
-    }
-    socket.emit('message_typing_sender', message)
   }, [])
 
   return (

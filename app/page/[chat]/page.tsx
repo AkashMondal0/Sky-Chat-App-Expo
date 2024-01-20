@@ -38,10 +38,7 @@ export default function ChatScreen({ navigation, route }: {
         { label: 'Cancel09', onPress: () => console.log('cancel09') },
         { label: 'Cancel', onPress: () => console.log('cancel') },
     ]
-    // console.log()
-
-    useEffect(() => {
-    }, [])
+  
 
     const onBlurType = useCallback(() => {
         const message: typingState = {

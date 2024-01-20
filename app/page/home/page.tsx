@@ -61,7 +61,8 @@ export default function HomeScreen({ navigation }: any) {
                                     them={useTheme}
                                     profile={useProfile?.user}
                                     title={user?.username || "user"}
-                                    date={item.updatedAt as string}
+                                    // @ts-ignore
+                                    date={item?.messages[item?.messages?.length -1]?.createdAt || item.updatedAt as string}
                                     isTyping={item.typing}
                                     onPress={() => navigation.navigate('Chat', { chatId: item._id, userId: userId })}
                                     lastMessage={item.lastMessageContent} /> :
