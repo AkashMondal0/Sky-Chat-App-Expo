@@ -15,7 +15,7 @@ export default function IntroScreen({ navigation }: any) {
             width: "100%",
             justifyContent: "center",
             alignItems: "center",
-            marginTop: StatusBar.currentHeight || 0,
+            // marginTop: StatusBar.currentHeight || 0,
         }}>
             <Text style={{
                 fontSize: 40,

@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useContext } from 'react';
 import { View, TouchableOpacity, Text, Pressable } from 'react-native';
 import React from 'react';
 import { truncate } from 'lodash';
@@ -9,6 +9,8 @@ import { Badge } from 'lucide-react-native';
 import { PrivateMessage } from '../../../../types/private-chat';
 import { User } from '../../../../types/profile';
 import Padding from '../../../../components/shared/Padding';
+import { AnimatedContext } from '../../../../provider/Animated_Provider';
+import Animated from 'react-native-reanimated';
 
 interface PrivateChatCardProps {
     title: string;
@@ -21,6 +23,7 @@ interface PrivateChatCardProps {
     them: CurrentTheme
     isTyping?: boolean;
     profile?: User | null;
+    AnimatedState: any;
 }
 const PrivateChatCard: FC<PrivateChatCardProps> = ({
     title,
@@ -32,24 +35,24 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
     avatarUrl,
     them,
     isTyping,
-    profile
+    profile,
+    AnimatedState,
 }) => {
-
-    const color = them.background;
-    const BadgeColor = them.primary;
 
 
     return (
-        <View style={{
-            borderRadius: 20,
-            overflow: 'hidden',
-        }}>
+        <Animated.View style={[
+            {
+                borderRadius: 20,
+                overflow: 'hidden',
+            },
+            AnimatedState.themeAnimatedStyles,
+        ]}>
             <Pressable
                 style={{
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'flex-start',
-                    backgroundColor: color,
                     borderRadius: 20,
                     paddingVertical: 12,
                     paddingLeft: 5,
@@ -62,6 +65,7 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
                 onPress={onPress}>
                 <>
                     <Avatar
+                    AnimatedState={AnimatedState}
                         size={55}
                         style={{
                             marginHorizontal: 5,
@@ -123,7 +127,7 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
                     </View>
                 </>
             </Pressable>
-        </View>
+        </Animated.View>
     )
 };
 

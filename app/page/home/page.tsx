@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect } from 'react'
-import { Button, FlatList, SafeAreaView, ToastAndroid } from 'react-native'
+import React, { useCallback, useContext, useEffect } from 'react'
+import { Button, FlatList, SafeAreaView, ToastAndroid, View } from 'react-native'
 import PrivateChatCard from './components/card';
 import { useDispatch, useSelector } from 'react-redux';
 import { UserPlus } from 'lucide-react-native';
@@ -13,6 +13,8 @@ import SearchList from './components/SearchList';
 import Header from '../../../components/shared/Header';
 import { useForm } from 'react-hook-form';
 import { debounce } from 'lodash';
+import { AnimatedContext } from '../../../provider/Animated_Provider';
+import Animated from 'react-native-reanimated';
 
 
 export default function HomeScreen({ navigation }: any) {
@@ -23,7 +25,7 @@ export default function HomeScreen({ navigation }: any) {
     const usePrivateChat = useSelector((state: RootState) => state.privateChat)
     const useUsers = useSelector((state: RootState) => state.users.connectedUser)
     const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
-
+    const AnimatedState = useContext(AnimatedContext)
     // search form
     const { control, watch, formState: { errors }, reset } = useForm({
         defaultValues: {
@@ -70,13 +72,14 @@ export default function HomeScreen({ navigation }: any) {
 
 
     return (
-        <SafeAreaView style={{
-            flex: 1,
-        }}>
+        <Animated.View style={[{flex: 1},
+            AnimatedState.themeAnimatedStyles]}>
             <SearchList theme={useTheme}
                 reset={reset}
                 inputHandleControl={control} />
-            <Header theme={useTheme} navigation={navigation}/>
+            <Header theme={useTheme} 
+            AnimatedState={AnimatedState}
+            navigation={navigation}/>
             {!usePrivateChat.List && usePrivateChat.loading ? <LoadingUserCard theme={useTheme} />
                 :
                 <>
@@ -88,6 +91,7 @@ export default function HomeScreen({ navigation }: any) {
                                 // console.log("user", item)
                                 const user = useUsers.find((user) => user._id === userId)
                                 return user ? <PrivateChatCard
+                                    AnimatedState={AnimatedState}
                                     indicator={seenCount(item.messages) || 0}
                                     avatarUrl={user.profilePicture} // TODO: add avatar url
                                     them={useTheme}
@@ -111,6 +115,6 @@ export default function HomeScreen({ navigation }: any) {
                 icon={<UserPlus color={useTheme.color}
                     size={35} />} />
 
-        </SafeAreaView>
+        </Animated.View>
     )
 }

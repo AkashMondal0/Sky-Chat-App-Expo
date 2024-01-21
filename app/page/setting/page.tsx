@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect } from 'react'
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useCallback, useContext, useEffect } from 'react'
+import { View, Text, StyleSheet, ScrollView, Switch } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChevronRight, CircleDashed, LogOut, Palette, Pencil } from 'lucide-react-native';
 import { RootState } from '../../../redux/store';
@@ -11,14 +11,13 @@ import { resetProfileState } from '../../../redux/slice/profile';
 import { resetPrivateChatList } from '../../../redux/slice/private-chat';
 import { resetUsersState } from '../../../redux/apis/user';
 import { Logout } from '../../../redux/slice/auth';
+import { AnimatedContext } from '../../../provider/Animated_Provider';
 
 export default function SettingsScreen({ navigation }: any) {
     const useTheme = useSelector((state: RootState) => state.ThemeMode)
+    const AnimatedState = useContext(AnimatedContext) as any
     const dispatch = useDispatch()
-    const textColor = useTheme.currentTheme.textColor;
     const iconColor = useTheme.currentTheme.iconColor;
-    const titleTextSize = 16;
-    const textWeight = "500";
 
 
     const handleLogOut = useCallback(() => {
@@ -227,6 +226,22 @@ export default function SettingsScreen({ navigation }: any) {
                     </>
                 ))
                 } */}
+                {/* <SingleCard
+                    icon={<Palette color={iconColor} />}
+                    label={"Theme System"}
+                    onPress={handleLogOut}
+                    secondaryIcon={
+                        <View style={{
+                            flexDirection: 'row',
+                            gap: 5,
+                            alignItems: 'center',
+                        }}>
+                            
+                        </View>
+                    }
+                    textColor={useTheme.currentTheme.textColor}
+                    iconBackgroundColor={useTheme.currentTheme.background}
+                    theme={useTheme.currentTheme} /> */}
                 <SingleCard
                     icon={<LogOut color={iconColor} />}
                     label={"Log Out"}

@@ -2,19 +2,21 @@
 import React, { FC, createContext, useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
-import { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { Easing, interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { Theme, Theme_Toggle_State, changeTheme } from '../redux/slice/theme';
+import { CurrentTheme } from '../types/theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface AnimatedContextType {
-    SearchList_on: () => void,
-    SearchList_off: () => void,
-    SearchList_Style: any,
+    SearchList_on?: () => void,
+    SearchList_off?: () => void,
+    SearchList_Style?: any,
+    themeAnimatedStyles?: any,
+    changeThemeMode?: (theme: Theme) => void
+    ThemeState?: Theme_Toggle_State
 }
 
-const AnimatedContext = createContext<AnimatedContextType>({
-    SearchList_on: () => { },
-    SearchList_off: () => { },
-    SearchList_Style: {},
-});
+const AnimatedContext = createContext<AnimatedContextType>({});
 
 export { AnimatedContext };
 
@@ -26,7 +28,9 @@ const Animated_Provider: FC<Animated_ProviderProps> = ({
     children
 }) => {
     const dispatch = useDispatch()
-    const ThemeState = useSelector((state: RootState) => state.ThemeMode.currentTheme)
+    const ThemeState = useSelector((state: RootState) => state.ThemeMode)
+
+
     const SearchList = useSharedValue<SearchListType>({
         width: 0,
         height: 0,
@@ -57,6 +61,43 @@ const Animated_Provider: FC<Animated_ProviderProps> = ({
         }
     }, [])
 
+    // theme mode
+
+    const progress = useSharedValue(0);
+
+    const themeAnimatedStyles = useAnimatedStyle(() => {
+        const backgroundColor = interpolateColor(
+            progress.value,
+            [0, 1],
+            ['rgb(242, 243, 245)', 'rgb(35, 36, 40)'] // interpolate from red to green
+        );
+
+        return { backgroundColor };
+    });
+
+    const changeThemeMode = useCallback((themeValue: Theme) => {
+
+        switch (themeValue) {
+            case "light":
+                progress.value = withTiming(0, { duration: 600 });
+                dispatch(changeTheme("light"))
+                break;
+            case "dark":
+                progress.value = withTiming(1, { duration: 600 });
+                dispatch(changeTheme("dark"))
+                break;
+            default:
+                dispatch(changeTheme("system"))
+                break;
+        }
+    }, [])
+
+    useEffect(() => {
+        AsyncStorage.getItem('my-theme').then((value) => {
+            changeThemeMode(value as Theme)
+        })
+    }, [])
+
 
 
     return (
@@ -64,6 +105,10 @@ const Animated_Provider: FC<Animated_ProviderProps> = ({
             SearchList_on,
             SearchList_off,
             SearchList_Style,
+            // theme mode
+            themeAnimatedStyles,
+            changeThemeMode,
+            ThemeState
         }}>
             {children}
         </AnimatedContext.Provider>

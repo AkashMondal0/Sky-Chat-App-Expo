@@ -11,6 +11,7 @@ import HomeScreen from './page/home/page';
 import { PrivateMessage } from '../types/private-chat';
 import { AnimatedContext } from '../provider/Animated_Provider';
 import SearchList from './page/home/components/SearchList';
+import Animated from 'react-native-reanimated';
 
 const Tab = createBottomTabNavigator();
 
@@ -33,36 +34,18 @@ const Tabs = ({ navigation }: any) => {
 
 
     return (
-        <>
+        <Animated.View style={[
+            {
+                paddingTop: StatusBar.currentHeight,
+                flex: 1
+            }, AnimatedState.themeAnimatedStyles
+        ]}>
             <Tab.Navigator
                 sceneContainerStyle={{
-                    backgroundColor: useTheme.background,
-                    paddingTop: StatusBar.currentHeight,
                 }}
                 screenOptions={({ route }) => ({
-                    tabBarActiveTintColor: useTheme.primaryTextColor,
+                    tabBarActiveTintColor: useTheme.primary,
                     tabBarInactiveTintColor: useTheme.iconColor,
-                    // headerStyle: {
-                    //     backgroundColor: useTheme.background,
-                    //     elevation: 0,
-                    //     height: 60,
-                    // },
-                    // headerTitleStyle: {
-                    //     fontSize: 25,
-                    //     fontWeight: 'bold',
-                    //     color: useTheme.primaryTextColor,
-                    // },
-                    // headerRight: () => {
-                    //     return <TouchableOpacity
-                    //         onPress={() => {
-                    //             // navigation.navigate("Setting")
-                    //             AnimatedState.SearchList_on()
-                    //         }}
-                    //         style={{ marginRight: 10 }}>
-                    //         <Settings2 size={30} color={useTheme.iconColor} style={{ marginRight: 15 }} />
-                    //     </TouchableOpacity>
-                    // },
-                    // tab bar style
                     tabBarStyle: {
                         height: 70,
                         elevation: 0,
@@ -74,7 +57,7 @@ const Tabs = ({ navigation }: any) => {
                         let iconColor;
                         if (focused) {
                             iconSize = 30;
-                            iconColor = useTheme.iconActiveColor;
+                            iconColor = useTheme.primary;
                         } else {
                             iconSize = 25;
                             iconColor = useTheme.iconColor;
@@ -97,6 +80,19 @@ const Tabs = ({ navigation }: any) => {
                         paddingBottom: 8,
                     },
                     // notification badge
+                    tabBarBackground() {
+                        return (
+                            <Animated.View style={[
+                                {
+                                    flex: 1,
+                                    width: "100%",
+                                    height: "100%",
+                                },
+                                AnimatedState.themeAnimatedStyles
+                            ]}>
+                            </Animated.View>
+                        )
+                    },
                 })}>
                 <Tab.Screen name="Chats" component={HomeScreen} options={{
                     tabBarBadge: totalUnseen,
@@ -121,7 +117,7 @@ const Tabs = ({ navigation }: any) => {
                 }} />
 
             </Tab.Navigator>
-        </>
+        </Animated.View>
     )
 }
 

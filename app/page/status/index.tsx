@@ -1,12 +1,16 @@
-import React from 'react'
-import { View, Text, Pressable } from 'react-native';
+import React, { useContext } from 'react'
+import { View, Text } from 'react-native';
+import Animated from 'react-native-reanimated';
+import { AnimatedContext } from '../../../provider/Animated_Provider';
 
 export default function StatusScreen() {
+    const AnimatedState = useContext(AnimatedContext)
     return (
         < >
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <Text>Status Screen</Text>
-            </View>
+            <Animated.View style={[{flex: 1},
+            AnimatedState.themeAnimatedStyles]}>
+            <Text>Status Screen</Text>
+            </Animated.View>
         </>
     )
 }
