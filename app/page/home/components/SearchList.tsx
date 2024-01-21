@@ -20,7 +20,7 @@ export default function SearchList({
     inputHandleControl: control,
     reset
 }: SearchListType) {
-    const AnimatedState = useContext(AnimatedContext)
+    const AnimatedState = useContext(AnimatedContext) as any
 
     const cancelHandle = useCallback(() => {
         AnimatedState.SearchList_off()

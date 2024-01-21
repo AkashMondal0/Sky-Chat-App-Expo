@@ -72,14 +72,14 @@ export default function HomeScreen({ navigation }: any) {
 
 
     return (
-        <Animated.View style={[{flex: 1},
-            AnimatedState.themeAnimatedStyles]}>
+        <Animated.View style={[{ flex: 1 },
+        AnimatedState.themeAnimatedStyles]}>
             <SearchList theme={useTheme}
                 reset={reset}
                 inputHandleControl={control} />
-            <Header theme={useTheme} 
-            AnimatedState={AnimatedState}
-            navigation={navigation}/>
+            <Header theme={useTheme}
+                AnimatedState={AnimatedState}
+                navigation={navigation} />
             {!usePrivateChat.List && usePrivateChat.loading ? <LoadingUserCard theme={useTheme} />
                 :
                 <>

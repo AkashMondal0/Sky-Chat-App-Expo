@@ -3,6 +3,8 @@ import { FC } from 'react';
 import { Image, Text, View } from 'react-native';
 import { CurrentTheme } from '../../types/theme';
 import Animated from 'react-native-reanimated';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 
 interface AvatarProps {
     url?: string;
@@ -27,6 +29,8 @@ const Avatar: FC<AvatarProps> = ({
     AnimatedState
 }) => {
 
+    const useThem = useSelector((state: RootState) => state.ThemeMode.currentTheme)
+
     if (!url) {
         return <Animated.View style={[
             {
@@ -36,12 +40,13 @@ const Avatar: FC<AvatarProps> = ({
                 alignItems: 'center',
                 ...style,
                 borderWidth: border ? 1 : 0,
-                borderColor: theme?.primaryTextColor,
-            },AnimatedState.themeAnimatedStyles
+                borderColor: useThem?.borderColor,
+                backgroundColor: useThem?.primaryBackground,
+            }
         ]}>
             <Text style={{
                 fontSize: size / 2,
-                color: theme?.textColor,
+                color: useThem.textColor,
             }}>
                 {text?.charAt(0).toUpperCase()}
             </Text>

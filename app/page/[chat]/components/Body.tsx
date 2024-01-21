@@ -31,6 +31,7 @@ const BodyChat: FC<BodyChatProps> = ({
     const scrollViewRef = React.useRef<ScrollView | any>(null);
     const [page, setPage] = React.useState(2);
     const [loading, setLoading] = React.useState(false);
+    const [unLoading, setUnLoading] = React.useState(false);
     const [stopMoreData, setStopMoreData] = React.useState(true);
     const dispatch = useDispatch()
 
@@ -63,6 +64,7 @@ const BodyChat: FC<BodyChatProps> = ({
 
     const getMoreData = () => {
         setLoading(true)
+        setUnLoading(false)
         // increment height of view
         axios.get(`${localhost}/private/chat/list/messages/${conversationId}?page=${page}&size=${20}`)
             .then((res) => {
@@ -78,27 +80,33 @@ const BodyChat: FC<BodyChatProps> = ({
                 ToastAndroid.show('No more messages', ToastAndroid.SHORT)
             }).finally(() => {
                 setLoading(false)
+                setUnLoading(true)
             })
     }
 
     useEffect(() => {
         //debounce
         if (!loading) {
-        if (messages.length > 0 && messages[messages.length - 1].memberId !== profile?._id) {
-            messageSeen()
-        }
+            if (messages.length > 0 && messages[messages.length - 1].memberId !== profile?._id) {
+                messageSeen()
+            }
             scrollToBottom()
-            // console.log('messages')
         }
     }, [messages])
 
     const handleScroll = ({ nativeEvent }: any) => {
+        
         if (nativeEvent.contentOffset.y === 0 && stopMoreData) {
             getMoreData()
         }
     };
     return (
         <ScrollView
+        onContentSizeChange={()=>{
+            if (!loading&&!unLoading) {
+                scrollToBottom()
+            }
+        }}
             scrollEventThrottle={400}
             onScroll={handleScroll}
             ref={scrollViewRef}>

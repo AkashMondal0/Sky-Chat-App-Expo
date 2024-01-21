@@ -71,9 +71,17 @@ const Animated_Provider: FC<Animated_ProviderProps> = ({
             [0, 1],
             ['rgb(242, 243, 245)', 'rgb(35, 36, 40)'] // interpolate from red to green
         );
+        const SecondaryBackgroundColor = interpolateColor(
+            progress.value,
+            [0, 1],
+            ['rgb(35, 36, 40)', 'rgb(242, 243, 245)'] // interpolate from red to green
+        );
 
-        return { backgroundColor };
+        return { backgroundColor,
+            SecondaryBackgroundColor
+        };
     });
+    
 
     const changeThemeMode = useCallback((themeValue: Theme) => {
 
