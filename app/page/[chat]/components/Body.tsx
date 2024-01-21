@@ -88,7 +88,7 @@ const BodyChat: FC<BodyChatProps> = ({
             messageSeen()
         }
             scrollToBottom()
-            console.log('messages')
+            // console.log('messages')
         }
     }, [messages])
 

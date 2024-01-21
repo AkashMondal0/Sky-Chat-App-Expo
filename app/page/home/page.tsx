@@ -39,19 +39,26 @@ export default function HomeScreen({ navigation }: any) {
             }
         }).filter(item => item !== undefined).length
     }
-    const array = [...usePrivateChat.List]
+    const sortedListArray = [...usePrivateChat.List].sort((a, b) => {
+        // @ts-ignore
+        const A = a.messages?.length > 0 && a.messages[a.messages.length - 1]?.createdAt
+        // @ts-ignore
+        const B = b.messages?.length > 0 && b.messages[b.messages.length - 1]?.createdAt
+
+        return new Date(B).getTime() - new Date(A).getTime()
+    })
 
     return (
         <SafeAreaView style={{
             flex: 1,
             paddingHorizontal: 2,
         }}>
-            {!usePrivateChat.List ? <LoadingUserCard theme={useTheme} />
+            {!usePrivateChat.List && usePrivateChat.loading ? <LoadingUserCard theme={useTheme} />
                 :
                 <>
-                    {usePrivateChat.List.length <= 0 && !usePrivateChat.loading ? <NoItem them={useTheme} /> :
+                    {sortedListArray.length <= 0 && !usePrivateChat.loading ? <NoItem them={useTheme} /> :
                         <FlatList
-                            data={array.sort((a, b) => new Date(b.updatedAt as string).getTime() - new Date(a.updatedAt as string).getTime())}
+                            data={sortedListArray}
                             renderItem={({ item }) => {
                                 const userId = item.users?.filter((userId) => userId !== useProfile.user?._id)[0]
                                 // console.log("user", item)
