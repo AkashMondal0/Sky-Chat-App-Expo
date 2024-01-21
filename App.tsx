@@ -26,6 +26,8 @@ function Routes() {
   const options = {
     headerTintColor: useTheme.iconColor,
     headerTitleAlign: 'center',
+    animation: "slide_from_right",
+    animationDuration: 500,
     headerStyle: {
       backgroundColor: backgroundColor,
     },
@@ -43,6 +45,8 @@ function Routes() {
 
   const Option2 = {
     headerShown: false,
+    animation: "slide_from_right",
+    animationDuration: 500,
     contentStyle: {
       backgroundColor: backgroundColor,
       elevation: 0,

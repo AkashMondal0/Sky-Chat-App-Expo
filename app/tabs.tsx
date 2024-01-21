@@ -50,7 +50,7 @@ const Tabs = ({ navigation }: any) => {
                         height: 70,
                         elevation: 0,
                         borderTopWidth: 0,
-                        backgroundColor: useTheme.primaryBackground,
+                        // backgroundColor: useTheme.primaryBackground,
                     },
                     tabBarIcon: ({ focused }) => {
                         let iconSize;
@@ -88,7 +88,7 @@ const Tabs = ({ navigation }: any) => {
                                     width: "100%",
                                     height: "100%",
                                 },
-                                AnimatedState.themeAnimatedStyles
+                                AnimatedState.themeTabBarAnimatedStyles
                             ]}>
                             </Animated.View>
                         )

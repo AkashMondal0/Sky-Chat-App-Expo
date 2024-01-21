@@ -41,8 +41,7 @@ const Avatar: FC<AvatarProps> = ({
                 ...style,
                 borderWidth: border ? 1 : 0,
                 borderColor: useThem?.borderColor,
-                backgroundColor: useThem?.primaryBackground,
-            }
+            }, AnimatedState?.themeTabBarAnimatedStyles
         ]}>
             <Text style={{
                 fontSize: size / 2,

@@ -15,13 +15,17 @@ export interface Theme_Toggle_State {
   Theme: Theme
   currentTheme: CurrentTheme
   StatusBar: "dark-content" | "light-content"
+  darkMode: CurrentTheme
+  lightMode: CurrentTheme
 }
 
 
 const initialState: Theme_Toggle_State = {
   Theme: "system",
   StatusBar: "dark-content",
-  currentTheme: LightTheme
+  currentTheme: LightTheme,
+  darkMode: DarkTheme,
+  lightMode: LightTheme,
 }
 
 export const Theme_Toggle_Slice = createSlice({
