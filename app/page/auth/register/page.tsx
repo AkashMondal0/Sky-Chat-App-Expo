@@ -64,7 +64,7 @@ const RegisterScreen = ({ navigation }: any) => {
                     color: useTheme.textColor,
                     textAlign: 'center',
                 }}>
-                    Welcome Back!
+                    Create an account
                 </Text>
                 <Text style={{
                     fontSize: 15,
@@ -91,6 +91,7 @@ const RegisterScreen = ({ navigation }: any) => {
                     keyboardType="default"
                     returnKeyType="next"
                     control={control}
+                    height={50}
                     name='username' />
                 <Padding size={10} />
 
@@ -99,6 +100,7 @@ const RegisterScreen = ({ navigation }: any) => {
                     textContentType='emailAddress'
                     keyboardType="email-address"
                     returnKeyType="next"
+                    height={50}
                     control={control} name='email' />
                 <Padding size={10} />
 
@@ -106,6 +108,7 @@ const RegisterScreen = ({ navigation }: any) => {
                     placeholder='Password'
                     textContentType='password'
                     returnKeyType="done"
+                    height={50}
                     passwordHide={showPassword}
                     rightIcon={showPassword ? <TouchableOpacity onPress={() => setShowPassword(false)}>
                         <Eye color={useTheme.LinkButtonColor} />
@@ -125,7 +128,7 @@ const RegisterScreen = ({ navigation }: any) => {
                     fontWeight={'bold'}
                     loading={loading}
                     disabled={loading}
-                    title={'Log In'} />
+                    title={'Register'} />
             </View>
         </SafeAreaView>
     );

@@ -91,6 +91,7 @@ const LoginScreen = ({ navigation }: any) => {
                     textContentType='emailAddress'
                     keyboardType="email-address"
                     returnKeyType="next"
+                    height={50}
                     control={control} name='email' />
                 <Padding size={10} />
 
@@ -98,6 +99,7 @@ const LoginScreen = ({ navigation }: any) => {
                     placeholder='Password'
                     textContentType='password'
                     returnKeyType="done"
+                    height={50}
                     passwordHide={state.showPassword}
                     rightIcon={state.showPassword ? <TouchableOpacity onPress={() => setStats({ ...state, showPassword: false })}>
                         <Eye color={useTheme.LinkButtonColor} />

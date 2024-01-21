@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Button, FlatList, SafeAreaView, ToastAndroid } from 'react-native'
 import PrivateChatCard from './components/card';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,6 +9,10 @@ import { RootState } from '../../../redux/store';
 import { fetchUsers } from '../../../redux/apis/user';
 import { PrivateMessage } from '../../../types/private-chat';
 import FloatingButton from '../../../components/shared/Floating';
+import SearchList from './components/SearchList';
+import Header from '../../../components/shared/Header';
+import { useForm } from 'react-hook-form';
+import { debounce } from 'lodash';
 
 
 export default function HomeScreen({ navigation }: any) {
@@ -20,7 +24,14 @@ export default function HomeScreen({ navigation }: any) {
     const useUsers = useSelector((state: RootState) => state.users.connectedUser)
     const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
 
+    // search form
+    const { control, watch, formState: { errors }, reset } = useForm({
+        defaultValues: {
+            search: '',
+        }
+    });
 
+    // get users id
     let usersIds = usePrivateChat.List?.map((item) => item.users?.filter((userId) => userId !== useProfile?.user?._id)[0]) || []
 
     useEffect(() => {
@@ -32,6 +43,7 @@ export default function HomeScreen({ navigation }: any) {
         }
     }, [usePrivateChat.List])
 
+    // count unseen messages
     const seenCount = (messages?: PrivateMessage[]) => {
         return messages?.map(item => {
             if (!item.seenBy.includes(useProfile?.user?._id as string)) {
@@ -39,6 +51,8 @@ export default function HomeScreen({ navigation }: any) {
             }
         }).filter(item => item !== undefined).length
     }
+
+    // chat list sorted by last message
     const sortedListArray = [...usePrivateChat.List].sort((a, b) => {
         // @ts-ignore
         const A = a.messages?.length > 0 && a.messages[a.messages.length - 1]?.createdAt
@@ -46,13 +60,23 @@ export default function HomeScreen({ navigation }: any) {
         const B = b.messages?.length > 0 && b.messages[b.messages.length - 1]?.createdAt
 
         return new Date(B).getTime() - new Date(A).getTime()
+    }).filter((item) => {
+        const userId = item.users?.filter((userId) => userId !== useProfile.user?._id)[0]
+        const user = useUsers.find((user) => user._id === userId)
+        if (user) {
+            return user.username?.toLowerCase().includes(watch('search').toLowerCase())
+        }
     })
+
 
     return (
         <SafeAreaView style={{
             flex: 1,
-            paddingHorizontal: 2,
         }}>
+            <SearchList theme={useTheme}
+                reset={reset}
+                inputHandleControl={control} />
+            <Header theme={useTheme} navigation={navigation}/>
             {!usePrivateChat.List && usePrivateChat.loading ? <LoadingUserCard theme={useTheme} />
                 :
                 <>

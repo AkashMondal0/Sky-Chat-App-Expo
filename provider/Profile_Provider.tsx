@@ -23,18 +23,14 @@ SplashScreen.preventAutoHideAsync();
 
 interface ProfileContextType {
     fetchUserData?: () => void
+    ThemeState?: Theme_Toggle_State
+    changeThemeMode?: () => void
 }
 
 const ProfileContext = createContext<ProfileContextType>({});
 export { ProfileContext };
 
-const themeSaveLocal = async (theme: Theme) => {
-    try {
-        await AsyncStorage.setItem('my-theme', theme)
-    } catch (err) {
-        console.log("Error in saving theme from redux async storage", err)
-    }
-}
+
 interface Profile_ProviderProps {
     children: React.ReactNode
 }
@@ -66,18 +62,29 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
 
 
 
-    const Current_theme = async () => {
+    const changeThemeMode = useCallback(async (value?:Theme) => {
         try {
-            const value = await AsyncStorage.getItem('my-theme')
-            if (value) {
-                dispatch(changeTheme(value as Theme))
+            switch (value) {
+                case "light":
+                    dispatch(changeTheme("light"))
+                    break;
+                case "dark":
+                    dispatch(changeTheme("dark"))
+                    break;
+                case "system":
+                    dispatch(changeTheme("system"))
+                    break;
+                default:
+                    dispatch(changeTheme("system"))
+                    break;
             }
         } catch (err) {
             console.log("Error in getting theme from redux async storage", err)
         }
-    }
+    }, [])
+
     useEffect(() => {
-        Current_theme().then(() => {
+        changeThemeMode().then(() => {
             fetchUserData()
         })
         // const unsubscribe = NetInfo.addEventListener(state => {
@@ -88,7 +95,6 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
         Appearance.addChangeListener(({ colorScheme }) => {
             if (ThemeState.Theme === "system") {
                 dispatch(changeTheme(colorScheme as Theme))
-                themeSaveLocal(colorScheme as Theme)
             }
         })
         socket.on("update_Chat_List_Receiver", async () => {
@@ -125,6 +131,8 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
     return (
         <ProfileContext.Provider value={{
             fetchUserData,
+            ThemeState,
+            changeThemeMode
         }}>
             <MyStatusBar translucent />
 
