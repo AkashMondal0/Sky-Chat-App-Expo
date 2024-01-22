@@ -83,7 +83,7 @@ const RegisterScreen = ({ navigation }: any) => {
                     fontWeight: 'bold',
                     margin: 10,
                 }}>
-                    {error?.message}
+                    {error}
                 </Text>
                 <MyInput theme={useTheme}
                     placeholder='Username'

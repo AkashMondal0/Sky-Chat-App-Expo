@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect } from 'react';
+import React, { FC, useEffect, useMemo, PureComponent, useContext } from 'react';
 import { FlatList, ScrollView, Text, ToastAndroid, View } from 'react-native';
 import ChatCard from './MessageCard';
 import { useDispatch } from 'react-redux';
@@ -7,11 +7,10 @@ import { PrivateChat, PrivateMessage, PrivateMessageSeen } from '../../../../typ
 import { User } from '../../../../types/profile';
 import { addMoreMessagesToPrivateChatList, sendMessageSeenPrivate } from '../../../../redux/slice/private-chat';
 import { dateFormat } from '../../../../utils/timeFormat';
-import { debounce } from 'lodash';
 import axios from 'axios';
 import { localhost } from '../../../../keys';
-import Padding from '../../../../components/shared/Padding';
-import { Dimensions } from 'react-native';
+import MyButton from '../../../../components/shared/Button';
+import { ProfileContext } from '../../../../provider/Profile_Provider';
 interface BodyChatProps {
     theme: CurrentTheme
     messages: PrivateMessage[]
@@ -31,9 +30,9 @@ const BodyChat: FC<BodyChatProps> = ({
     const scrollViewRef = React.useRef<ScrollView | any>(null);
     const [page, setPage] = React.useState(2);
     const [loading, setLoading] = React.useState(false);
-    const [unLoading, setUnLoading] = React.useState(false);
-    const [stopMoreData, setStopMoreData] = React.useState(true);
+    const [stopMoreData, setStopMoreData] = React.useState(false);
     const dispatch = useDispatch()
+    const profileState = useContext(ProfileContext)
 
     const scrollToBottom = () => {
         scrollViewRef.current?.scrollToEnd({ animated: false });
@@ -62,25 +61,22 @@ const BodyChat: FC<BodyChatProps> = ({
         dispatch(sendMessageSeenPrivate({ seen }) as any)
     }
 
-    const getMoreData = () => {
+    const getMoreData = async () => {
         setLoading(true)
-        setUnLoading(false)
         // increment height of view
         axios.get(`${localhost}/private/chat/list/messages/${conversationId}?page=${page}&size=${20}`)
             .then((res) => {
                 if (res.data) {
                     dispatch(addMoreMessagesToPrivateChatList(res.data))
                     setPage(page + 1)
-                    scrollViewRef?.current?.scrollTo({ y: 1000, animated: false })
                     return res.data
                 }
             })
             .catch((err) => {
-                setStopMoreData(false)
+                setStopMoreData(true)
                 ToastAndroid.show('No more messages', ToastAndroid.SHORT)
             }).finally(() => {
                 setLoading(false)
-                setUnLoading(true)
             })
     }
 
@@ -92,33 +88,69 @@ const BodyChat: FC<BodyChatProps> = ({
             }
             scrollToBottom()
         }
-    }, [messages])
+    }, [])
 
     const handleScroll = ({ nativeEvent }: any) => {
-        
-        if (nativeEvent.contentOffset.y === 0 && stopMoreData) {
+        if (nativeEvent.contentOffset.y === 0) {
             getMoreData()
         }
     };
-    return (
-        <ScrollView
-        onContentSizeChange={()=>{
-            if (!loading&&!unLoading) {
-                scrollToBottom()
-            }
-        }}
-            scrollEventThrottle={400}
-            onScroll={handleScroll}
-            ref={scrollViewRef}>
-            {loading && <Text style={{ textAlign: 'center', color: theme.subTextColor }}>Loading...</Text>}
-            {messages?.filter((value, index, dateArr) => index === dateArr
-                .findIndex((time) => (dateFormat(time.createdAt) === dateFormat(value.createdAt))))
-                .sort((a, b) => {
-                    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-                })
-                .map((item, i) => {
 
-                    return <View key={i}>
+    const sortedDates = messages?.filter((value, index, dateArr) => index === dateArr
+        .findIndex((time) => (dateFormat(time.createdAt) === dateFormat(value.createdAt))))
+        .sort((a, b) => {
+            return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        })
+
+    const RenderMessageItem = useMemo(() => {
+        return (item: PrivateMessage) => {
+            return (
+                <ChatCard
+                    sender={item.memberId === profile?._id}
+                    seen={item.seenBy.length >= 2 && item.seenBy.includes(profile?._id as string)}
+                    theme={theme}
+                    data={item}
+                    content={item.content}
+                />
+            );
+        };
+    }, [sortedDates]);
+
+    return (
+        <>
+            <FlatList
+                ListHeaderComponent={() => {
+                    return <View style={{
+                        paddingVertical: 15,
+                        width: "100%",
+                        alignItems: 'center',
+                    }}>
+                        {messages.length >= 0 && stopMoreData ? <></> : <>
+                            {loading ? <Text style={{ textAlign: 'center', color: theme.textColor }}>Loading...</Text>
+                                : <MyButton onPress={getMoreData}
+                                    theme={theme} title='More' variant="info" width={100} radius={20} />}
+                        </>}
+                    </View>
+                }}
+                onContentSizeChange={() => {
+                    if (!loading) {
+                        scrollToBottom()
+                    }
+                }}
+
+                // optimization
+                removeClippedSubviews={true}
+                initialNumToRender={10}
+                maxToRenderPerBatch={10}
+                windowSize={10}
+                refreshing={loading}
+                //
+                // onScroll={handleScroll}
+                scrollEventThrottle={400}
+                ref={scrollViewRef}
+                data={sortedDates}
+                renderItem={({ item }) => {
+                    return <View>
                         <>
                             <Text style={{
                                 textAlign: 'center',
@@ -127,38 +159,27 @@ const BodyChat: FC<BodyChatProps> = ({
                                 borderRadius: 10,
                                 padding: 5,
                                 marginVertical: 5,
-                                // width: '50%',
                                 alignSelf: 'center'
                             }}>{dateFormat(item.createdAt)}</Text>
                         </>
-                        {messages.filter((value) => dateFormat(value.createdAt) === dateFormat(item.createdAt))
-                            .sort((a, b) => {
-                                return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-                            })
-                            .map((message, i) => {
-                                // console.log(message)
-                                return <ChatCard
-                                    key={i}
-                                    sender={message.memberId === profile?._id}
-                                    seen={message.seenBy.length >= 2 && message.seenBy.includes(profile?._id as string)}
-                                    theme={theme}
-                                    data={message}
-                                    content={message.content} />
-                            })}
+                        <FlatList
+                            // optimization
+                            removeClippedSubviews={true}
+                            initialNumToRender={10}
+                            maxToRenderPerBatch={10}
+                            windowSize={10}
+                            //
+                            data={messages.filter((value) => dateFormat(value.createdAt) === dateFormat(item.createdAt))
+                                .sort((a, b) => {
+                                    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                                })}
+                            renderItem={({ item }) => <RenderMessageItem {...item} />}
+                            keyExtractor={(item, index) => index.toString()} />
                     </View>
-
-                })}
-            {/* <FlatList
-                ref={ref}
-                data={}
-                renderItem={({ item }) => {
-                    return 
-                   
-                }}
-                keyExtractor={item => item._id}
-            /> */}
-            {/* <Padding size={600}/> */}
-        </ScrollView>
+                }
+                }
+                keyExtractor={(item, index) => index.toString()} />
+        </>
     );
 };
 
