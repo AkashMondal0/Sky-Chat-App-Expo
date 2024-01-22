@@ -1,12 +1,11 @@
 import React, { useContext } from 'react'
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Animated } from 'react-native';
 import { useSelector } from 'react-redux';
 import { CircleDashed, Pencil } from 'lucide-react-native';
 import { RootState } from '../../../redux/store';
 import Padding from '../../../components/shared/Padding';
 import Avatar from '../../../components/shared/Avatar';
 import MyButton from '../../../components/shared/Button';
-import Animated from 'react-native-reanimated';
 import { AnimatedContext } from '../../../provider/Animated_Provider';
 
 export default function ProfileScreen() {
@@ -29,9 +28,9 @@ export default function ProfileScreen() {
     })
 
     return (
-        <Animated.ScrollView style={[
-            AnimatedState.themeAnimatedStyles
-        ]}>
+        <Animated.ScrollView style={{
+            backgroundColor:AnimatedState.backgroundColor
+        }}>
             <Padding size={10} />
             <View style={{
                 justifyContent: 'center',

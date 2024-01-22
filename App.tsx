@@ -27,7 +27,7 @@ function Routes() {
     headerTintColor: useTheme.iconColor,
     headerTitleAlign: 'center',
     animation: "slide_from_right",
-    animationDuration: 500,
+    animationDuration: 300,
     headerStyle: {
       backgroundColor: backgroundColor,
     },
@@ -46,7 +46,7 @@ function Routes() {
   const Option2 = {
     headerShown: false,
     animation: "slide_from_right",
-    animationDuration: 500,
+    animationDuration: 300,
     contentStyle: {
       backgroundColor: backgroundColor,
       elevation: 0,

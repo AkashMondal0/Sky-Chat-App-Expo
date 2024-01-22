@@ -1,8 +1,7 @@
 import React from 'react';
 import { FC } from 'react';
-import { Image, Text, View } from 'react-native';
+import { Animated, Image, Text, View } from 'react-native';
 import { CurrentTheme } from '../../types/theme';
-import Animated from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 
@@ -32,17 +31,17 @@ const Avatar: FC<AvatarProps> = ({
     const useThem = useSelector((state: RootState) => state.ThemeMode.currentTheme)
 
     if (!url) {
-        return <Animated.View style={[
-            {
-                width: size, height: size,
-                borderRadius: 100,
-                justifyContent: 'center',
-                alignItems: 'center',
-                ...style,
-                borderWidth: border ? 1 : 0,
-                borderColor: useThem?.borderColor,
-            }, AnimatedState?.themeTabBarAnimatedStyles
-        ]}>
+        return <Animated.View style={{
+            width: size,
+            height: size,
+            borderRadius: 100,
+            justifyContent: 'center',
+            alignItems: 'center',
+            ...style,
+            borderWidth: border ? 1 : 0,
+            borderColor: useThem?.borderColor,
+            backgroundColor: AnimatedState.primaryBackgroundColor
+        }}>
             <Text style={{
                 fontSize: size / 2,
                 color: useThem.textColor,

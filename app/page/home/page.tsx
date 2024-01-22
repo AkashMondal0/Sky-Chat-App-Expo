@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect } from 'react'
-import { Button, FlatList, SafeAreaView, ToastAndroid, View } from 'react-native'
+import { Animated, Button, FlatList, SafeAreaView, ToastAndroid, View } from 'react-native'
 import PrivateChatCard from './components/card';
 import { useDispatch, useSelector } from 'react-redux';
 import { UserPlus } from 'lucide-react-native';
@@ -14,7 +14,7 @@ import Header from '../../../components/shared/Header';
 import { useForm } from 'react-hook-form';
 import { debounce } from 'lodash';
 import { AnimatedContext } from '../../../provider/Animated_Provider';
-import Animated from 'react-native-reanimated';
+// import Animated from 'react-native-reanimated';
 
 
 export default function HomeScreen({ navigation }: any) {
@@ -72,8 +72,10 @@ export default function HomeScreen({ navigation }: any) {
 
 
     return (
-        <Animated.View style={[{ flex: 1 },
-        AnimatedState.themeAnimatedStyles]}>
+        <Animated.View style={{
+            flex: 1,
+            backgroundColor: AnimatedState.backgroundColor
+        }}>
             <SearchList theme={useTheme}
                 reset={reset}
                 inputHandleControl={control} />

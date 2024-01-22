@@ -1,17 +1,15 @@
-import { StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Animated, StatusBar } from 'react-native'
 import React, { useContext } from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
-import { CircleDashed, CircleUserRound, MessageSquareText, Phone, Settings2, Users } from "lucide-react-native"
+import { CircleDashed, CircleUserRound, MessageSquareText, Phone } from "lucide-react-native"
 import StatusScreen from './page/status';
 import CallsScreen from './page/calls';
 import ProfileScreen from './page/profile/page';
 import HomeScreen from './page/home/page';
 import { PrivateMessage } from '../types/private-chat';
 import { AnimatedContext } from '../provider/Animated_Provider';
-import SearchList from './page/home/components/SearchList';
-import Animated from 'react-native-reanimated';
 
 const Tab = createBottomTabNavigator();
 
@@ -34,12 +32,11 @@ const Tabs = ({ navigation }: any) => {
 
 
     return (
-        <Animated.View style={[
-            {
-                paddingTop: StatusBar.currentHeight,
-                flex: 1
-            }, AnimatedState.themeAnimatedStyles
-        ]}>
+        <Animated.View style={{
+            paddingTop: StatusBar.currentHeight,
+            flex: 1,
+            backgroundColor:AnimatedState.backgroundColor
+        }}>
             <Tab.Navigator
                 sceneContainerStyle={{
                 }}
@@ -50,7 +47,6 @@ const Tabs = ({ navigation }: any) => {
                         height: 70,
                         elevation: 0,
                         borderTopWidth: 0,
-                        // backgroundColor: useTheme.primaryBackground,
                     },
                     tabBarIcon: ({ focused }) => {
                         let iconSize;
@@ -82,14 +78,12 @@ const Tabs = ({ navigation }: any) => {
                     // notification badge
                     tabBarBackground() {
                         return (
-                            <Animated.View style={[
-                                {
-                                    flex: 1,
-                                    width: "100%",
-                                    height: "100%",
-                                },
-                                AnimatedState.themeTabBarAnimatedStyles
-                            ]}>
+                            <Animated.View style={{
+                                flex: 1,
+                                width: "100%",
+                                height: "100%",
+                                backgroundColor:AnimatedState.primaryBackgroundColor
+                            }}>
                             </Animated.View>
                         )
                     },

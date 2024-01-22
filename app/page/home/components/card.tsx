@@ -1,5 +1,5 @@
 import { FC, useContext } from 'react';
-import { View, TouchableOpacity, Text, Pressable } from 'react-native';
+import { View, TouchableOpacity, Text, Pressable, Animated } from 'react-native';
 import React from 'react';
 import { truncate } from 'lodash';
 import { CurrentTheme } from '../../../../types/theme';
@@ -10,7 +10,6 @@ import { PrivateMessage } from '../../../../types/private-chat';
 import { User } from '../../../../types/profile';
 import Padding from '../../../../components/shared/Padding';
 import { AnimatedContext } from '../../../../provider/Animated_Provider';
-import Animated from 'react-native-reanimated';
 
 interface PrivateChatCardProps {
     title: string;
@@ -41,13 +40,11 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
 
 
     return (
-        <Animated.View style={[
-            {
-                borderRadius: 20,
-                overflow: 'hidden',
-            },
-            AnimatedState.themeAnimatedStyles,
-        ]}>
+        <Animated.View style={{
+            borderRadius: 20,
+            overflow: 'hidden',
+            backgroundColor: AnimatedState.BackgroundColor,
+        }}>
             <Pressable
                 style={{
                     flexDirection: 'row',
@@ -65,7 +62,7 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
                 onPress={onPress}>
                 <>
                     <Avatar
-                    AnimatedState={AnimatedState}
+                        AnimatedState={AnimatedState}
                         size={55}
                         style={{
                             marginHorizontal: 5,
@@ -83,7 +80,7 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
                             fontSize: 18,
                             fontWeight: '600',
                             color: them.textColor,
-                        }}>{truncate(title,{separator:"...",length:15})}</Text>
+                        }}>{truncate(title, { separator: "...", length: 15 })}</Text>
                         <Text
                             style={{
                                 fontSize: 16,
@@ -91,7 +88,7 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
                                 color: isTyping ? them.primary : them.subTextColor,
                             }}
                         >{
-                                isTyping ? "typing..." : truncate(lastMessage,{
+                                isTyping ? "typing..." : truncate(lastMessage, {
                                     length: 15,
                                     separator: '...',
                                 })
@@ -108,22 +105,22 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
                             fontWeight: '400',
                             color: them.subTextColor,
                         }}>{timeFormat(date)}</Text>
-                        {indicator > 0 ? 
-                        <View style={{
-                            width: 25,
-                            height: 25,
-                            borderRadius: 100,
-                            backgroundColor: them.primary,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}>
-                            <Text style={{
-                                fontSize: 14,
-                                fontWeight: 'bold',
-                                color: them.color,
-                            }}>{indicator}</Text>
-                        </View>
-                        : <Padding size={25}/>}
+                        {indicator > 0 ?
+                            <View style={{
+                                width: 25,
+                                height: 25,
+                                borderRadius: 100,
+                                backgroundColor: them.primary,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}>
+                                <Text style={{
+                                    fontSize: 14,
+                                    fontWeight: 'bold',
+                                    color: them.color,
+                                }}>{indicator}</Text>
+                            </View>
+                            : <Padding size={25} />}
                     </View>
                 </>
             </Pressable>
