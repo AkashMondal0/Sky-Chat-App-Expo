@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useMemo, PureComponent, useContext } from 'react';
-import { FlatList, ScrollView, Text, ToastAndroid, View } from 'react-native';
+import { ActivityIndicator, FlatList, ScrollView, Text, ToastAndroid, View } from 'react-native';
 import ChatCard from './MessageCard';
 import { useDispatch } from 'react-redux';
 import { CurrentTheme } from '../../../../types/theme';
@@ -83,18 +83,13 @@ const BodyChat: FC<BodyChatProps> = ({
     useEffect(() => {
         //debounce
         if (!loading) {
-            if (messages.length > 0 && messages[messages.length - 1].memberId !== profile?._id) {
+            if (messages.length > 0) {
                 messageSeen()
             }
             scrollToBottom()
         }
-    }, [])
+    }, [messages])
 
-    const handleScroll = ({ nativeEvent }: any) => {
-        if (nativeEvent.contentOffset.y === 0) {
-            getMoreData()
-        }
-    };
 
     const sortedDates = messages?.filter((value, index, dateArr) => index === dateArr
         .findIndex((time) => (dateFormat(time.createdAt) === dateFormat(value.createdAt))))
@@ -126,7 +121,7 @@ const BodyChat: FC<BodyChatProps> = ({
                         alignItems: 'center',
                     }}>
                         {messages.length >= 0 && stopMoreData ? <></> : <>
-                            {loading ? <Text style={{ textAlign: 'center', color: theme.textColor }}>Loading...</Text>
+                            {loading ?  <ActivityIndicator size="large" color={theme.primary} />
                                 : <MyButton onPress={getMoreData}
                                     theme={theme} title='More' variant="info" width={100} radius={20} />}
                         </>}
@@ -175,10 +170,8 @@ const BodyChat: FC<BodyChatProps> = ({
                                 })}
                             renderItem={({ item }) => <RenderMessageItem {...item} />}
                             keyExtractor={(item, index) => index.toString()} />
-                    </View>
-                }
-                }
-                keyExtractor={(item, index) => index.toString()} />
+                    </View>}}
+                    keyExtractor={(item, index) => index.toString()} />
         </>
     );
 };

@@ -14,6 +14,7 @@ import socket from '../utils/socket-connect';
 import { PrivateMessage, PrivateMessageSeen } from '../types/private-chat';
 import { Login, Logout } from '../redux/slice/auth';
 import NetInfo from '@react-native-community/netinfo'
+import { ToastAndroid } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -61,10 +62,8 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
         //     console.log('Is connected?', state.isConnected);
         // });
         socket.on("update_Chat_List_Receiver", async () => {
-            const token = await AsyncStorage.getItem("token")
-            if (token) {
-                dispatch(getProfileChatList(token) as any)
-            }
+            fetchUserData()
+            // ToastAndroid.show("New Message", ToastAndroid.SHORT)
         })
 
         socket.on("message_receiver", (data: PrivateMessage) => {

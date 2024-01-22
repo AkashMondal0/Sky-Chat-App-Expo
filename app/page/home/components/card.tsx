@@ -80,7 +80,7 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
                             fontSize: 18,
                             fontWeight: '600',
                             color: them.textColor,
-                        }}>{truncate(title, { separator: "...", length: 15 })}</Text>
+                        }}>{truncate(title, { separator: "...", length: 14 })}</Text>
                         <Text
                             style={{
                                 fontSize: 16,
