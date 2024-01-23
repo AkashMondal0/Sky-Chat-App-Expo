@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from 'react'
+import React, { memo, useCallback, useContext, useEffect, useMemo } from 'react'
 import { Animated, Button, FlatList, SafeAreaView, ToastAndroid, View } from 'react-native'
 import PrivateChatCard from './components/card';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,7 +17,7 @@ import { AnimatedContext } from '../../../provider/Animated_Provider';
 // import Animated from 'react-native-reanimated';
 
 
-export default function HomeScreen({ navigation }: any) {
+const HomeScreen = ({ navigation }: any) => {
     const dispatch = useDispatch()
     const [update, setUpdate] = React.useState(0)
     const useAuth = useSelector((state: RootState) => state.authState)
@@ -34,7 +34,7 @@ export default function HomeScreen({ navigation }: any) {
     });
 
     // get users id
-    let usersIds = usePrivateChat.List?.map((item) => item.users?.filter((userId) => userId !== useProfile?.user?._id)[0]) || []
+    let usersIds = useMemo(() => usePrivateChat.List?.map((item) => item.users?.filter((userId) => userId !== useProfile?.user?._id)[0]) || [], [usePrivateChat.List])
 
     useEffect(() => {
         if (useAuth.token && usePrivateChat.List.length !== update) {
@@ -46,29 +46,31 @@ export default function HomeScreen({ navigation }: any) {
     }, [usePrivateChat.List])
 
     // count unseen messages
-    const seenCount = (messages?: PrivateMessage[]) => {
+    const seenCount = useCallback((messages?: PrivateMessage[]) => {
         return messages?.map(item => {
             if (!item.seenBy.includes(useProfile?.user?._id as string)) {
                 return item._id
             }
         }).filter(item => item !== undefined).length
-    }
+    }, [useProfile?.user?._id])
 
     // chat list sorted by last message
-    const sortedListArray = [...usePrivateChat.List].sort((a, b) => {
-        // @ts-ignore
-        const A = a.messages?.length > 0 && a.messages[a.messages.length - 1]?.createdAt
-        // @ts-ignore
-        const B = b.messages?.length > 0 && b.messages[b.messages.length - 1]?.createdAt
-
-        return new Date(B).getTime() - new Date(A).getTime()
-    }).filter((item) => {
-        const userId = item.users?.filter((userId) => userId !== useProfile.user?._id)[0]
-        const user = useUsers.find((user) => user._id === userId)
-        if (user) {
-            return user.username?.toLowerCase().includes(watch('search').toLowerCase())
-        }
-    })
+    const sortedListArray = useMemo(()=>{
+        return ([...usePrivateChat.List].sort((a, b) => {
+            // @ts-ignore
+            const A = a.messages?.length > 0 && a.messages[a.messages.length - 1]?.createdAt
+            // @ts-ignore
+            const B = b.messages?.length > 0 && b.messages[b.messages.length - 1]?.createdAt
+    
+            return new Date(B).getTime() - new Date(A).getTime()
+        }).filter((item) => {
+            const userId = item.users?.filter((userId) => userId !== useProfile.user?._id)[0]
+            const user = useUsers.find((user) => user._id === userId)
+            if (user) {
+                return user.username?.toLowerCase().includes(watch('search').toLowerCase())
+            }
+        }))
+    },[usePrivateChat.List,useUsers,watch('search')])
 
 
     return (
@@ -120,3 +122,5 @@ export default function HomeScreen({ navigation }: any) {
         </Animated.View>
     )
 }
+
+export default memo(HomeScreen)

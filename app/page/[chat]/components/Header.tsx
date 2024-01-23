@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { ArrowLeft, MoreVertical, Phone, Video } from 'lucide-react-native';
 import React from 'react';
@@ -116,4 +116,4 @@ const HeaderChat: FC<HeaderChatProps> = ({
     );
 };
 
-export default HeaderChat;
+export default memo(HeaderChat);

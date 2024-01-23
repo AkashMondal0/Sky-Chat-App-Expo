@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect } from 'react'
+import React, { useCallback, useContext, useEffect } from 'react'
 import { View, Text, SafeAreaView, StatusBar } from 'react-native';
 import { useSelector } from 'react-redux';
 import { Navigation, Route } from '../../../types';
@@ -23,20 +23,19 @@ interface ChatScreenProps {
             chatDetails: PrivateChat
             newChat: boolean
         }
-    } | any
+    }
 }
 
-const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
+export default function ChatScreen({ navigation, route: { params } }: ChatScreenProps) {
     const useThem = useSelector((state: RootState) => state.ThemeMode.currentTheme)
     const { List } = useSelector((state: RootState) => state.privateChat)
     const profile = useSelector((state: RootState) => state.profile)
     const connectedUser = useSelector((state: RootState) => state.users.connectedUser)
     const AnimatedState = useContext(AnimatedContext)
-    // console.log("params", params)
 
-    let PrivateConversationData = List.find((item) => item._id === params?.chatId) || params.chatDetails
+    let PrivateConversationData = params.newChat ? params.chatDetails : List.find((item) => item._id === params?.chatId)
 
-    let userData = connectedUser.find((user) => user._id === params?.userId) || params.userDetail
+    let userData =  params.newChat ? params.userDetail : connectedUser.find((user) => user._id === params?.userId)
 
 
     const onBlurType = useCallback(() => {
@@ -80,11 +79,9 @@ const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
                     messages={PrivateConversationData?.messages || []}
                     theme={useThem} />
                 <Footer theme={useThem}
-                    navigation={navigation}
                     forNewConnection={params?.newChat}
                     conversation={PrivateConversationData}
                     user={userData}
-                    userId={params?.userId}
                     profile={profile.user} />
             </Wallpaper_Provider>
             {/* <MyActionSheet
@@ -94,4 +91,3 @@ const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
     )
 }
 
-export default memo(ChatScreen)

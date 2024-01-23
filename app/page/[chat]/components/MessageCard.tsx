@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC,memo } from 'react';
 import { Text, View } from 'react-native';
 import { CheckCheck } from 'lucide-react-native';
 import { CurrentTheme } from '../../../../types/theme';
@@ -73,4 +73,4 @@ const MessageCard: FC<MessageCardProps> = ({
     );
 };
 
-export default MessageCard;
+export default memo(MessageCard);

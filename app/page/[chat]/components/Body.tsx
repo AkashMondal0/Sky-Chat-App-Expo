@@ -1,5 +1,5 @@
-import React, { FC, useEffect, useMemo, PureComponent, useContext, useCallback } from 'react';
-import { ActivityIndicator, FlatList, ScrollView, Text, ToastAndroid, View } from 'react-native';
+import React, { FC, useEffect, useMemo, useCallback, memo } from 'react';
+import { ActivityIndicator, FlatList, Text, ToastAndroid, View } from 'react-native';
 import ChatCard from './MessageCard';
 import { useDispatch } from 'react-redux';
 import { CurrentTheme } from '../../../../types/theme';
@@ -10,8 +10,7 @@ import { dateFormat } from '../../../../utils/timeFormat';
 import axios from 'axios';
 import { localhost } from '../../../../keys';
 import MyButton from '../../../../components/shared/Button';
-import { ProfileContext } from '../../../../provider/Profile_Provider';
-import { FlashList } from '@shopify/flash-list';
+
 interface BodyChatProps {
     theme: CurrentTheme
     messages: PrivateMessage[]
@@ -32,7 +31,6 @@ const BodyChat: FC<BodyChatProps> = ({
     const [page, setPage] = React.useState(2);
     const [loading, setLoading] = React.useState(false);
     const [stopMoreData, setStopMoreData] = React.useState(false);
-    const [mounted, setMounted] = React.useState(false);
     const dispatch = useDispatch()
 
     // unread message count
@@ -55,10 +53,8 @@ const BodyChat: FC<BodyChatProps> = ({
 
     const scrollToBottom = useCallback(() => {
         // scroll to last index
-        mounted && setTimeout(() => {
-            scrollViewRef?.current?.scrollToEnd({ animated: true });
-            messageSeen()
-        }, 100);
+        scrollViewRef?.current?.scrollToEnd({ animated: false });
+
     }, [])
 
 
@@ -101,48 +97,53 @@ const BodyChat: FC<BodyChatProps> = ({
         }
     }, [messages])
 
-    useEffect(() => {
-        setMounted(true)
-    }, [])
+    const ItemView = memo(({ item }: { item: PrivateMessage }) => {
+        return (
+            <View>
+                <>
+                    <Text style={{
+                        textAlign: 'center',
+                        color: theme.subTextColor,
+                        backgroundColor: theme.primaryBackground,
+                        borderRadius: 10,
+                        padding: 5,
+                        marginVertical: 5,
+                        alignSelf: 'center'
+                    }}>{dateFormat(item.createdAt)}</Text>
+                </>
+                {messages.filter((value) => dateFormat(value.createdAt) === dateFormat(item.createdAt))
+                    .sort((a, b) => {
+                        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                    }).map((item, index) => {
+                        return <ChatCard
+                            key={item._id}
+                            sender={item.memberId === profile?._id}
+                            seen={item.seenBy.length >= 2 && item.seenBy.includes(profile?._id as string)}
+                            theme={theme}
+                            data={item}
+                            content={item.content}
+                        />
+                    })}
+            </View>
+        );
+    });
+
 
     return (
         <>
-            <FlashList
-                inverted
+            <FlatList
+                initialNumToRender={10}
+                maxToRenderPerBatch={20}
+                windowSize={10}
+                removeClippedSubviews={true}
                 onContentSizeChange={scrollToBottom}
-                keyExtractor={(item, index) => index.toString()}
-                estimatedItemSize={50}
+                keyExtractor={(item, index) => index.toString() as string}
                 scrollEventThrottle={400}
                 ref={scrollViewRef}
                 data={memoSortedDates}
-                renderItem={({ item }) => {
-                    return <View>
-                        <>
-                            <Text style={{
-                                textAlign: 'center',
-                                color: theme.subTextColor,
-                                backgroundColor: theme.primaryBackground,
-                                borderRadius: 10,
-                                padding: 5,
-                                marginVertical: 5,
-                                alignSelf: 'center'
-                            }}>{dateFormat(item.createdAt)}</Text>
-                        </>
-                        {messages.filter((value) => dateFormat(value.createdAt) === dateFormat(item.createdAt))
-                            .sort((a, b) => {
-                                return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-                            }).map((item, index) => {
-                                return <ChatCard
-                                    key={item._id}
-                                    sender={item.memberId === profile?._id}
-                                    seen={item.seenBy.length >= 2 && item.seenBy.includes(profile?._id as string)}
-                                    theme={theme}
-                                    data={item}
-                                    content={item.content}
-                                />
-                            })}
-                    </View>
-                }}
+                renderItem={({ item }) => <ItemView item={item} />}
+
+                // component
                 ListEmptyComponent={() => {
                     return <View style={{
                         flex: 1,
@@ -155,21 +156,21 @@ const BodyChat: FC<BodyChatProps> = ({
                         }}>No messages</Text>
                     </View>
                 }}
-                ListFooterComponent={() => {
+                ListHeaderComponent={() => {
                     return <View style={{
                         paddingVertical: 15,
                         width: "100%",
                         alignItems: 'center',
                     }}>
                         {messages.length >= 0 && stopMoreData ? <></> : <>
-                            {loading ? <ActivityIndicator size="large" color={theme.primary} />
-                                : <MyButton onPress={getMoreData}
-                                    theme={theme} title='More' variant="info" width={100} radius={20} />}
-                        </>}
+                            {loading ?
+                                <ActivityIndicator size="large" color={theme.primary} />
+                                :
+                                <MyButton onPress={getMoreData} theme={theme} title='More' variant="info" width={100} radius={20} />}</>}
                     </View>
                 }} />
         </>
     );
 };
 
-export default BodyChat;
+export default memo(BodyChat);

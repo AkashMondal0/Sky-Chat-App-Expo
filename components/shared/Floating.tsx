@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { FC } from 'react';
 import { Button, Pressable, TouchableOpacity, View } from 'react-native';
 import { CurrentTheme } from '../../types/theme';
@@ -42,4 +42,4 @@ const FloatingButton: FC<FloatingButtonProps> = ({
     );
 };
 
-export default FloatingButton;
+export default memo(FloatingButton);

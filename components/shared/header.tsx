@@ -1,4 +1,4 @@
-import { FC, useCallback, useContext } from 'react';
+import { FC, memo, useCallback, useContext } from 'react';
 import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import React from 'react';
 import { CurrentTheme } from '../../types/theme';
@@ -83,4 +83,4 @@ const Header: FC<HeaderProps> = ({
     );
 };
 
-export default Header;
+export default memo(Header);

@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useRef } from 'react';
+import React, { FC, memo, useCallback, useEffect, useRef } from 'react';
 import { Keyboard, TextInput, View } from 'react-native';
 import { Camera, Paperclip, Send, Smile } from 'lucide-react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -76,13 +76,11 @@ const FooterChat: FC<FooterChatProps> = ({
   }, [])
 
   const sendMessageHandle = useCallback((data: { message: string }) => {
-   
+
     // @ts-ignore
     if (forNewConnection && !List.includes({ _id: newChatId })) {
-      console.log("new with message")
       axios.post(`${localhost}/private/chat/connection`, { users: [profile?._id, user?._id] })
         .then((res) => {
-
           const newMessage2: PrivateMessage = {
             _id: new Date().getTime().toString(),
             content: data.message,
@@ -98,7 +96,6 @@ const FooterChat: FC<FooterChatProps> = ({
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           }
-
           const conversation = {
             _id: res.data._id,
             users: [profile?._id, user?._id] as any,
@@ -108,7 +105,6 @@ const FooterChat: FC<FooterChatProps> = ({
             createdAt: new Date().toISOString(),
             typing: false,
           }
-
           dispatch(addToPrivateChatList(conversation))
           navigation.replace("Chat", {
             chatId: conversation._id,
@@ -122,8 +118,8 @@ const FooterChat: FC<FooterChatProps> = ({
           });
           reset()
         })
-    } 
-    
+    }
+
     else {
       const newMessage: PrivateMessage = {
         _id: new Date().getTime().toString(),
@@ -132,7 +128,7 @@ const FooterChat: FC<FooterChatProps> = ({
         memberDetails: profile as User,
         conversationId: conversation?._id as string,
         senderId: profile?._id as string,
-        receiverId:userId as string,
+        receiverId: userId as string,
         deleted: false,
         seenBy: [
           profile?._id as string,
@@ -140,14 +136,13 @@ const FooterChat: FC<FooterChatProps> = ({
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
-  
+
       if (data.message.trim().length > 0) {
         dispatch(sendMessagePrivate({
           message: newMessage,
         }) as any)
         reset()
       }
-      // console.log("old message")
     }
   }, [])
 
@@ -231,4 +226,4 @@ const FooterChat: FC<FooterChatProps> = ({
   );
 };
 
-export default FooterChat;
+export default memo(FooterChat);

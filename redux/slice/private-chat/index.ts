@@ -90,6 +90,7 @@ export const Private_Chat_Slice = createSlice({
   initialState,
   reducers: {
     addToPrivateChatList: (state, action: PayloadAction<PrivateChat>) => {
+      // console.log(action.payload)
       if (!state.List.find(item => item._id === action.payload._id)) {
         state.List.push(action.payload)
       }
