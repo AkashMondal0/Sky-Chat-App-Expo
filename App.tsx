@@ -59,7 +59,18 @@ function Routes() {
       <Stack.Screen name="login" component={LoginScreen} options={Option2 as any} />
       <Stack.Screen name="register" component={RegisterScreen} options={Option2 as any} />
 
-      <Stack.Screen name="Chat" component={ChatScreen} options={Option2 as any} />
+      <Stack.Screen name="Chat" component={ChatScreen} options={
+        {
+          headerShown: false,
+          animation: "none",
+          animationDuration: 300,
+          contentStyle: {
+            backgroundColor: backgroundColor,
+            elevation: 0,
+            height: "auto"
+          }
+        }
+      } />
 
       <Stack.Screen name="Message" component={NewMessageScreen} options={options as any} />
       <Stack.Screen name="Setting" component={SettingsScreen} options={options as any} />

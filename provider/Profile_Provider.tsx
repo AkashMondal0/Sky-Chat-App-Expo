@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import MyStatusBar from '../components/shared/status-bar';
 import { RootState } from '../redux/store';
 import { fetchProfileData } from '../redux/slice/profile';
-import { addToPrivateChatListMessage,
+import { addToPrivateChatList, addToPrivateChatListMessage,
     addToPrivateChatListMessageSeen, addToPrivateChatListMessageTyping,
     getProfileChatList
 } from '../redux/slice/private-chat';
@@ -61,17 +61,18 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
         //     console.log('Connection type', state.type);
         //     console.log('Is connected?', state.isConnected);
         // });
-        socket.on("update_Chat_List_Receiver", async () => {
-            fetchUserData()
-            // ToastAndroid.show("New Message", ToastAndroid.SHORT)
+        socket.on("update_Chat_List_Receiver", async (data) => {
+            dispatch(addToPrivateChatList(data.chatData) as any)
+            // fetchUserData()
         })
-
+        
         socket.on("message_receiver", (data: PrivateMessage) => {
             // console.log("message_receiver update")
             // if (AppState.currentState === "background") {
-            //     // @ts-ignore
-            //     notificationContext.onDisplayNotification(data)
-            // }
+                //     // @ts-ignore
+                //     notificationContext.onDisplayNotification(data)
+                // }
+                // ToastAndroid.show("New Message", ToastAndroid.SHORT)
             dispatch(addToPrivateChatListMessage(data))
         })
 

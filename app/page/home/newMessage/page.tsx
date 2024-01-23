@@ -16,6 +16,8 @@ import MyInput from '../../../../components/shared/Input';
 import SingleCard from '../../../../components/shared/Single-Card';
 import MultipleCard from '../../../../components/shared/Multiple-card';
 import { ProfileContext } from '../../../../provider/Profile_Provider';
+import { addToPrivateChatList } from '../../../../redux/slice/private-chat';
+import { PrivateChat } from '../../../../types/private-chat';
 
 export default function NewMessageScreen({ navigation }: any) {
     const dispatch = useDispatch();
@@ -53,20 +55,23 @@ export default function NewMessageScreen({ navigation }: any) {
             })
         } else {
             try {
-                axios.post(`${localhost}/private/chat/connection`, { users: [user?._id, receiverData._id] })
-                    .then((res) => {
-                        socket.emit('update_Chat_List_Sender', {
-                            // senderId: user?._id,
-                            receiverId: receiverData._id,
-                        });
-                        ProfileState.fetchUserData?.()
-                        navigation.navigate('Chat', {
-                            chatId: res.data?._id,
-                            userId: receiverData._id,
-                            userDetail: receiverData,
-                            recentChat: res.data
-                        })
-                    })
+
+                const createNewConversation: PrivateChat = {
+                    _id: '',
+                    users: [user?._id, receiverData._id] as any,
+                    lastMessageContent: '',
+                    messages: [],
+                    updatedAt: new Date().toISOString(),
+                    createdAt: new Date().toISOString(),
+                    typing: false,
+                }
+                navigation.navigate('Chat', {
+                    chatId: new Date().toISOString(),
+                    userId: receiverData._id,
+                    userDetail: receiverData,
+                    chatDetails: createNewConversation,
+                    newChat: true
+                })
             } catch (error: any) {
                 ToastAndroid.show(error.response.data, ToastAndroid.SHORT)
             }
