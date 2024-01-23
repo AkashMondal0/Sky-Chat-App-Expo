@@ -1,15 +1,15 @@
 import React, { FC, useEffect, useMemo, useCallback, memo } from 'react';
-import { ActivityIndicator, FlatList, Text, ToastAndroid, View } from 'react-native';
+import { ActivityIndicator, ToastAndroid, View, VirtualizedList } from 'react-native';
 import ChatCard from './MessageCard';
 import { useDispatch } from 'react-redux';
 import { CurrentTheme } from '../../../../types/theme';
 import { PrivateChat, PrivateMessage, PrivateMessageSeen } from '../../../../types/private-chat';
 import { User } from '../../../../types/profile';
 import { addMoreMessagesToPrivateChatList, sendMessageSeenPrivate } from '../../../../redux/slice/private-chat';
-import { dateFormat } from '../../../../utils/timeFormat';
 import axios from 'axios';
 import { localhost } from '../../../../keys';
 import MyButton from '../../../../components/shared/Button';
+import { ArrowDown } from 'lucide-react-native';
 
 interface BodyChatProps {
     theme: CurrentTheme
@@ -30,7 +30,8 @@ const BodyChat: FC<BodyChatProps> = ({
     const scrollViewRef = React.useRef<any>(null);
     const [page, setPage] = React.useState(2);
     const [loading, setLoading] = React.useState(false);
-    const [stopMoreData, setStopMoreData] = React.useState(false);
+    const [userScrollIcon, setUserScrollIcon] = React.useState(false);
+    const [moreDataStop, setMoreDataStop] = React.useState(false);
     const dispatch = useDispatch()
 
     // unread message count
@@ -44,18 +45,13 @@ const BodyChat: FC<BodyChatProps> = ({
 
     // memoized sorted dates
     const memoSortedDates = useMemo(() => {
-        return messages?.filter((value, index, dateArr) => index === dateArr
-            .findIndex((time) => (dateFormat(time.createdAt) === dateFormat(value.createdAt))))
-            .sort((a, b) => {
-                return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-            })
+        return [...messages].reverse()
+        // ?.filter((value, index, dateArr) => index === dateArr
+        //     .findIndex((time) => (dateFormat(time.createdAt) === dateFormat(value.createdAt))))
+        // .sort((a, b) => {
+        //     return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        // })
     }, [messages])
-
-    const scrollToBottom = useCallback(() => {
-        // scroll to last index
-        scrollViewRef?.current?.scrollToEnd({ animated: false });
-
-    }, [])
 
 
     const messageSeen = useCallback(() => {
@@ -80,8 +76,8 @@ const BodyChat: FC<BodyChatProps> = ({
                 }
             })
             .catch((err) => {
-                setStopMoreData(true)
                 ToastAndroid.show('No more messages', ToastAndroid.SHORT)
+                setMoreDataStop(true)
             }).finally(() => {
                 setLoading(false)
             })
@@ -93,82 +89,105 @@ const BodyChat: FC<BodyChatProps> = ({
             if (messages.length > 0) {
                 messageSeen()
             }
-            scrollToBottom()
         }
     }, [messages])
 
     const ItemView = memo(({ item }: { item: PrivateMessage }) => {
         return (
-            <View>
-                <>
-                    <Text style={{
-                        textAlign: 'center',
-                        color: theme.subTextColor,
-                        backgroundColor: theme.primaryBackground,
-                        borderRadius: 10,
-                        padding: 5,
-                        marginVertical: 5,
-                        alignSelf: 'center'
-                    }}>{dateFormat(item.createdAt)}</Text>
-                </>
-                {messages.filter((value) => dateFormat(value.createdAt) === dateFormat(item.createdAt))
-                    .sort((a, b) => {
-                        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-                    }).map((item, index) => {
-                        return <ChatCard
-                            key={item._id}
-                            sender={item.memberId === profile?._id}
-                            seen={item.seenBy.length >= 2 && item.seenBy.includes(profile?._id as string)}
-                            theme={theme}
-                            data={item}
-                            content={item.content}
-                        />
-                    })}
-            </View>
+            <ChatCard
+                key={item._id}
+                sender={item.memberId === profile?._id}
+                seen={item.seenBy.length >= 2 && item.seenBy.includes(profile?._id as string)}
+                theme={theme}
+                data={item}
+                content={item.content}
+            />
+            // <View>
+            //     <>
+            //         <Text style={{
+            //             textAlign: 'center',
+            //             color: theme.subTextColor,
+            //             backgroundColor: theme.primaryBackground,
+            //             borderRadius: 10,
+            //             padding: 5,
+            //             marginVertical: 5,
+            //             alignSelf: 'center'
+            //         }}>{dateFormat(item.createdAt)}</Text>
+            //     </>
+            //     {messages.filter((value) => dateFormat(value.createdAt) === dateFormat(item.createdAt))
+            //         .sort((a, b) => {
+            //             return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            //         }).map((item, index) => {
+            //             return <ChatCard
+            //                 key={item._id}
+            //                 sender={item.memberId === profile?._id}
+            //                 seen={item.seenBy.length >= 2 && item.seenBy.includes(profile?._id as string)}
+            //                 theme={theme}
+            //                 data={item}
+            //                 content={item.content}
+            //             />
+            //         })}
+            // </View>
         );
     });
 
 
+
+
     return (
         <>
-            <FlatList
-                initialNumToRender={10}
-                maxToRenderPerBatch={20}
-                windowSize={10}
+            <VirtualizedList
+                inverted
                 removeClippedSubviews={true}
-                onContentSizeChange={scrollToBottom}
                 keyExtractor={(item, index) => index.toString() as string}
                 scrollEventThrottle={400}
                 ref={scrollViewRef}
                 data={memoSortedDates}
+                initialNumToRender={20}
+                maxToRenderPerBatch={20}
+                windowSize={10}
+                updateCellsBatchingPeriod={100}
+                getItem={(data, index) => data[index]}
+                getItemCount={(data) => data.length}
+                onEndReached={!moreDataStop ? getMoreData : () => { }}
+                // @ts-ignore
                 renderItem={({ item }) => <ItemView item={item} />}
-
-                // component
-                ListEmptyComponent={() => {
-                    return <View style={{
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center'
-                    }}>
-                        <Text style={{
-                            color: theme.subTextColor,
-                            fontSize: 20
-                        }}>No messages</Text>
-                    </View>
+                onScroll={(e) => {
+                    if (e.nativeEvent.contentOffset.y > 200) {
+                        setUserScrollIcon(true)
+                    } else {
+                        setUserScrollIcon(false)
+                    }
                 }}
-                ListHeaderComponent={() => {
+                // ListHeaderComponent={() => {}}
+                ListFooterComponent={() => {
                     return <View style={{
                         paddingVertical: 15,
                         width: "100%",
-                        alignItems: 'center',
+                        alignItems: "center",
+                        justifyContent: "center",
                     }}>
-                        {messages.length >= 0 && stopMoreData ? <></> : <>
-                            {loading ?
-                                <ActivityIndicator size="large" color={theme.primary} />
-                                :
-                                <MyButton onPress={getMoreData} theme={theme} title='More' variant="info" width={100} radius={20} />}</>}
+                        {loading ? <ActivityIndicator size="large" color={theme.primaryTextColor} /> : <></>}
                     </View>
-                }} />
+                }}
+            />
+            <View style={{
+                paddingVertical: 15,
+                width: "100%",
+                position: 'absolute',
+                bottom: 50,
+                right: 10,
+                alignItems: "flex-end",
+                zIndex: 1000,
+                elevation: 1000,
+            }}>
+                {userScrollIcon ?
+                    <MyButton onPress={() => scrollViewRef?.current?.scrollToOffset({ offset: 0, animated: false })} theme={theme}
+                        variant="custom" backgroundColor={theme.cardBackground}
+                        height={50}
+                        icon={<ArrowDown size={30} color={theme.primaryIconColor} />}
+                        width={50} radius={20} /> : <></>}
+            </View>
         </>
     );
 };

@@ -62,7 +62,7 @@ function Routes() {
       <Stack.Screen name="Chat" component={ChatScreen} options={
         {
           headerShown: false,
-          animation: "none",
+          animation: "slide_from_right",
           animationDuration: 300,
           contentStyle: {
             backgroundColor: backgroundColor,

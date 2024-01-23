@@ -81,6 +81,7 @@ const FooterChat: FC<FooterChatProps> = ({
     if (forNewConnection && !List.includes({ _id: newChatId })) {
       axios.post(`${localhost}/private/chat/connection`, { users: [profile?._id, user?._id] })
         .then((res) => {
+          reset()
           const newMessage2: PrivateMessage = {
             _id: new Date().getTime().toString(),
             content: data.message,
@@ -116,7 +117,6 @@ const FooterChat: FC<FooterChatProps> = ({
             senderId: profile?._id,
             chatData: conversation
           });
-          reset()
         })
     }
 
@@ -136,12 +136,11 @@ const FooterChat: FC<FooterChatProps> = ({
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
-
       if (data.message.trim().length > 0) {
+        reset()
         dispatch(sendMessagePrivate({
           message: newMessage,
         }) as any)
-        reset()
       }
     }
   }, [])
