@@ -117,6 +117,7 @@ const FooterChat: FC<FooterChatProps> = ({
             senderId: profile?._id,
             chatData: conversation
           });
+          socket.emit('message_sender', newMessage2)
         })
     }
 
