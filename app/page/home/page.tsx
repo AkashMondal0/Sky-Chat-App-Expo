@@ -55,13 +55,13 @@ const HomeScreen = ({ navigation }: any) => {
     }, [useProfile?.user?._id])
 
     // chat list sorted by last message
-    const sortedListArray = useMemo(()=>{
+    const sortedListArray = useMemo(() => {
         return ([...usePrivateChat.List].sort((a, b) => {
             // @ts-ignore
-            const A = a.messages?.length > 0 && a.messages[a.messages.length - 1]?.createdAt
+            const A = [...a.messages]?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]?.createdAt
             // @ts-ignore
-            const B = b.messages?.length > 0 && b.messages[b.messages.length - 1]?.createdAt
-    
+            const B = [...b.messages]?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]?.createdAt
+
             return new Date(B).getTime() - new Date(A).getTime()
         }).filter((item) => {
             const userId = item.users?.filter((userId) => userId !== useProfile.user?._id)[0]
@@ -70,7 +70,7 @@ const HomeScreen = ({ navigation }: any) => {
                 return user.username?.toLowerCase().includes(watch('search').toLowerCase())
             }
         }))
-    },[usePrivateChat.List,useUsers,watch('search')])
+    }, [usePrivateChat.List, useUsers, watch('search')])
 
 
     return (
