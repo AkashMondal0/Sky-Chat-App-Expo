@@ -10,6 +10,7 @@ import axios from 'axios';
 import { localhost } from '../../../../keys';
 import MyButton from '../../../../components/shared/Button';
 import { ArrowDown } from 'lucide-react-native';
+import _ from 'lodash';
 
 interface BodyChatProps {
     theme: CurrentTheme
@@ -45,12 +46,13 @@ const BodyChat: FC<BodyChatProps> = ({
 
     // memoized sorted dates
     const memoSortedDates = useMemo(() => {
-        return [...messages].reverse()
-        // ?.filter((value, index, dateArr) => index === dateArr
-        //     .findIndex((time) => (dateFormat(time.createdAt) === dateFormat(value.createdAt))))
-        // .sort((a, b) => {
-        //     return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        // })
+        return [...messages]
+            // .reverse()
+            // ?.filter((value, index, dateArr) => index === dateArr
+            //     .findIndex((time) => (dateFormat(time.createdAt) === dateFormat(value.createdAt))))
+            .sort((a, b) => {
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            })
     }, [messages])
 
 
@@ -65,23 +67,38 @@ const BodyChat: FC<BodyChatProps> = ({
     }, [messages])
 
     const getMoreData = async () => {
-        setLoading(true)
-        // increment height of view
-        axios.get(`${localhost}/private/chat/list/messages/${conversationId}?page=${page}&size=${20}`)
-            .then((res) => {
-                if (res.data) {
-                    dispatch(addMoreMessagesToPrivateChatList(res.data))
-                    setPage(page + 1)
-                    return res.data
-                }
-            })
-            .catch((err) => {
-                ToastAndroid.show('No more messages', ToastAndroid.SHORT)
-                setMoreDataStop(true)
-            }).finally(() => {
-                setLoading(false)
-            })
+        if (!moreDataStop && !privateChat?.loadAllMessages && !loading) {
+            setLoading(true)
+            // increment height of view
+            axios.get(`${localhost}/private/chat/list/messages/${conversationId}?page=${page}&size=${20}`)
+                .then((res) => {
+                    if (res.data) {
+                        if (res.data?.length === 0) {
+                            setMoreDataStop(true)
+                            dispatch(addMoreMessagesToPrivateChatList({
+                                messages: [],
+                                conversationId: privateChat?._id as string,
+                                AllMessagesLoaded: true
+                            }))
+                            ToastAndroid.show('No more messages', ToastAndroid.SHORT)
+                        } else {
+                            dispatch(addMoreMessagesToPrivateChatList({
+                                messages: res.data,
+                                conversationId: privateChat?._id as string,
+                                AllMessagesLoaded: false
+                            }))
+                            setPage(page + 1)
+                            return res.data
+                        }
+                    }
+                }).catch((err) => {
+                    console.log(err)
+                }).finally(() => {
+                    setLoading(false)
+                })
+        }
     }
+
 
     useEffect(() => {
         //debounce
@@ -129,9 +146,9 @@ const BodyChat: FC<BodyChatProps> = ({
             //         })}
             // </View>
         );
-    });
+    })
 
-
+    const throttledFunction = _.throttle(() => getMoreData(), 2000);
 
 
     return (
@@ -149,7 +166,7 @@ const BodyChat: FC<BodyChatProps> = ({
                 updateCellsBatchingPeriod={100}
                 getItem={(data, index) => data[index]}
                 getItemCount={(data) => data.length}
-                onEndReached={!moreDataStop ? getMoreData : () => { }}
+                onEndReached={throttledFunction}
                 // @ts-ignore
                 renderItem={({ item }) => <ItemView item={item} />}
                 onScroll={(e) => {
