@@ -27,6 +27,7 @@ export interface PrivateMessage {
         deleted: boolean;
         replyContent: PrivateMessage;
     };
+    typeDate?:Boolean;
 }
 
 export interface PrivateChat {

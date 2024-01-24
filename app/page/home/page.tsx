@@ -10,7 +10,7 @@ import { fetchUsers } from '../../../redux/apis/user';
 import { PrivateMessage } from '../../../types/private-chat';
 import FloatingButton from '../../../components/shared/Floating';
 import SearchList from './components/SearchList';
-import Header from '../../../components/shared/Header';
+import Header from '../../../components/shared/header';
 import { useForm } from 'react-hook-form';
 import { debounce } from 'lodash';
 import { AnimatedContext } from '../../../provider/Animated_Provider';
