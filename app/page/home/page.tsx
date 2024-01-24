@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react'
-import { Button, FlatList, SafeAreaView, ToastAndroid } from 'react-native'
+import React, { memo, useCallback, useContext, useEffect, useMemo } from 'react'
+import { Animated, Button, FlatList, SafeAreaView, ToastAndroid, View } from 'react-native'
 import PrivateChatCard from './components/card';
 import { useDispatch, useSelector } from 'react-redux';
 import { UserPlus } from 'lucide-react-native';
@@ -9,9 +9,15 @@ import { RootState } from '../../../redux/store';
 import { fetchUsers } from '../../../redux/apis/user';
 import { PrivateMessage } from '../../../types/private-chat';
 import FloatingButton from '../../../components/shared/Floating';
+import SearchList from './components/SearchList';
+import Header from '../../../components/shared/Header';
+import { useForm } from 'react-hook-form';
+import { debounce } from 'lodash';
+import { AnimatedContext } from '../../../provider/Animated_Provider';
+// import Animated from 'react-native-reanimated';
 
 
-export default function HomeScreen({ navigation }: any) {
+const HomeScreen = ({ navigation }: any) => {
     const dispatch = useDispatch()
     const [update, setUpdate] = React.useState(0)
     const useAuth = useSelector((state: RootState) => state.authState)
@@ -19,9 +25,16 @@ export default function HomeScreen({ navigation }: any) {
     const usePrivateChat = useSelector((state: RootState) => state.privateChat)
     const useUsers = useSelector((state: RootState) => state.users.connectedUser)
     const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
+    const AnimatedState = useContext(AnimatedContext)
+    // search form
+    const { control, watch, formState: { errors }, reset } = useForm({
+        defaultValues: {
+            search: '',
+        }
+    });
 
-
-    let usersIds = usePrivateChat.List?.map((item) => item.users?.filter((userId) => userId !== useProfile?.user?._id)[0]) || []
+    // get users id
+    let usersIds = useMemo(() => usePrivateChat.List?.map((item) => item.users?.filter((userId) => userId !== useProfile?.user?._id)[0]) || [], [usePrivateChat.List])
 
     useEffect(() => {
         if (useAuth.token && usePrivateChat.List.length !== update) {
@@ -32,27 +45,45 @@ export default function HomeScreen({ navigation }: any) {
         }
     }, [usePrivateChat.List])
 
-    const seenCount = (messages?: PrivateMessage[]) => {
+    // count unseen messages
+    const seenCount = useCallback((messages?: PrivateMessage[]) => {
         return messages?.map(item => {
             if (!item.seenBy.includes(useProfile?.user?._id as string)) {
                 return item._id
             }
         }).filter(item => item !== undefined).length
-    }
-    const sortedListArray = [...usePrivateChat.List].sort((a, b) => {
-        // @ts-ignore
-        const A = a.messages?.length > 0 && a.messages[a.messages.length - 1]?.createdAt
-        // @ts-ignore
-        const B = b.messages?.length > 0 && b.messages[b.messages.length - 1]?.createdAt
+    }, [useProfile?.user?._id])
 
-        return new Date(B).getTime() - new Date(A).getTime()
-    })
+    // chat list sorted by last message
+    const sortedListArray = useMemo(()=>{
+        return ([...usePrivateChat.List].sort((a, b) => {
+            // @ts-ignore
+            const A = a.messages?.length > 0 && a.messages[a.messages.length - 1]?.createdAt
+            // @ts-ignore
+            const B = b.messages?.length > 0 && b.messages[b.messages.length - 1]?.createdAt
+    
+            return new Date(B).getTime() - new Date(A).getTime()
+        }).filter((item) => {
+            const userId = item.users?.filter((userId) => userId !== useProfile.user?._id)[0]
+            const user = useUsers.find((user) => user._id === userId)
+            if (user) {
+                return user.username?.toLowerCase().includes(watch('search').toLowerCase())
+            }
+        }))
+    },[usePrivateChat.List,useUsers,watch('search')])
+
 
     return (
-        <SafeAreaView style={{
+        <Animated.View style={{
             flex: 1,
-            paddingHorizontal: 2,
+            backgroundColor: AnimatedState.backgroundColor
         }}>
+            <SearchList theme={useTheme}
+                reset={reset}
+                inputHandleControl={control} />
+            <Header theme={useTheme}
+                AnimatedState={AnimatedState}
+                navigation={navigation} />
             {!usePrivateChat.List && usePrivateChat.loading ? <LoadingUserCard theme={useTheme} />
                 :
                 <>
@@ -64,6 +95,7 @@ export default function HomeScreen({ navigation }: any) {
                                 // console.log("user", item)
                                 const user = useUsers.find((user) => user._id === userId)
                                 return user ? <PrivateChatCard
+                                    AnimatedState={AnimatedState}
                                     indicator={seenCount(item.messages) || 0}
                                     avatarUrl={user.profilePicture} // TODO: add avatar url
                                     them={useTheme}
@@ -87,6 +119,8 @@ export default function HomeScreen({ navigation }: any) {
                 icon={<UserPlus color={useTheme.color}
                     size={35} />} />
 
-        </SafeAreaView>
+        </Animated.View>
     )
 }
+
+export default memo(HomeScreen)

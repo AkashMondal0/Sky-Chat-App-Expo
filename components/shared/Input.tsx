@@ -67,6 +67,8 @@ const MyInput: FC<MyInputProps> = ({
                 <View style={{
                     backgroundColor: theme.inputBackground,
                     width: '100%',
+                    flex: 1,
+                    height: height || 50,
                     borderRadius: 15,
                     alignItems: 'center',
                     justifyContent: 'space-between',

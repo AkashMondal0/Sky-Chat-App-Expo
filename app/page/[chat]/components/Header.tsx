@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { ArrowLeft, MoreVertical, Phone, Video } from 'lucide-react-native';
 import React from 'react';
@@ -16,6 +16,7 @@ interface HeaderChatProps {
     primaryOnPress?: () => void,
     isOnline ?: boolean,
     isTyping ?: boolean,
+    AnimatedState ?: any,
 }
 const HeaderChat: FC<HeaderChatProps> = ({
     avatarUrl,
@@ -27,6 +28,7 @@ const HeaderChat: FC<HeaderChatProps> = ({
     primaryOnPress,
     isOnline,
     isTyping,
+    AnimatedState  
 }) => {
     const backgroundColor = theme.background;
     const iconColor = theme.iconColor;
@@ -58,6 +60,7 @@ const HeaderChat: FC<HeaderChatProps> = ({
                         color={iconColor}
                     />
                     <Avatar size={45}
+                    AnimatedState={AnimatedState}
                         style={{
                             marginHorizontal: 5,
                         }}
@@ -113,4 +116,4 @@ const HeaderChat: FC<HeaderChatProps> = ({
     );
 };
 
-export default HeaderChat;
+export default memo(HeaderChat);

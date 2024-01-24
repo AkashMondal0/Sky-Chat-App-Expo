@@ -1,7 +1,9 @@
 import React from 'react';
 import { FC } from 'react';
-import { Image, Text, View } from 'react-native';
+import { Animated, Image, Text, View } from 'react-native';
 import { CurrentTheme } from '../../types/theme';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 
 interface AvatarProps {
     url?: string;
@@ -12,6 +14,7 @@ interface AvatarProps {
     text?: string;
     theme?: CurrentTheme
     border?: boolean
+    AnimatedState?: any
 }
 const Avatar: FC<AvatarProps> = ({
     url,
@@ -21,27 +24,31 @@ const Avatar: FC<AvatarProps> = ({
     onLongPress,
     text,
     theme,
-    border
+    border,
+    AnimatedState
 }) => {
 
+    const useThem = useSelector((state: RootState) => state.ThemeMode.currentTheme)
+
     if (!url) {
-        return <View style={{
-            width: size, height: size,
+        return <Animated.View style={{
+            width: size,
+            height: size,
             borderRadius: 100,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: theme?.primaryBackground,
             ...style,
             borderWidth: border ? 1 : 0,
-            borderColor: theme?.primaryTextColor,
+            borderColor: useThem?.borderColor,
+            backgroundColor: AnimatedState.primaryBackgroundColor
         }}>
             <Text style={{
                 fontSize: size / 2,
-                color: theme?.textColor,
+                color: useThem.textColor,
             }}>
                 {text?.charAt(0).toUpperCase()}
             </Text>
-        </View>
+        </Animated.View>
     }
     return (
         <Image

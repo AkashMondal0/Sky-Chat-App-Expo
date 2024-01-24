@@ -1,23 +1,20 @@
 
-import React, { FC, createContext, useCallback, useContext, useEffect } from 'react';
+import React, { FC, createContext, useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Theme, Theme_Toggle_State, changeTheme } from '../redux/slice/theme';
 import MyStatusBar from '../components/shared/status-bar';
 import { RootState } from '../redux/store';
-import { Profile_State, fetchProfileData } from '../redux/slice/profile';
-import {
-    Private_Chat_State, addToPrivateChatListMessage,
+import { fetchProfileData } from '../redux/slice/profile';
+import { addToPrivateChatList, addToPrivateChatListMessage,
     addToPrivateChatListMessageSeen, addToPrivateChatListMessageTyping,
     getProfileChatList
 } from '../redux/slice/private-chat';
-import { Users_State } from '../redux/apis/user';
 import * as SplashScreen from 'expo-splash-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Appearance, ToastAndroid } from 'react-native';
 import socket from '../utils/socket-connect';
 import { PrivateMessage, PrivateMessageSeen } from '../types/private-chat';
 import { Login, Logout } from '../redux/slice/auth';
 import NetInfo from '@react-native-community/netinfo'
+import { ToastAndroid } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -28,13 +25,7 @@ interface ProfileContextType {
 const ProfileContext = createContext<ProfileContextType>({});
 export { ProfileContext };
 
-const themeSaveLocal = async (theme: Theme) => {
-    try {
-        await AsyncStorage.setItem('my-theme', theme)
-    } catch (err) {
-        console.log("Error in saving theme from redux async storage", err)
-    }
-}
+
 interface Profile_ProviderProps {
     children: React.ReactNode
 }
@@ -42,7 +33,6 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
     children
 }) => {
     const dispatch = useDispatch()
-    const ThemeState = useSelector((state: RootState) => state.ThemeMode)
     const { isLogin } = useSelector((state: RootState) => state.authState)
 
 
@@ -65,45 +55,24 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
     }, [])
 
 
-
-    const Current_theme = async () => {
-        try {
-            const value = await AsyncStorage.getItem('my-theme')
-            if (value) {
-                dispatch(changeTheme(value as Theme))
-            }
-        } catch (err) {
-            console.log("Error in getting theme from redux async storage", err)
-        }
-    }
     useEffect(() => {
-        Current_theme().then(() => {
-            fetchUserData()
-        })
+        fetchUserData()
         // const unsubscribe = NetInfo.addEventListener(state => {
         //     console.log('Connection type', state.type);
         //     console.log('Is connected?', state.isConnected);
         // });
-
-        Appearance.addChangeListener(({ colorScheme }) => {
-            if (ThemeState.Theme === "system") {
-                dispatch(changeTheme(colorScheme as Theme))
-                themeSaveLocal(colorScheme as Theme)
-            }
+        socket.on("update_Chat_List_Receiver", async (data) => {
+            dispatch(addToPrivateChatList(data.chatData) as any)
+            // fetchUserData()
         })
-        socket.on("update_Chat_List_Receiver", async () => {
-            const token = await AsyncStorage.getItem("token")
-            if (token) {
-                dispatch(getProfileChatList(token) as any)
-            }
-        })
-
+        
         socket.on("message_receiver", (data: PrivateMessage) => {
             // console.log("message_receiver update")
             // if (AppState.currentState === "background") {
-            //     // @ts-ignore
-            //     notificationContext.onDisplayNotification(data)
-            // }
+                //     // @ts-ignore
+                //     notificationContext.onDisplayNotification(data)
+                // }
+                // ToastAndroid.show("New Message", ToastAndroid.SHORT)
             dispatch(addToPrivateChatListMessage(data))
         })
 
@@ -124,7 +93,7 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
 
     return (
         <ProfileContext.Provider value={{
-            fetchUserData,
+            fetchUserData
         }}>
             <MyStatusBar translucent />
 

@@ -1,12 +1,17 @@
-import React from 'react'
-import { View, Text } from 'react-native';
+import React, { useContext } from 'react'
+import { View, Text, Animated } from 'react-native';
+import { AnimatedContext } from '../../../provider/Animated_Provider';
 
 export default function CallsScreen() {
+    const AnimatedState = useContext(AnimatedContext)
     return (
         < >
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text>Calls Screen</Text>
-            </View>
+            <Animated.View style={{
+                backgroundColor: AnimatedState.backgroundColor,
+                flex: 1,
+            }}>
+                <Text>Calls Screen</Text>
+            </Animated.View>
         </>
     )
 }

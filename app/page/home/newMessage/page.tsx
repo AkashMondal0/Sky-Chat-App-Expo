@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useContext, useEffect } from 'react'
 import { View, Text, ScrollView, ToastAndroid } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChevronRight, UserRoundPlus } from 'lucide-react-native';
@@ -15,6 +15,9 @@ import Padding from '../../../../components/shared/Padding';
 import MyInput from '../../../../components/shared/Input';
 import SingleCard from '../../../../components/shared/Single-Card';
 import MultipleCard from '../../../../components/shared/Multiple-card';
+import { ProfileContext } from '../../../../provider/Profile_Provider';
+import { addToPrivateChatList } from '../../../../redux/slice/private-chat';
+import { PrivateChat } from '../../../../types/private-chat';
 
 export default function NewMessageScreen({ navigation }: any) {
     const dispatch = useDispatch();
@@ -22,6 +25,7 @@ export default function NewMessageScreen({ navigation }: any) {
     const { List } = useSelector((state: RootState) => state.privateChat)
     const { searchUser: searchResult, success, error, connectedUser } = useSelector((state: RootState) => state.users)
     const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
+    const ProfileState = useContext(ProfileContext)
 
     const Color = useTheme.color;
     const iconColor = useTheme.iconColor;
@@ -51,18 +55,22 @@ export default function NewMessageScreen({ navigation }: any) {
             })
         } else {
             try {
-                axios.post(`${localhost}/private/chat/connection`, { users: [user?._id, receiverData._id] }).then((res) => {
-                    const { data } = res.data
-                    socket.emit('update_Chat_List_Sender', {
-                        senderId: user?._id,
-                        receiverId: receiverData._id,
-                    });
-                    navigation.navigate('Chat', {
-                        chatId: data?._id,
-                        userId: receiverData._id,
-                        userDetail: receiverData,
-                        recentChat: data
-                    })
+
+                const createNewConversation: PrivateChat = {
+                    _id: '',
+                    users: [user?._id, receiverData._id] as any,
+                    lastMessageContent: '',
+                    messages: [],
+                    updatedAt: new Date().toISOString(),
+                    createdAt: new Date().toISOString(),
+                    typing: false,
+                }
+                navigation.navigate('Chat', {
+                    chatId: new Date().toISOString(),
+                    userId: receiverData._id,
+                    userDetail: receiverData,
+                    chatDetails: createNewConversation,
+                    newChat: true
                 })
             } catch (error: any) {
                 ToastAndroid.show(error.response.data, ToastAndroid.SHORT)
@@ -118,17 +126,17 @@ export default function NewMessageScreen({ navigation }: any) {
                 </View>
                 <MultipleCard theme={useTheme}>
                     {searchResult.filter((item) => item._id !== user?._id)
-                    .map((item, index) => (
-                        <UserCard
-                            key={index}
-                            theme={useTheme}
-                            user={item}
-                            onPress={() =>
-                                CreateConnectionUser(item)
-                            }
-                            iconBackgroundColor={useTheme.background}
-                            secondaryIcon={<ChevronRight color={iconColor} />} />
-                    ))}
+                        .map((item, index) => (
+                            <UserCard
+                                key={index}
+                                theme={useTheme}
+                                user={item}
+                                onPress={() =>
+                                    CreateConnectionUser(item)
+                                }
+                                iconBackgroundColor={useTheme.background}
+                                secondaryIcon={<ChevronRight color={iconColor} />} />
+                        ))}
                 </MultipleCard>
             </View>
             <Padding size={10} />

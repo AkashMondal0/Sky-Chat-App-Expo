@@ -27,7 +27,7 @@ export const loginApi = createAsyncThunk(
             });
             return response.data;
         } catch (error: any) {
-            return thunkApi.rejectWithValue(error.response.data)
+            return thunkApi.rejectWithValue(error.response?.data?.message)
         }
     }
 );
@@ -43,7 +43,7 @@ export const registerApi = createAsyncThunk(
             const response = await axios.post(`${localhost}/auth/register`, data);
             return response.data;
         } catch (error: any) {
-            return thunkApi.rejectWithValue(error.response.data)
+            return thunkApi.rejectWithValue(error.response?.data?.message)
         }
     }
 );

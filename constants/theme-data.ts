@@ -4,7 +4,7 @@ const LightTheme = {
     primary: "#5865F2",
     color: "#ffffff",
     primaryBackground: "#E3E5E8",
-    background: "#F2F3F5",
+    background: 'rgb(242, 243, 245)',
     textColor: "#000000",
     subTextColor: "#4E5058",
     primaryTextColor: "#313338",
@@ -40,7 +40,7 @@ const DarkTheme = {
 
     //background
     primaryBackground: "#2B2D31",
-    background: "#232428",
+    background: 'rgb(35, 36, 40)',
 
     //text
     textColor: "#F2F3F5",

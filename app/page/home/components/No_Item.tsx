@@ -17,6 +17,7 @@ const NoItem: FC<NoItemProps> = ({
             height: '100%',
             justifyContent: 'center',
             alignItems: 'center',
+            flex: 1,
         }}>
             <Image
                 source={require('../../../../assets/images/nochat.png')}

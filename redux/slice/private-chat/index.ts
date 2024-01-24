@@ -90,6 +90,7 @@ export const Private_Chat_Slice = createSlice({
   initialState,
   reducers: {
     addToPrivateChatList: (state, action: PayloadAction<PrivateChat>) => {
+      // console.log(action.payload)
       if (!state.List.find(item => item._id === action.payload._id)) {
         state.List.push(action.payload)
       }
@@ -115,11 +116,23 @@ export const Private_Chat_Slice = createSlice({
         })
       }
     },
-    addMoreMessagesToPrivateChatList: (state, action: PayloadAction<PrivateMessage[]>) => {
-      const index = state.List.findIndex(item => item._id === action.payload[0].conversationId)
-      if (index !== -1) {
-        state.List[index].messages = new Array<PrivateMessage>().concat(action.payload, state.List[index].messages!)
+    addMoreMessagesToPrivateChatList: (state, action: PayloadAction<{
+      AllMessagesLoaded: boolean,
+      messages: PrivateMessage[],
+      conversationId: string
+    }>) => {
+      const index = state.List.findIndex(item => item._id === action.payload.conversationId) || 0
+
+      if (action.payload.AllMessagesLoaded === true) {
+        Object.assign(state.List[index], { loadAllMessages: action.payload.AllMessagesLoaded });
+        return state
+      } else {
+        if (index !== -1 && action.payload.AllMessagesLoaded === false) {
+          state.List[index].messages = new Array<PrivateMessage>().concat(action.payload.messages, state.List[index].messages!)
+        }
       }
+
+
     },
     addToPrivateChatListMessageTyping: (state, action: PayloadAction<typingState>) => {
       const index = state.List.findIndex(item => item._id === action.payload.conversationId)
