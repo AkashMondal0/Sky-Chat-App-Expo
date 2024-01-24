@@ -36,15 +36,6 @@ const BodyChat: FC<BodyChatProps> = ({
     const [moreDataStop, setMoreDataStop] = React.useState(false);
     const dispatch = useDispatch()
 
-    // unread message count
-    const seenCount = useMemo(() => {
-        return messages.map(item => {
-            if (!item.seenBy.includes(profile?._id as string)) {
-                return item._id
-            }
-        }).filter(item => item !== undefined)
-    }, [messages])
-
     // memoized sorted dates
     const memoSortedDates = useMemo(() => {
         const dateSorted = [...messages]
@@ -62,6 +53,14 @@ const BodyChat: FC<BodyChatProps> = ({
         return messageSorted
     }, [messages])
 
+    const seenCount = useMemo(() => {
+        return memoSortedDates.map(item => {
+            if (!item.seenBy.includes(profile?._id as string)) {
+                return item._id
+            }
+        }).filter(item => item !== undefined)
+    }, [memoSortedDates])
+
 
     const messageSeen = useCallback(() => {
         const seen: PrivateMessageSeen = {
@@ -72,9 +71,11 @@ const BodyChat: FC<BodyChatProps> = ({
         }
         dispatch(sendMessageSeenPrivate({ seen }) as any)
     }, [messages])
+    // console.log(memoSortedDates)
 
     const getMoreData = async () => {
-        if (!moreDataStop && !privateChat?.loadAllMessages && !loading) {
+        const condition = !moreDataStop && !privateChat?.loadAllMessages && !loading && messages.length > 19
+        if (condition) {
             setLoading(true)
             // increment height of view
             axios.get(`${localhost}/private/chat/list/messages/${conversationId}?page=${page}&size=${20}`)
@@ -87,7 +88,7 @@ const BodyChat: FC<BodyChatProps> = ({
                                 conversationId: privateChat?._id as string,
                                 AllMessagesLoaded: true
                             }))
-                            ToastAndroid.show('No more messages', ToastAndroid.SHORT)
+                            // ToastAndroid.show('No more messages', ToastAndroid.SHORT)
                         } else {
                             dispatch(addMoreMessagesToPrivateChatList({
                                 messages: res.data,
@@ -184,7 +185,9 @@ const BodyChat: FC<BodyChatProps> = ({
                         alignItems: "center",
                         justifyContent: "center",
                     }}>
-                        {loading ? <ActivityIndicator size="large" color={theme.primaryTextColor} /> : <></>}
+                        {loading ? 
+                        <ActivityIndicator size="large" color={theme.primaryTextColor} /> 
+                        : <></>}
                     </View>
                 }}
             />
