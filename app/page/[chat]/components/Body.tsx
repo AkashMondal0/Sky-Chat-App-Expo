@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useMemo, useCallback, memo } from 'react';
-import { ActivityIndicator, ToastAndroid, View, VirtualizedList } from 'react-native';
+import { ActivityIndicator, ToastAndroid, View, VirtualizedList, Text } from 'react-native';
 import ChatCard from './MessageCard';
 import { useDispatch } from 'react-redux';
 import { CurrentTheme } from '../../../../types/theme';
@@ -11,6 +11,7 @@ import { localhost } from '../../../../keys';
 import MyButton from '../../../../components/shared/Button';
 import { ArrowDown } from 'lucide-react-native';
 import _ from 'lodash';
+import { dateFormat } from '../../../../utils/timeFormat';
 
 interface BodyChatProps {
     theme: CurrentTheme
@@ -35,25 +36,30 @@ const BodyChat: FC<BodyChatProps> = ({
     const [moreDataStop, setMoreDataStop] = React.useState(false);
     const dispatch = useDispatch()
 
-    // unread message count
+    // memoized sorted dates
+    const memoSortedDates = useMemo(() => {
+        const dateSorted = [...messages]
+            ?.filter((value, index, dateArr) => index === dateArr
+                .findIndex((time) => (dateFormat(time.createdAt) === dateFormat(value.createdAt))))
+            .map((item) => {
+                item._id = new Date(item.createdAt).getTime().toString();
+                item = { ...item, typeDate: true }
+                return item
+            })
+        const messageSorted = [...messages, ...dateSorted]
+            .sort((a, b) => {
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            })
+        return messageSorted
+    }, [messages])
+
     const seenCount = useMemo(() => {
-        return messages.map(item => {
+        return memoSortedDates.map(item => {
             if (!item.seenBy.includes(profile?._id as string)) {
                 return item._id
             }
         }).filter(item => item !== undefined)
-    }, [messages])
-
-    // memoized sorted dates
-    const memoSortedDates = useMemo(() => {
-        return [...messages]
-            // .reverse()
-            // ?.filter((value, index, dateArr) => index === dateArr
-            //     .findIndex((time) => (dateFormat(time.createdAt) === dateFormat(value.createdAt))))
-            .sort((a, b) => {
-                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            })
-    }, [messages])
+    }, [memoSortedDates])
 
 
     const messageSeen = useCallback(() => {
@@ -65,9 +71,11 @@ const BodyChat: FC<BodyChatProps> = ({
         }
         dispatch(sendMessageSeenPrivate({ seen }) as any)
     }, [messages])
+    // console.log(memoSortedDates)
 
     const getMoreData = async () => {
-        if (!moreDataStop && !privateChat?.loadAllMessages && !loading) {
+        const condition = !moreDataStop && !privateChat?.loadAllMessages && !loading && messages.length > 19
+        if (condition) {
             setLoading(true)
             // increment height of view
             axios.get(`${localhost}/private/chat/list/messages/${conversationId}?page=${page}&size=${20}`)
@@ -80,7 +88,7 @@ const BodyChat: FC<BodyChatProps> = ({
                                 conversationId: privateChat?._id as string,
                                 AllMessagesLoaded: true
                             }))
-                            ToastAndroid.show('No more messages', ToastAndroid.SHORT)
+                            // ToastAndroid.show('No more messages', ToastAndroid.SHORT)
                         } else {
                             dispatch(addMoreMessagesToPrivateChatList({
                                 messages: res.data,
@@ -110,6 +118,22 @@ const BodyChat: FC<BodyChatProps> = ({
     }, [messages])
 
     const ItemView = memo(({ item }: { item: PrivateMessage }) => {
+        if (item.typeDate) {
+            return (
+                <>
+                    <Text style={{
+                        textAlign: 'center',
+                        color: theme.subTextColor,
+                        backgroundColor: theme.primaryBackground,
+                        borderRadius: 10,
+                        padding: 5,
+                        marginVertical: 5,
+                        alignSelf: 'center'
+                    }}>{dateFormat(item.createdAt)}</Text>
+                </>
+            )
+
+        }
         return (
             <ChatCard
                 key={item._id}
@@ -119,32 +143,6 @@ const BodyChat: FC<BodyChatProps> = ({
                 data={item}
                 content={item.content}
             />
-            // <View>
-            //     <>
-            //         <Text style={{
-            //             textAlign: 'center',
-            //             color: theme.subTextColor,
-            //             backgroundColor: theme.primaryBackground,
-            //             borderRadius: 10,
-            //             padding: 5,
-            //             marginVertical: 5,
-            //             alignSelf: 'center'
-            //         }}>{dateFormat(item.createdAt)}</Text>
-            //     </>
-            //     {messages.filter((value) => dateFormat(value.createdAt) === dateFormat(item.createdAt))
-            //         .sort((a, b) => {
-            //             return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-            //         }).map((item, index) => {
-            //             return <ChatCard
-            //                 key={item._id}
-            //                 sender={item.memberId === profile?._id}
-            //                 seen={item.seenBy.length >= 2 && item.seenBy.includes(profile?._id as string)}
-            //                 theme={theme}
-            //                 data={item}
-            //                 content={item.content}
-            //             />
-            //         })}
-            // </View>
         );
     })
 
@@ -154,6 +152,9 @@ const BodyChat: FC<BodyChatProps> = ({
     return (
         <>
             <VirtualizedList
+                // style={{paddingBottom: 100,
+                // minHeight: "100%"
+                // }}
                 inverted
                 removeClippedSubviews={true}
                 keyExtractor={(item, index) => index.toString() as string}
@@ -184,7 +185,9 @@ const BodyChat: FC<BodyChatProps> = ({
                         alignItems: "center",
                         justifyContent: "center",
                     }}>
-                        {loading ? <ActivityIndicator size="large" color={theme.primaryTextColor} /> : <></>}
+                        {loading ? 
+                        <ActivityIndicator size="large" color={theme.primaryTextColor} /> 
+                        : <></>}
                     </View>
                 }}
             />
