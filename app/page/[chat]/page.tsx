@@ -28,7 +28,7 @@ interface ChatScreenProps {
 
 const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
     const useThem = useSelector((state: RootState) => state.ThemeMode.currentTheme)
-    const { List } = useSelector((state: RootState) => state.privateChat)
+    const { List, messageLoading, error } = useSelector((state: RootState) => state.privateChat)
     const profile = useSelector((state: RootState) => state.profile)
     const connectedUser = useSelector((state: RootState) => state.users.connectedUser)
     const AnimatedState = useContext(AnimatedContext)
@@ -73,6 +73,8 @@ const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
                 defaultWallpaper
                 backgroundColor={useThem.borderColor}>
                 <Body
+                    messageLoading={messageLoading}
+                    error={error}
                     conversationId={PrivateConversationData?._id}
                     user={userData}
                     privateChat={PrivateConversationData}

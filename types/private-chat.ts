@@ -40,7 +40,8 @@ export interface PrivateChat {
     updatedAt?: string | Date;
     createdAt?: string | Date;
     typing?: boolean;
-    loadAllMessages?: boolean;
+    loadAllMessages?: boolean | undefined;
+    page?: number | undefined;
 }
 
 export interface PrivateMessageSeen {
