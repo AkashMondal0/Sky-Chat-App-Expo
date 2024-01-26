@@ -18,12 +18,13 @@ import MultipleCard from '../../../../components/shared/Multiple-card';
 import { ProfileContext } from '../../../../provider/Profile_Provider';
 import { addToPrivateChatList } from '../../../../redux/slice/private-chat';
 import { PrivateChat } from '../../../../types/private-chat';
+import uid from '../../../../utils/uuid';
 
 export default function NewMessageScreen({ navigation }: any) {
     const dispatch = useDispatch();
     const { user } = useSelector((state: RootState) => state.profile)
     const { List } = useSelector((state: RootState) => state.privateChat)
-    const { searchUser: searchResult, success, error, connectedUser } = useSelector((state: RootState) => state.users)
+    const { searchUser: searchResult } = useSelector((state: RootState) => state.users)
     const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
     const ProfileState = useContext(ProfileContext)
 
@@ -45,13 +46,12 @@ export default function NewMessageScreen({ navigation }: any) {
     const debouncedHandleSearch = useCallback(debounce(handleSearch, 1000), []);
 
     const CreateConnectionUser = useCallback(async (receiverData: User) => {
-        const getUser = connectedUser.find((item) => item._id === receiverData._id)
         const getChat = List.find((item) => item.users?.find((item) => item === receiverData._id))
 
-        if (getUser && getChat) {
+        if (getChat) {
             navigation.navigate('Chat', {
                 chatId: getChat?._id,
-                userId: getUser?._id
+                userId: getChat?.userDetails?._id,
             })
         } else {
             try {
@@ -66,8 +66,7 @@ export default function NewMessageScreen({ navigation }: any) {
                     typing: false,
                 }
                 navigation.navigate('Chat', {
-                    chatId: new Date().toISOString(),
-                    userId: receiverData._id,
+                    chatId: uid(),
                     userDetail: receiverData,
                     chatDetails: createNewConversation,
                     newChat: true

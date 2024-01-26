@@ -27,7 +27,7 @@ export interface PrivateMessage {
         deleted: boolean;
         replyContent: PrivateMessage;
     };
-    typeDate?:Boolean;
+    typeDate?: Boolean;
 }
 
 export interface PrivateChat {
@@ -35,6 +35,7 @@ export interface PrivateChat {
     users?: [
         User['_id'],
     ];
+    userDetails?: User;
     lastMessageContent: string;
     messages?: PrivateMessage[];
     updatedAt?: string | Date;

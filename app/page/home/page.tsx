@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo } from 'react'
-import { Animated, Button, FlatList, SafeAreaView, ToastAndroid, View } from 'react-native'
+import { Animated, Button, FlatList, SafeAreaView, ScrollView, ToastAndroid, View } from 'react-native'
 import PrivateChatCard from './components/card';
 import { useDispatch, useSelector } from 'react-redux';
 import { UserPlus } from 'lucide-react-native';
@@ -7,23 +7,20 @@ import NoItem from './components/No_Item';
 import LoadingUserCard from './components/LoadingUserCard';
 import { RootState } from '../../../redux/store';
 import { fetchUsers } from '../../../redux/apis/user';
-import { PrivateMessage } from '../../../types/private-chat';
+import { PrivateChat, PrivateMessage } from '../../../types/private-chat';
 import FloatingButton from '../../../components/shared/Floating';
 import SearchList from './components/SearchList';
 import Header from '../../../components/shared/header';
 import { useForm } from 'react-hook-form';
 import { debounce } from 'lodash';
 import { AnimatedContext } from '../../../provider/Animated_Provider';
+import { User } from '../../../types/profile';
 // import Animated from 'react-native-reanimated';
 
 
 const HomeScreen = ({ navigation }: any) => {
-    const dispatch = useDispatch()
-    const [update, setUpdate] = React.useState(0)
-    const useAuth = useSelector((state: RootState) => state.authState)
     const useProfile = useSelector((state: RootState) => state.profile)
     const usePrivateChat = useSelector((state: RootState) => state.privateChat)
-    const useUsers = useSelector((state: RootState) => state.users.connectedUser)
     const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
     const AnimatedState = useContext(AnimatedContext)
     // search form
@@ -32,18 +29,6 @@ const HomeScreen = ({ navigation }: any) => {
             search: '',
         }
     });
-
-    // get users id
-    let usersIds = useMemo(() => usePrivateChat.List?.map((item) => item.users?.filter((userId) => userId !== useProfile?.user?._id)[0]) || [], [usePrivateChat.List])
-
-    useEffect(() => {
-        if (useAuth.token && usePrivateChat.List.length !== update) {
-            if (usersIds.length > 0 && useUsers.length >= 0 && usersIds !== undefined) {
-                dispatch(fetchUsers({ users: usersIds, authorId: useProfile.user?._id } as any) as any)
-                setUpdate(usePrivateChat.List.length)
-            }
-        }
-    }, [usePrivateChat.List])
 
     // count unseen messages
     const seenCount = useCallback((messages?: PrivateMessage[]) => {
@@ -67,13 +52,21 @@ const HomeScreen = ({ navigation }: any) => {
 
             return new Date(B).getTime() - new Date(A).getTime()
         }).filter((item) => {
-            const userId = item.users?.filter((userId) => userId !== useProfile.user?._id)[0]
-            const user = useUsers.find((user) => user._id === userId)
+            const user = item.userDetails
             if (user) {
                 return user.username?.toLowerCase().includes(watch('search').toLowerCase())
             }
         }))
-    }, [usePrivateChat.List, useUsers, watch('search')])
+    }, [usePrivateChat.List, watch('search')])
+
+    const navigateToChat = useCallback((item: PrivateChat) => {
+        navigation.navigate("Chat", {
+            newChat: false,
+            userDetail: item.userDetails,
+            chatDetails: item,
+            profileDetail: useProfile?.user
+        })
+    }, [])
 
 
     return (
@@ -94,20 +87,16 @@ const HomeScreen = ({ navigation }: any) => {
                         <FlatList
                             data={sortedListArray}
                             renderItem={({ item }) => {
-                                const userId = item.users?.filter((userId) => userId !== useProfile.user?._id)[0]
-                                // console.log("user", item)
-                                const user = useUsers.find((user) => user._id === userId)
-                                return user ? <PrivateChatCard
+                                return item ? <PrivateChatCard
                                     AnimatedState={AnimatedState}
                                     indicator={seenCount(item.messages) || 0}
-                                    avatarUrl={user.profilePicture} // TODO: add avatar url
+                                    avatarUrl={item.userDetails?.profilePicture} // TODO: add avatar url
                                     them={useTheme}
                                     profile={useProfile?.user}
-                                    title={user?.username || "user"}
-                                    // @ts-ignore
+                                    title={item.userDetails?.username || "..."}
                                     date={sortedDate(item?.messages)}
                                     isTyping={item.typing}
-                                    onPress={() => navigation.navigate('Chat', { chatId: item._id, userId: userId })}
+                                    onPress={() => navigateToChat(item)}
                                     lastMessage={item.lastMessageContent} /> :
                                     <LoadingUserCard theme={useTheme} />
                             }}

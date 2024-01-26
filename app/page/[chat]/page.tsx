@@ -17,27 +17,23 @@ interface ChatScreenProps {
     // route: Route
     route: {
         params: {
-            chatId: string
-            userId: string
             userDetail: User
-            profile: User
-            chatDetails: PrivateChat
+            profileDetail: User
+            chatId: PrivateChat["_id"]
             newChat: boolean
+            chatDetails: PrivateChat
         }
-    } | any
+    }
 }
 
 const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
     const useThem = useSelector((state: RootState) => state.ThemeMode.currentTheme)
     const { List, messageLoading, error } = useSelector((state: RootState) => state.privateChat)
     const profile = useSelector((state: RootState) => state.profile)
-    const connectedUser = useSelector((state: RootState) => state.users.connectedUser)
     const AnimatedState = useContext(AnimatedContext)
-    // console.log("params", params)
 
-    let PrivateConversationData = List.find((item) => item._id === params?.chatId) || params.chatDetails
-
-    let userData = connectedUser.find((user) => user._id === params?.userId) || params.userDetail
+    let PrivateConversationData = List.find((item) => item._id === params?.chatId) || params?.chatDetails
+    let userData = PrivateConversationData?.userDetails || params.userDetail
 
 
     const onBlurType = useCallback(() => {
@@ -54,6 +50,14 @@ const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
     const onPressSetting = useCallback(() => {
 
     }, [])
+
+    if (!PrivateConversationData) {
+        return <Text>Chat Id Not Found</Text>
+    }
+
+    if (!userData) {
+        return <Text>Chat User Not Found</Text>
+    }
 
     return (
         <SafeAreaView style={{

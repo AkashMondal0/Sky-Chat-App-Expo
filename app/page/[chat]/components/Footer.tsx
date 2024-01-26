@@ -81,22 +81,21 @@ const FooterChat: FC<FooterChatProps> = ({
           users: [
             profile._id, user._id
           ]
-        })
+        }) as { data: PrivateChat }
         if (res.data) {
           dispatch(createPrivateChatConversation({
             users: [profile, user],
             content: data.message,
-            conversation: res.data,
+            conversation: { ...res.data, userDetails: profile },
           }) as any)
           profileState.fetchUserData()
           navigation.replace("Chat", {
-            chatId: res.data._id,
-            userId: user?._id,
             newChat: false,
             userDetail: user,
             chatDetails: res.data,
+            chatId: res.data._id
           })
-        }else{
+        } else {
           ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         }
         reset()
@@ -110,7 +109,7 @@ const FooterChat: FC<FooterChatProps> = ({
             receiver: user,
           }) as any)
           reset()
-        }else{
+        } else {
           ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         }
       }
