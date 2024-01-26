@@ -133,6 +133,11 @@ const BodyChat: FC<BodyChatProps> = ({
                 // style={{paddingBottom: 100,
                 // minHeight: "100%"
                 // }}
+                onContentSizeChange={() => {
+                    memoSortedDates.sort((a, b) => {
+                        return new Date(b.createdAt).getSeconds() - new Date(a.createdAt).getSeconds()
+                    })
+                }}
                 inverted
                 removeClippedSubviews={true}
                 keyExtractor={(item, index) => index.toString() as string}

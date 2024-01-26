@@ -1,17 +1,18 @@
-import React, { FC, memo, useCallback, useEffect, useRef } from 'react';
-import { Keyboard, TextInput, View } from 'react-native';
+import React, { FC, memo, useCallback, useContext, useEffect, useRef } from 'react';
+import { Keyboard, TextInput, ToastAndroid, View } from 'react-native';
 import { Camera, Paperclip, Send, Smile } from 'lucide-react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { CurrentTheme } from '../../../../types/theme';
 import { User } from '../../../../types/profile';
 import { PrivateChat, PrivateMessage, typingState } from '../../../../types/private-chat';
-import { addToPrivateChatList, sendMessagePrivate } from '../../../../redux/slice/private-chat';
+import { addToPrivateChatList, createPrivateChatConversation, sendMessagePrivate } from '../../../../redux/slice/private-chat';
 import socket from '../../../../utils/socket-connect';
 import MyButton from '../../../../components/shared/Button';
 import { RootState } from '../../../../redux/store';
 import { localhost } from '../../../../keys';
 import axios from 'axios';
+import { ProfileContext } from '../../../../provider/Profile_Provider';
 
 interface FooterChatProps {
   theme: CurrentTheme
@@ -20,7 +21,6 @@ interface FooterChatProps {
   user?: User | null
   forNewConnection?: boolean
   navigation?: any
-  userId?: string
 }
 const FooterChat: FC<FooterChatProps> = ({
   theme,
@@ -29,13 +29,12 @@ const FooterChat: FC<FooterChatProps> = ({
   user,
   forNewConnection,
   navigation,
-  userId
 }) => {
   const _color = theme.textColor
   const backgroundColor = theme.background
   const dispatch = useDispatch()
-  const { List } = useSelector((state: RootState) => state.privateChat)
-  const [newChatId, setNewChatId] = React.useState<string>("x")
+  const inputRef = useRef<any>(null);
+  const profileState = useContext(ProfileContext) as any
 
   const { control, handleSubmit, reset,
     formState: { errors } } = useForm({
@@ -43,7 +42,6 @@ const FooterChat: FC<FooterChatProps> = ({
         message: "",
       }
     });
-  const inputRef = useRef<any>(null);
 
   useEffect(() => {
     const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
@@ -59,7 +57,7 @@ const FooterChat: FC<FooterChatProps> = ({
     const message: typingState = {
       conversationId: conversation?._id as string,
       senderId: profile?._id as string,
-      receiverId: user?._id || userId as string,
+      receiverId: user?._id as string,
       typing: true
     }
     socket.emit('message_typing_sender', message)
@@ -69,79 +67,52 @@ const FooterChat: FC<FooterChatProps> = ({
     const message: typingState = {
       conversationId: conversation?._id as string,
       senderId: profile?._id as string,
-      receiverId: user?._id || userId as string,
+      receiverId: user?._id as string,
       typing: false
     }
     socket.emit('message_typing_sender', message)
   }, [])
 
-  const sendMessageHandle = useCallback((data: { message: string }) => {
-
-    // @ts-ignore
-    if (forNewConnection && !List.includes({ _id: newChatId })) {
-      axios.post(`${localhost}/private/chat/connection`, { users: [profile?._id, user?._id] })
-        .then((res) => {
-          reset()
-          const newMessage2: PrivateMessage = {
-            _id: new Date().getTime().toString(),
-            content: data.message,
-            memberId: profile?._id as string,
-            memberDetails: profile as User,
-            conversationId: res.data._id as string,
-            senderId: profile?._id as string,
-            receiverId: user?._id || userId as string,
-            deleted: false,
-            seenBy: [
-              profile?._id as string,
-            ],
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          }
-          const conversation = {
-            _id: res.data._id,
-            users: [profile?._id, user?._id] as any,
-            lastMessageContent: data.message,
-            messages: [newMessage2],
-            updatedAt: new Date().toISOString(),
-            createdAt: new Date().toISOString(),
-            typing: false,
-          }
-          dispatch(addToPrivateChatList(conversation))
-          navigation.replace("Chat", {
-            chatId: conversation._id,
-            userId: user?._id,
-          })
-          setNewChatId(res.data._id)
-          socket.emit('update_Chat_List_Sender', {
-            receiverId: user?._id || userId,
-            senderId: profile?._id,
-            chatData: conversation
-          });
-          socket.emit('message_sender', newMessage2)
+  const sendMessageHandle = useCallback(async (data: { message: string }) => {
+    if (data.message.trim().length > 0) {
+      // for new connection
+      if (forNewConnection && profile && user) {
+        const res = await axios.post(`${localhost}/private/chat/connection`, {
+          users: [
+            profile._id, user._id
+          ]
         })
-    }
-
-    else {
-      const newMessage: PrivateMessage = {
-        _id: new Date().getTime().toString(),
-        content: data.message,
-        memberId: profile?._id as string,
-        memberDetails: profile as User,
-        conversationId: conversation?._id as string,
-        senderId: profile?._id as string,
-        receiverId: userId as string,
-        deleted: false,
-        seenBy: [
-          profile?._id as string,
-        ],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }
-      if (data.message.trim().length > 0) {
+        if (res.data) {
+          dispatch(createPrivateChatConversation({
+            users: [profile, user],
+            content: data.message,
+            conversation: res.data,
+          }) as any)
+          profileState.fetchUserData()
+          navigation.replace("Chat", {
+            chatId: res.data._id,
+            userId: user?._id,
+            newChat: false,
+            userDetail: user,
+            chatDetails: res.data,
+          })
+        }else{
+          ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
+        }
         reset()
-        dispatch(sendMessagePrivate({
-          message: newMessage,
-        }) as any)
+      }
+      else {
+        if (conversation && profile && user) {
+          dispatch(sendMessagePrivate({
+            conversationId: conversation?._id as string,
+            content: data.message,
+            member: profile,
+            receiver: user,
+          }) as any)
+          reset()
+        }else{
+          ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
+        }
       }
     }
   }, [])

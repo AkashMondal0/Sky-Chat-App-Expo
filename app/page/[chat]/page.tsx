@@ -20,6 +20,7 @@ interface ChatScreenProps {
             chatId: string
             userId: string
             userDetail: User
+            profile: User
             chatDetails: PrivateChat
             newChat: boolean
         }
@@ -86,7 +87,6 @@ const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
                     forNewConnection={params?.newChat}
                     conversation={PrivateConversationData}
                     user={userData}
-                    userId={params?.userId}
                     profile={profile.user} />
             </Wallpaper_Provider>
             {/* <MyActionSheet
