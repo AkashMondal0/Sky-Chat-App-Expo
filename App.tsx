@@ -13,7 +13,16 @@ import RegisterScreen from './app/page/auth/register/page';
 import NewMessageScreen from './app/page/home/newMessage/page';
 import ChatScreen from './app/page/[chat]/page';
 import Animated_Provider from './provider/Animated_Provider';
+import { createNewTable } from './utils/sqlLite';
 
+
+const setupDbs = async () => {
+  try {
+    // createNewTable("sky")
+  } catch (error) {
+    console.log(error)
+  }
+}
 
 
 
@@ -81,6 +90,10 @@ function Routes() {
 const Stack = createNativeStackNavigator();
 
 function App() {
+
+  // React.useEffect(() => {
+  //   setupDbs()
+  // }, [])
   return (
     <NavigationContainer>
       <Provider store={store}>
