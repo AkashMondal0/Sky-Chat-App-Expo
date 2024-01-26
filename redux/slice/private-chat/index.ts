@@ -4,23 +4,115 @@ import { PrivateChat, PrivateMessage, PrivateMessageSeen, typingState } from '..
 import axios from 'axios';
 import socket from '../../../utils/socket-connect';
 import { localhost } from '../../../keys';
+import { User } from '../../../types/profile';
+import uid from '../../../utils/uuid';
 export type Theme = "light" | "dark" | "system"
+
+export const createPrivateChatConversation = createAsyncThunk(
+  'createPrivateChatConversation/post',
+  async ({
+    users,
+    content,
+    conversation
+  }: {
+    users: User[],
+    content: string,
+    conversation: PrivateChat
+  }, thunkApi) => {
+    try {
+      const newMessage2: PrivateMessage = {
+        _id: uid(),
+        content: content,
+        memberId: users[0]._id,
+        memberDetails: users[0],
+        conversationId: conversation._id as string,
+        senderId: users[0]._id,
+        receiverId: users[1]._id,
+        deleted: false,
+        seenBy: [
+          users[0]._id
+        ],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+      socket.emit('update_Chat_List_Sender', {
+        receiverId: users[1]._id,
+        senderId: users[0]._id,
+        chatData: conversation
+      });
+      socket.emit('message_sender', newMessage2)
+
+      return conversation
+    } catch (error: any) {
+      return thunkApi.rejectWithValue(error.response.data)
+    }
+  }
+);
+
+export const getMoreMessagePrivate = createAsyncThunk(
+  'getMoreMessagePrivate/post',
+  async ({
+    conversationId,
+    page
+  }: {
+    conversationId: string,
+    page: number,
+  }, thunkApi) => {
+    try {
+      const res = await axios.get(`${localhost}/private/chat/list/messages/${conversationId}?page=${page}&size=${20}`)
+
+      if (res.data?.length === 0) {
+        return {
+          AllMessagesLoaded: true,
+          messages: [],
+          conversationId: conversationId,
+          pageCount: page
+        }
+      } else {
+        return {
+          AllMessagesLoaded: false,
+          messages: res.data,
+          conversationId: conversationId,
+          pageCount: page + 1
+        }
+      }
+    } catch (error: any) {
+      return thunkApi.rejectWithValue(error.response.data)
+    }
+  }
+);
 
 export const sendMessagePrivate = createAsyncThunk(
   'sendMessagePrivate/post',
   async ({
-    message
+    content,
+    member,
+    receiver,
+    conversationId
   }: {
-    message: PrivateMessage
+    content: string,
+    member: User,
+    receiver: User,
+    conversationId: string
   }, thunkApi) => {
     try {
-
-      // console.log(message)
-      thunkApi.dispatch(addToPrivateChatListMessage(message))
-      socket.emit('message_sender', message)
-      // await axios.post(`${localhost}/PrivateMessage/send`, {
-      //   message
-      // });
+      const newMessage: PrivateMessage = {
+        _id: new Date().getTime().toString(),
+        content: content,
+        memberId: member._id,
+        memberDetails: member,
+        conversationId: conversationId,
+        senderId: member._id,
+        receiverId: receiver._id,
+        deleted: false,
+        seenBy: [
+          member._id,
+        ],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+      socket.emit('message_sender', newMessage)
+      return newMessage
     } catch (error: any) {
       return thunkApi.rejectWithValue(error.response.data)
     }
@@ -35,14 +127,9 @@ export const sendMessageSeenPrivate = createAsyncThunk(
     seen: PrivateMessageSeen
   }, thunkApi) => {
     try {
-
-      // console.log(message)
       socket.emit('message_seen_sender', seen)
       thunkApi.dispatch(addToPrivateChatListMessageSeen(seen))
-      // await axios.post(`${localhost}/PrivateMessage/seen`, {
-      //   messages: seen
-      // });
-      // return response.data;
+      return seen
     } catch (error: any) {
       return thunkApi.rejectWithValue(error.response.data)
     }
@@ -73,6 +160,9 @@ export interface Private_Chat_State {
   success: string | null | any
   updateList: "true" | "false" | boolean;
   recentChat: PrivateChat | null
+  messageLoading: boolean
+  messageSendLoading: boolean
+  newConversationId: string | null
 }
 
 
@@ -83,6 +173,9 @@ const initialState: Private_Chat_State = {
   success: null,
   updateList: "false",
   recentChat: null,
+  messageLoading: false,
+  messageSendLoading: false,
+  newConversationId: null
 }
 
 export const Private_Chat_Slice = createSlice({
@@ -96,6 +189,7 @@ export const Private_Chat_Slice = createSlice({
       }
     },
     addToPrivateChatListMessage: (state, action: PayloadAction<PrivateMessage>) => {
+      // console.log(action.payload)
       const index = state.List.findIndex(item => item._id === action.payload.conversationId)
       const duplicateMessage = state.List[index].messages?.find(item => item._id === action.payload._id)
       if (index !== -1 && !duplicateMessage) {
@@ -115,24 +209,6 @@ export const Private_Chat_Slice = createSlice({
           })
         })
       }
-    },
-    addMoreMessagesToPrivateChatList: (state, action: PayloadAction<{
-      AllMessagesLoaded: boolean,
-      messages: PrivateMessage[],
-      conversationId: string
-    }>) => {
-      const index = state.List.findIndex(item => item._id === action.payload.conversationId) || 0
-
-      if (action.payload.AllMessagesLoaded === true) {
-        Object.assign(state.List[index], { loadAllMessages: action.payload.AllMessagesLoaded });
-        return state
-      } else {
-        if (index !== -1 && action.payload.AllMessagesLoaded === false) {
-          state.List[index].messages = new Array<PrivateMessage>().concat(action.payload.messages, state.List[index].messages!)
-        }
-      }
-
-
     },
     addToPrivateChatListMessageTyping: (state, action: PayloadAction<typingState>) => {
       const index = state.List.findIndex(item => item._id === action.payload.conversationId)
@@ -162,7 +238,61 @@ export const Private_Chat_Slice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-    // send message
+      // create private chat conversation
+      .addCase(createPrivateChatConversation.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(createPrivateChatConversation.fulfilled, (state, action) => {
+        state.loading = false;
+        if (!state.List.find(item => item._id === action.payload._id)) {
+          state.List.push(action.payload)
+          // console.log(action.payload)
+        }
+      })
+      .addCase(createPrivateChatConversation.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // send message
+      .addCase(sendMessagePrivate.pending, (state) => {
+        state.messageSendLoading = true;
+      })
+      .addCase(sendMessagePrivate.fulfilled, (state, action) => {
+        state.messageSendLoading = false;
+        const index = state.List.findIndex(item => item._id === action.payload.conversationId)
+        const duplicateMessage = state.List[index].messages?.find(item => item._id === action.payload._id)
+        if (index !== -1 && !duplicateMessage) {
+          state.List[index].lastMessageContent = action.payload.content
+          state.List[index].updatedAt = action.payload.createdAt
+          state.List[index].messages?.push(action.payload)
+        }
+      })
+      .addCase(sendMessagePrivate.rejected, (state, action) => {
+        state.messageSendLoading = false;
+        state.error = action.payload;
+      })
+      // get more message
+      .addCase(getMoreMessagePrivate.pending, (state) => {
+        state.messageLoading = true;
+      })
+      .addCase(getMoreMessagePrivate.fulfilled, (state, action) => {
+        state.messageLoading = false;
+        const index = state.List.findIndex(item => item._id === action.payload.conversationId) || 0
+
+        Object.assign(state.List[index], {
+          loadAllMessages: action.payload.AllMessagesLoaded,
+          page: action.payload.pageCount
+        });
+
+        if (index !== -1 && action.payload.AllMessagesLoaded === false) {
+          state.List[index].messages = new Array<PrivateMessage>().concat(action.payload.messages, state.List[index].messages!)
+        }
+        return state
+      })
+      .addCase(getMoreMessagePrivate.rejected, (state, action) => {
+        state.messageLoading = false;
+        state.error = action.payload;
+      })
   }
 })
 
@@ -174,7 +304,7 @@ export const {
   addToPrivateChatListMessageSeen,
   recentChatSetter,
   addToPrivateChatListMessageTyping,
-  addMoreMessagesToPrivateChatList
+  // addMoreMessagesToPrivateChatList
 } = Private_Chat_Slice.actions
 
 export default Private_Chat_Slice.reducer

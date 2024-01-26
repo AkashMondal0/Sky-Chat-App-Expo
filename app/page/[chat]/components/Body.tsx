@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { CurrentTheme } from '../../../../types/theme';
 import { PrivateChat, PrivateMessage, PrivateMessageSeen } from '../../../../types/private-chat';
 import { User } from '../../../../types/profile';
-import { addMoreMessagesToPrivateChatList, sendMessageSeenPrivate } from '../../../../redux/slice/private-chat';
+import { getMoreMessagePrivate, sendMessageSeenPrivate } from '../../../../redux/slice/private-chat';
 import axios from 'axios';
 import { localhost } from '../../../../keys';
 import MyButton from '../../../../components/shared/Button';
@@ -20,6 +20,8 @@ interface BodyChatProps {
     privateChat: PrivateChat | null | undefined
     user: User | null | undefined
     conversationId: string | undefined
+    messageLoading: boolean
+    error: string | null
 }
 const BodyChat: FC<BodyChatProps> = ({
     theme,
@@ -27,19 +29,19 @@ const BodyChat: FC<BodyChatProps> = ({
     profile,
     privateChat,
     user,
-    conversationId
+    conversationId,
+    messageLoading,
+    error
 }) => {
     const scrollViewRef = React.useRef<any>(null);
-    const [page, setPage] = React.useState(2);
-    const [loading, setLoading] = React.useState(false);
-    const [userScrollIcon, setUserScrollIcon] = React.useState(false);
-    const [moreDataStop, setMoreDataStop] = React.useState(false);
     const dispatch = useDispatch()
+    const [userScrollIcon, setUserScrollIcon] = React.useState<boolean>(false)
 
     // memoized sorted dates
     const memoSortedDates = useMemo(() => {
         const dateSorted = [...messages]
-            ?.filter((value, index, dateArr) => index === dateArr
+            .slice(0, 0 + 10)
+            .filter((value, index, dateArr) => index === dateArr
                 .findIndex((time) => (dateFormat(time.createdAt) === dateFormat(value.createdAt))))
             .map((item) => {
                 item._id = new Date(item.createdAt).getTime().toString();
@@ -71,51 +73,29 @@ const BodyChat: FC<BodyChatProps> = ({
         }
         dispatch(sendMessageSeenPrivate({ seen }) as any)
     }, [messages])
-    // console.log(memoSortedDates)
 
     const getMoreData = async () => {
-        const condition = !moreDataStop && !privateChat?.loadAllMessages && !loading && messages.length > 19
+        const condition = !privateChat?.loadAllMessages && !privateChat?.loadAllMessages && !messageLoading && messages.length > 19
         if (condition) {
-            setLoading(true)
-            // increment height of view
-            axios.get(`${localhost}/private/chat/list/messages/${conversationId}?page=${page}&size=${20}`)
-                .then((res) => {
-                    if (res.data) {
-                        if (res.data?.length === 0) {
-                            setMoreDataStop(true)
-                            dispatch(addMoreMessagesToPrivateChatList({
-                                messages: [],
-                                conversationId: privateChat?._id as string,
-                                AllMessagesLoaded: true
-                            }))
-                            // ToastAndroid.show('No more messages', ToastAndroid.SHORT)
-                        } else {
-                            dispatch(addMoreMessagesToPrivateChatList({
-                                messages: res.data,
-                                conversationId: privateChat?._id as string,
-                                AllMessagesLoaded: false
-                            }))
-                            setPage(page + 1)
-                            return res.data
-                        }
-                    }
-                }).catch((err) => {
-                    console.log(err)
-                }).finally(() => {
-                    setLoading(false)
-                })
+            dispatch(getMoreMessagePrivate({
+                conversationId: conversationId as string,
+                page: privateChat?.page || 2 as number,
+            }) as any)
         }
     }
+
+    const throttledFunction = _.throttle(() => getMoreData(), 2000);
 
 
     useEffect(() => {
         //debounce
-        if (!loading) {
+        if (!messageLoading) {
             if (messages.length > 0) {
                 messageSeen()
             }
         }
     }, [messages])
+
 
     const ItemView = memo(({ item }: { item: PrivateMessage }) => {
         if (item.typeDate) {
@@ -146,8 +126,6 @@ const BodyChat: FC<BodyChatProps> = ({
         );
     })
 
-    const throttledFunction = _.throttle(() => getMoreData(), 2000);
-
 
     return (
         <>
@@ -155,6 +133,11 @@ const BodyChat: FC<BodyChatProps> = ({
                 // style={{paddingBottom: 100,
                 // minHeight: "100%"
                 // }}
+                onContentSizeChange={() => {
+                    memoSortedDates.sort((a, b) => {
+                        return new Date(b.createdAt).getSeconds() - new Date(a.createdAt).getSeconds()
+                    })
+                }}
                 inverted
                 removeClippedSubviews={true}
                 keyExtractor={(item, index) => index.toString() as string}
@@ -185,9 +168,9 @@ const BodyChat: FC<BodyChatProps> = ({
                         alignItems: "center",
                         justifyContent: "center",
                     }}>
-                        {loading ? 
-                        <ActivityIndicator size="large" color={theme.primaryTextColor} /> 
-                        : <></>}
+                        {messageLoading ?
+                            <ActivityIndicator size="large" color={theme.primaryTextColor} />
+                            : <></>}
                     </View>
                 }}
             />

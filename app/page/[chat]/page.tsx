@@ -20,6 +20,7 @@ interface ChatScreenProps {
             chatId: string
             userId: string
             userDetail: User
+            profile: User
             chatDetails: PrivateChat
             newChat: boolean
         }
@@ -28,7 +29,7 @@ interface ChatScreenProps {
 
 const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
     const useThem = useSelector((state: RootState) => state.ThemeMode.currentTheme)
-    const { List } = useSelector((state: RootState) => state.privateChat)
+    const { List, messageLoading, error } = useSelector((state: RootState) => state.privateChat)
     const profile = useSelector((state: RootState) => state.profile)
     const connectedUser = useSelector((state: RootState) => state.users.connectedUser)
     const AnimatedState = useContext(AnimatedContext)
@@ -73,6 +74,8 @@ const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
                 defaultWallpaper
                 backgroundColor={useThem.borderColor}>
                 <Body
+                    messageLoading={messageLoading}
+                    error={error}
                     conversationId={PrivateConversationData?._id}
                     user={userData}
                     privateChat={PrivateConversationData}
@@ -84,7 +87,6 @@ const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
                     forNewConnection={params?.newChat}
                     conversation={PrivateConversationData}
                     user={userData}
-                    userId={params?.userId}
                     profile={profile.user} />
             </Wallpaper_Provider>
             {/* <MyActionSheet

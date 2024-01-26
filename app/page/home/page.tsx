@@ -54,13 +54,16 @@ const HomeScreen = ({ navigation }: any) => {
         }).filter(item => item !== undefined).length
     }, [useProfile?.user?._id])
 
+    const sortedDate = useCallback((messages?: PrivateMessage[]) => {
+        // @ts-ignore
+        return [...messages]?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]?.createdAt
+    }, [])
+
     // chat list sorted by last message
     const sortedListArray = useMemo(() => {
         return ([...usePrivateChat.List].sort((a, b) => {
-            // @ts-ignore
-            const A = [...a.messages]?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]?.createdAt
-            // @ts-ignore
-            const B = [...b.messages]?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]?.createdAt
+            const A = sortedDate(a.messages)
+            const B = sortedDate(b.messages)
 
             return new Date(B).getTime() - new Date(A).getTime()
         }).filter((item) => {
@@ -102,7 +105,7 @@ const HomeScreen = ({ navigation }: any) => {
                                     profile={useProfile?.user}
                                     title={user?.username || "user"}
                                     // @ts-ignore
-                                    date={item?.messages[item?.messages?.length - 1]?.createdAt || item.updatedAt as string}
+                                    date={sortedDate(item?.messages)}
                                     isTyping={item.typing}
                                     onPress={() => navigation.navigate('Chat', { chatId: item._id, userId: userId })}
                                     lastMessage={item.lastMessageContent} /> :
