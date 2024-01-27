@@ -1,55 +1,33 @@
 import React from 'react';
-import {FC} from 'react';
+import { FC } from 'react';
 import { View } from 'react-native';
-import { CurrentTheme } from '../../../types/theme';
-
+import { CurrentTheme } from '../../../../types/theme';
+import ContentLoader, { Rect, Circle } from 'react-content-loader/native'
 interface LoadingUserCardProps {
-    theme:CurrentTheme
+    theme: CurrentTheme
 }
-const LoadingUserCard:FC<LoadingUserCardProps> = ({
+const LoadingUserCard: FC<LoadingUserCardProps> = ({
     theme
 }) => {
-  return (
-    <View style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        backgroundColor: theme.background,
-        borderRadius: 20,
-        paddingVertical: 12,
-        paddingLeft: 5,
-        width: '100%',
-    }}>
+    return (
         <View style={{
-            width: 55,
-            height: 55,
-            borderRadius: 55,
-            backgroundColor: theme.primaryBackground,
-            marginHorizontal: 5,
-        }}/>
-        <View style={{
-            flex: 1,
-            flexDirection: 'column',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
+            paddingHorizontal: 10,
         }}>
-            <View style={{
-                width: '80%',
-                height: 20,
-                borderRadius: 20,
-                backgroundColor: theme.primaryBackground,
-                marginBottom: 5,
-            }}/>
-            <View style={{
-                width: '60%',
-                height: 20,
-                borderRadius: 20,
-                backgroundColor: theme.primaryBackground,
-                marginBottom: 5,
-            }}/>
+            <ContentLoader
+                height={70}
+                speed={1}
+                backgroundColor={theme.primaryBackground}
+                foregroundColor={theme.background}
+                // viewBox="0 0 380 70"
+                style={{
+                    width: '100%',
+                }}>
+                <Rect x="0" y="0" rx="100" ry="100" width="55" height="55" />
+                <Rect x="80" y="17" rx="10" ry="10" width="80%" height="20" />
+                <Rect x="80" y="40" rx="10" ry="10" width="60%" height="20" />
+            </ContentLoader>
         </View>
-    </View>
-  );
+    );
 };
 
 export default LoadingUserCard;

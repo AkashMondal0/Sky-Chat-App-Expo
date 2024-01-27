@@ -13,6 +13,7 @@ import RegisterScreen from './app/page/auth/register/page';
 import NewMessageScreen from './app/page/home/newMessage/page';
 import ChatScreen from './app/page/[chat]/page';
 import Animated_Provider from './provider/Animated_Provider';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 
 
@@ -82,15 +83,17 @@ const Stack = createNativeStackNavigator();
 
 function App() {
   return (
-    <NavigationContainer>
-      <Provider store={store}>
-        <Animated_Provider>
-          <Profile_Provider>
-            <Routes />
-          </Profile_Provider>
-        </Animated_Provider>
-      </Provider>
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Provider store={store}>
+          <Animated_Provider>
+            <Profile_Provider>
+              <Routes />
+            </Profile_Provider>
+          </Animated_Provider>
+        </Provider>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
 

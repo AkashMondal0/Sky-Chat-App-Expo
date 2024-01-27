@@ -63,8 +63,8 @@ const HomeScreen = ({ navigation }: any) => {
         navigation.navigate("Chat", {
             newChat: false,
             userDetail: item.userDetails,
-            chatDetails: item,
-            profileDetail: useProfile?.user
+            profileDetail: useProfile?.user,
+            chatId: item._id
         })
     }, [])
 
@@ -83,7 +83,10 @@ const HomeScreen = ({ navigation }: any) => {
             {!usePrivateChat.List && usePrivateChat.loading ? <LoadingUserCard theme={useTheme} />
                 :
                 <>
-                    {sortedListArray.length <= 0 && !usePrivateChat.loading ? <NoItem them={useTheme} /> :
+                    {sortedListArray.length <= 0 && !usePrivateChat.loading ? <ScrollView>
+                        {Array.from({ length: 15 }).fill(0).map((item, i) => <LoadingUserCard theme={useTheme} key={i} />)}
+                    </ScrollView>
+                        :
                         <FlatList
                             data={sortedListArray}
                             renderItem={({ item }) => {

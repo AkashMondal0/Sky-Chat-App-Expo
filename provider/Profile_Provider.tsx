@@ -57,7 +57,6 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
 
 
     useEffect(() => {
-        SplashScreen.hideAsync()
         fetchUserData()
         // const unsubscribe = NetInfo.addEventListener(state => {
         //     console.log('Connection type', state.type);
