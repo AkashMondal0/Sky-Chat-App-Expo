@@ -1,12 +1,12 @@
 import React, { FC, memo, useCallback, useContext, useEffect, useRef } from 'react';
 import { Keyboard, TextInput, ToastAndroid, View } from 'react-native';
 import { Camera, Paperclip, Send, Smile } from 'lucide-react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { CurrentTheme } from '../../../../types/theme';
 import { User } from '../../../../types/profile';
-import { PrivateChat, PrivateMessage, typingState } from '../../../../types/private-chat';
-import { addToPrivateChatList, createPrivateChatConversation, sendMessagePrivate } from '../../../../redux/slice/private-chat';
+import { PrivateChat, typingState } from '../../../../types/private-chat';
+import { createPrivateChatConversation, sendMessagePrivate } from '../../../../redux/slice/private-chat';
 import socket from '../../../../utils/socket-connect';
 import MyButton from '../../../../components/shared/Button';
 import { RootState } from '../../../../redux/store';

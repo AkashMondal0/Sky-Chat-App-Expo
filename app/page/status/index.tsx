@@ -1,60 +1,50 @@
-import React, { useCallback, useMemo, useRef } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
-import {
-  BottomSheetModal,
-  BottomSheetModalProvider,
-} from '@gorhom/bottom-sheet';
+import React, { useState, useEffect } from 'react';
+import { Button, Image, View } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import axios from 'axios';
+import uid from '../../../utils/uuid';
 
-const App = () => {
-  // ref
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+export default function ImagePickerExample() {
+  const [image, setImage] = useState(null);
 
-  // variables
-  const snapPoints = useMemo(() => ['25%', "50%",'80%'], []);
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
 
-  // callbacks
-  const handlePresentModalPress = useCallback(() => {
-    bottomSheetModalRef.current?.present();
-  }, []);
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
-  }, []);
+    console.log(result);
 
-  // renders
+    if (!result.canceled) {
+      setImage(result.assets[0]);
+    }
+  };
+
+  const uploadImage = async () => {
+    const data = new FormData();
+    data.append('file', {
+      //@ts-ignore
+      uri: image?.uri,
+      type: "image/jpeg",
+      name: "akash.jpeg",
+    } as any);
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    };
+    const res = await axios.post('http://192.168.31.212:4001/file/multiple/akash', data, config);
+    console.log(res.data)
+  }
+  // http://192.168.31.212:4001/file/multiple/akash
   return (
-    <BottomSheetModalProvider>
-      <View style={styles.container}>
-        <Button
-          onPress={handlePresentModalPress}
-          title="Present Modal"
-          color="black"
-        />
-        <BottomSheetModal
-          ref={bottomSheetModalRef}
-          index={1}
-          snapPoints={snapPoints}
-          onChange={handleSheetChanges}
-        >
-          <View style={styles.contentContainer}>
-            <Text>Awesome 🎉</Text>
-          </View>
-        </BottomSheetModal>
-      </View>
-    </BottomSheetModalProvider>
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Button title="Pick an image from camera roll" onPress={pickImage} />
+      {image && <Image source={{ uri: image.uri }} style={{ width: 200, height: 200 }} />}
+      <Button title="Upload" onPress={uploadImage} />
+    </View>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: 'center',
-    // backgroundColor: 'grey',
-  },
-  contentContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-});
-
-export default App;
+}

@@ -80,12 +80,12 @@ const HomeScreen = ({ navigation }: any) => {
             <Header theme={useTheme}
                 AnimatedState={AnimatedState}
                 navigation={navigation} />
-            {!usePrivateChat.List && usePrivateChat.loading ? <LoadingUserCard theme={useTheme} />
+            {!usePrivateChat.List && usePrivateChat.loading ? <ScrollView>
+                {Array.from({ length: 15 }).fill(0).map((item, i) => <LoadingUserCard theme={useTheme} key={i} />)}
+            </ScrollView>
                 :
                 <>
-                    {sortedListArray.length <= 0 && !usePrivateChat.loading ? <ScrollView>
-                        {Array.from({ length: 15 }).fill(0).map((item, i) => <LoadingUserCard theme={useTheme} key={i} />)}
-                    </ScrollView>
+                    {sortedListArray.length <= 0 && !usePrivateChat.loading ? <NoItem />
                         :
                         <FlatList
                             data={sortedListArray}
