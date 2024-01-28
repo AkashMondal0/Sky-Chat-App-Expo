@@ -12,9 +12,9 @@ interface AvatarProps {
     onPress?: () => void;
     onLongPress?: () => void;
     text?: string;
-    theme?: CurrentTheme
+    theme: CurrentTheme
     border?: boolean
-    AnimatedState?: any
+    AnimatedState: any
 }
 const Avatar: FC<AvatarProps> = ({
     url,
@@ -28,8 +28,6 @@ const Avatar: FC<AvatarProps> = ({
     AnimatedState
 }) => {
 
-    const useThem = useSelector((state: RootState) => state.ThemeMode.currentTheme)
-
     if (!url) {
         return <Animated.View style={{
             width: size,
@@ -39,12 +37,12 @@ const Avatar: FC<AvatarProps> = ({
             alignItems: 'center',
             ...style,
             borderWidth: border ? 1 : 0,
-            borderColor: useThem?.borderColor,
+            borderColor: theme?.borderColor,
             backgroundColor: AnimatedState.primaryBackgroundColor
         }}>
             <Text style={{
                 fontSize: size / 2,
-                color: useThem.textColor,
+                color: theme?.textColor,
             }}>
                 {text?.charAt(0).toUpperCase()}
             </Text>

@@ -29,7 +29,7 @@ export default function ProfileScreen() {
 
     return (
         <Animated.ScrollView style={{
-            backgroundColor:AnimatedState.backgroundColor
+            backgroundColor: AnimatedState.backgroundColor
         }}>
             <Padding size={10} />
             <View style={{
@@ -45,8 +45,11 @@ export default function ProfileScreen() {
                     },
                     styles.container
                 ]}>
-                    <Avatar url={'https://lh3.googleusercontent.com/a/ACg8ocK-Gr8xcZCMlt_G6ZMKvgwtJwz0r0ssqPNrptWbaZp4ybQb=s288-c-no'}
-                        size={130} />
+                    <Avatar
+                        text={user?.username}
+                        AnimatedState={AnimatedState}
+                        theme={useTheme}
+                        url={user?.profilePicture} size={130} />
                 </View>
                 <View style={[styles.container, {
                     paddingHorizontal: 15,

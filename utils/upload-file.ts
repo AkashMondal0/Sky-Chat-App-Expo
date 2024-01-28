@@ -1,4 +1,5 @@
 import axios from "axios";
+import { localhostStorage } from "../keys";
 
 const skyUploadImage = async (filesUri: string[],userId:string) => {
   try {
@@ -16,7 +17,7 @@ const skyUploadImage = async (filesUri: string[],userId:string) => {
         'Content-Type': 'multipart/form-data',
       },
     };
-    const res = await axios.post(`http://192.168.31.212:4001/file/multiple/${userId}`, data, config);
+    const res = await axios.post(`${localhostStorage}/file/multiple/${userId}`, data, config);
     return res.data;
   } catch (error) {
     console.log(error);

@@ -72,6 +72,7 @@ export default function NewMessageScreen({ navigation }: any) {
 
     }, []);
 
+
     return (
         <ScrollView>
             <Padding size={10} />
@@ -124,6 +125,7 @@ export default function NewMessageScreen({ navigation }: any) {
                                 key={index}
                                 theme={useTheme}
                                 user={item}
+                                avatarUrl={item.profilePicture}
                                 onPress={() => CreateConnectionUser(item)}
                                 iconBackgroundColor={useTheme.background}
                                 secondaryIcon={<ChevronRight color={iconColor} />} />
