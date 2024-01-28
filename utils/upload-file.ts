@@ -1,22 +1,28 @@
 import axios from "axios";
 
-const uploadImage = async () => {
+const skyUploadImage = async (filesUri: string[],userId:string) => {
+  try {
     const data = new FormData();
-    data.append('file', {
-      //@ts-ignore
-      uri: image?.uri,
-      type: "image/jpeg",
-      name: "akash.jpeg",
-    } as any);
+    for (let i = 0; i < filesUri.length; i++) {
+      data.append('file', {
+        //@ts-ignore
+        uri: filesUri[i],
+        type: "image/jpeg",
+        name: `${userId}.jpeg`,
+      } as any);
+    }
     const config = {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     };
-    const res = await axios.post('http://192.168.31.212:4001/file/multiple/akash', data, config);
-    console.log(res.data)
+    const res = await axios.post(`http://192.168.31.212:4001/file/multiple/${userId}`, data, config);
+    return res.data;
+  } catch (error) {
+    console.log(error);
   }
+}
 
-  export {
-        uploadImage
-  }
+export {
+  skyUploadImage
+}

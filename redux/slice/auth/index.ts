@@ -3,6 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import axios from 'axios';
 import { localhost } from '../../../keys';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { skyUploadImage } from '../../../utils/upload-file';
 export type Theme = "light" | "dark" | "system"
 const SaveTokenLocal = async (token: string) => {
     try {
@@ -37,10 +38,18 @@ export const registerApi = createAsyncThunk(
     async (data: {
         email: string,
         password: string,
-        username: string
+        username: string,
+        image?: string
     }, thunkApi) => {
         try {
             const response = await axios.post(`${localhost}/auth/register`, data);
+            if (response.data?._id, data.image) {
+                const url = await skyUploadImage([data.image], response.data._id);
+                axios.patch(`${localhost}/profile/update`, {
+                    _id: response.data._id,
+                    profilePicture: url.data[0]
+                })
+            }
             return response.data;
         } catch (error: any) {
             return thunkApi.rejectWithValue(error.response?.data?.message)

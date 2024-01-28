@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect } from 'react';
 import { SafeAreaView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
-import { ArrowLeft, Eye, EyeOff } from 'lucide-react-native';
+import { ArrowLeft, Eye, EyeOff, ImagePlus, XCircle } from 'lucide-react-native';
 import { ProfileContext } from '../../../../provider/Profile_Provider';
 import { RootState } from '../../../../redux/store';
 import Icon_Button from '../../../../components/shared/IconButton';
@@ -10,13 +10,15 @@ import MyButton from '../../../../components/shared/Button';
 import Padding from '../../../../components/shared/Padding';
 import MyInput from '../../../../components/shared/Input';
 import { registerApi } from '../../../../redux/slice/auth';
+import Avatar from '../../../../components/shared/Avatar';
+import * as ImagePicker from 'expo-image-picker';
 
 const RegisterScreen = ({ navigation }: any) => {
     const profileContext = useContext(ProfileContext)
     const { error, loading, isLogin } = useSelector((state: RootState) => state.authState)
     const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
-
     const [showPassword, setShowPassword] = React.useState(true);
+    const [image, setImage] = React.useState<any>(null);
     const dispatch = useDispatch();
 
     const { control, watch, handleSubmit, formState: { errors } } = useForm({
@@ -26,12 +28,26 @@ const RegisterScreen = ({ navigation }: any) => {
             email: '',
         }
     });
+
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+        });
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+        }
+    }
+
+
     const handleRegister = useCallback((data: {
         username: string,
         password: string,
         email: string,
-    }) => {
-        dispatch(registerApi(data) as any)
+    }, _image: string) => {
+        dispatch(registerApi({ ...data, image: _image }) as any)
     }, []);
 
     useEffect(() => {
@@ -75,7 +91,44 @@ const RegisterScreen = ({ navigation }: any) => {
                 }}>
                     Log in to your existing account of Next Chat
                 </Text>
-
+                <>
+                    {
+                        image ?
+                            <View style={{
+                                width: 120,
+                                height: 120,
+                            }}>
+                                <Avatar
+                                    size={120}
+                                    url={image}
+                                    onPress={pickImage}
+                                    theme={useTheme} />
+                                <TouchableOpacity
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        right: 0,
+                                        backgroundColor: useTheme.primaryBackground,
+                                        borderRadius: 20,
+                                    }}
+                                    onPress={() => setImage(null)}>
+                                    <XCircle size={30} color={useTheme.DangerButtonColor} />
+                                </TouchableOpacity>
+                            </View>
+                            :
+                            <View style={{
+                                width: 120,
+                                height: 120,
+                                borderRadius: 60,
+                                backgroundColor: useTheme.primaryBackground,
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}>
+                                <TouchableOpacity onPress={pickImage}>
+                                    <ImagePlus size={60} color={useTheme.iconColor} />
+                                </TouchableOpacity>
+                            </View>}
+                </>
                 <Text style={{
                     fontSize: 15,
                     color: useTheme.DangerButtonColor,
@@ -122,7 +175,7 @@ const RegisterScreen = ({ navigation }: any) => {
                 <Padding size={20} />
 
                 <MyButton theme={useTheme}
-                    onPress={handleSubmit(handleRegister)}
+                    onPress={handleSubmit((data) => handleRegister(data, image))}
                     width={"100%"}
                     radius={10}
                     fontWeight={'bold'}

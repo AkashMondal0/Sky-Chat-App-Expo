@@ -17,4 +17,17 @@ export interface User {
     updatedAt?: string;
     createdAt?: string;
     themes?: CurrentTheme[]
+    status?: [
+        {
+            _id: string,
+            url: string,
+            type: 'image' | 'video' | 'audio' | "text"
+            forText?: string;
+            forTextBackground?: boolean;
+            forTextColor?: string;
+            forTextSize?: string;
+            createdAt: string | Date;
+        }
+    ];
+    online?: boolean;
 }
