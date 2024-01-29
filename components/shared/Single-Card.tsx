@@ -3,9 +3,10 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { ChevronRight, CircleDashed, Palette, Pencil, UserRoundPlus } from 'lucide-react-native';
 import { CurrentTheme } from '../../types/theme';
 import Avatar from './Avatar';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 
 interface Props {
-    theme: CurrentTheme
     label: string
     icon?: React.ReactNode
     secondaryIcon?: React.ReactNode
@@ -18,7 +19,7 @@ interface Props {
 }
 
 const SingleCard: React.FC<Props> = ({
-    theme,
+    // theme,
     label,
     icon,
     secondaryIcon,
@@ -29,6 +30,7 @@ const SingleCard: React.FC<Props> = ({
     height,
     onPress
 }) => {
+    const theme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
 
     const titleTextSize = 16;
     const textWeight = "500";
@@ -48,6 +50,7 @@ const SingleCard: React.FC<Props> = ({
                         backgroundColor: theme.cardBackground,
                         borderRadius: 20,
                         height: height || 70,
+                        justifyContent: 'center',
                     }}>
                     <View style={{
                         paddingHorizontal: 15,
@@ -72,7 +75,7 @@ const SingleCard: React.FC<Props> = ({
                             }}>
                                 {icon}
                             </View> :
-                                <Avatar url={avatarUrl || ""} size={40} />
+                                <Avatar url={avatarUrl || ""} size={60} />
                             }
                             <View>
                                 <Text style={{

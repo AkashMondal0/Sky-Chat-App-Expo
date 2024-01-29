@@ -47,8 +47,6 @@ export default function ProfileScreen() {
                 ]}>
                     <Avatar
                         text={user?.username}
-                        AnimatedState={AnimatedState}
-                        theme={useTheme}
                         url={user?.profilePicture} size={130} />
                 </View>
                 <View style={[styles.container, {

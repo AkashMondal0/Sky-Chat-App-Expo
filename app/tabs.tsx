@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
 import { CircleDashed, CircleUserRound, MessageSquareText, Phone } from "lucide-react-native"
-import StatusScreen from './page/status';
+import StatusScreen from './page/status/page';
 import CallsScreen from './page/calls';
 import ProfileScreen from './page/profile/page';
 import HomeScreen from './page/home/page';
@@ -97,8 +97,7 @@ const Tabs = ({ navigation }: any) => {
                         backgroundColor: useTheme.badge,
                         color: useTheme.color,
                         borderRadius: 50,
-                    },
-                }} />
+                    },}} />
                 <Tab.Screen name="Status" component={StatusScreen} options={{
                     headerShown: false,
                 }} />

@@ -79,9 +79,7 @@ const UserCard: React.FC<Props> = ({
                                     }}>
                                         {user.email[0].toLocaleUpperCase()}
                                     </Text>}</> :
-                                    <Avatar
-                                        url={avatarUrl} size={40} theme={theme}
-                                        AnimatedState={AnimatedState} />}
+                                    <Avatar url={avatarUrl} size={40} />}
 
                             </View>
                             <View>

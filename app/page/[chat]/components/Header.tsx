@@ -14,9 +14,9 @@ interface HeaderChatProps {
     theme: CurrentTheme,
     secondaryOnPress?: () => void,
     primaryOnPress?: () => void,
-    isOnline ?: boolean,
-    isTyping ?: boolean,
-    AnimatedState ?: any,
+    isOnline?: boolean,
+    isTyping?: boolean,
+    AnimatedState?: any,
 }
 const HeaderChat: FC<HeaderChatProps> = ({
     avatarUrl,
@@ -28,7 +28,7 @@ const HeaderChat: FC<HeaderChatProps> = ({
     primaryOnPress,
     isOnline,
     isTyping,
-    AnimatedState  
+    AnimatedState
 }) => {
     const backgroundColor = theme.background;
     const iconColor = theme.iconColor;
@@ -60,14 +60,13 @@ const HeaderChat: FC<HeaderChatProps> = ({
                         color={iconColor}
                     />
                     <Avatar size={45}
-                    AnimatedState={AnimatedState}
                         style={{
                             marginHorizontal: 5,
                         }}
                         url={avatarUrl}
                         border
                         text={name?.charAt(0).toUpperCase()}
-                        />
+                    />
                 </TouchableOpacity>
                 <TouchableOpacity style={{
                     flexDirection: "row",
@@ -86,8 +85,8 @@ const HeaderChat: FC<HeaderChatProps> = ({
                             fontSize: 14,
                             color: TextColor,
                         }}>{
-                            isTyping ? "typing..." : isOnline ? "online" : lastSeen || "offline"
-                        }</Text>
+                                isTyping ? "typing..." : isOnline ? "online" : lastSeen || "offline"
+                            }</Text>
                     </View>
                 </TouchableOpacity>
 

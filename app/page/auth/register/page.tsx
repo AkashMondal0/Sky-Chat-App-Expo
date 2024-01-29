@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { Suspense, useCallback, useContext, useEffect } from 'react';
 import { SafeAreaView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
@@ -91,7 +91,7 @@ const RegisterScreen = ({ navigation }: any) => {
                 }}>
                     Log in to your existing account of Next Chat
                 </Text>
-                <>
+                <Suspense>
                     {
                         image ?
                             <View style={{
@@ -101,8 +101,7 @@ const RegisterScreen = ({ navigation }: any) => {
                                 <Avatar
                                     size={120}
                                     url={image}
-                                    onPress={pickImage}
-                                    theme={useTheme} />
+                                    onPress={pickImage}/>
                                 <TouchableOpacity
                                     style={{
                                         position: 'absolute',
@@ -116,7 +115,7 @@ const RegisterScreen = ({ navigation }: any) => {
                                 </TouchableOpacity>
                             </View>
                             :
-                            <View style={{
+                            <TouchableOpacity onPress={pickImage} style={{
                                 width: 120,
                                 height: 120,
                                 borderRadius: 60,
@@ -124,11 +123,11 @@ const RegisterScreen = ({ navigation }: any) => {
                                 justifyContent: "center",
                                 alignItems: "center",
                             }}>
-                                <TouchableOpacity onPress={pickImage}>
+                                <View>
                                     <ImagePlus size={60} color={useTheme.iconColor} />
-                                </TouchableOpacity>
-                            </View>}
-                </>
+                                </View>
+                            </TouchableOpacity>}
+                </Suspense>
                 <Text style={{
                     fontSize: 15,
                     color: useTheme.DangerButtonColor,

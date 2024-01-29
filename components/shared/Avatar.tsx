@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { Suspense, useContext } from 'react';
 import { FC } from 'react';
-import { Animated, Image, Text, View } from 'react-native';
-import { CurrentTheme } from '../../types/theme';
-import { useSelector } from 'react-redux';
+import { Animated, Image, Text } from 'react-native';
+import { AnimatedContext } from '../../provider/Animated_Provider';
 import { RootState } from '../../redux/store';
+import { useSelector } from 'react-redux';
 
 interface AvatarProps {
     url?: string;
@@ -12,9 +12,7 @@ interface AvatarProps {
     onPress?: () => void;
     onLongPress?: () => void;
     text?: string;
-    theme: CurrentTheme
     border?: boolean
-    AnimatedState: any
 }
 const Avatar: FC<AvatarProps> = ({
     url,
@@ -23,10 +21,10 @@ const Avatar: FC<AvatarProps> = ({
     onPress,
     onLongPress,
     text,
-    theme,
     border,
-    AnimatedState
 }) => {
+    const AnimatedState = useContext(AnimatedContext)
+    const theme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
 
     if (!url) {
         return <Animated.View style={{
@@ -49,18 +47,20 @@ const Avatar: FC<AvatarProps> = ({
         </Animated.View>
     }
     return (
-        <Image
-            source={{
-                uri: url,
-            }}
-            style={{
-                width: size, height: size,
-                borderRadius: size / 2,
-                justifyContent: 'center',
-                resizeMode: 'cover',
-                ...style,
-            }}
-        />
+        <Suspense fallback={<></>}>
+            <Image
+                source={{
+                    uri: url,
+                }}
+                style={{
+                    width: size, height: size,
+                    borderRadius: size / 2,
+                    justifyContent: 'center',
+                    resizeMode: 'cover',
+                    ...style,
+                }}
+            />
+        </Suspense>
     );
 };
 
