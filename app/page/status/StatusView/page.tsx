@@ -1,17 +1,17 @@
-import React, { memo, useEffect, useRef } from 'react'
-import { View, Text, Image, FlatList, TouchableOpacity, TextInput, Keyboard } from 'react-native'
+import React, { Suspense, memo, useRef } from 'react'
+import { View, Text, Image, FlatList, TouchableOpacity, TextInput } from 'react-native'
 import { Status, User } from '../../../../types/profile'
-import Wallpaper_Provider from '../../../../provider/Wallpaper_Provider'
 import { useDispatch, useSelector } from 'react-redux'
 import StatusHeader from './components/header'
 import Padding from '../../../../components/shared/Padding'
 import { RootState } from '../../../../redux/store'
-import { ImagePlus, Send } from 'lucide-react-native'
+import { ImagePlus, Play, Send } from 'lucide-react-native'
 import MyButton from '../../../../components/shared/Button'
 import { CurrentTheme } from '../../../../types/theme'
 import * as ImagePicker from 'expo-image-picker';
 import uid from '../../../../utils/uuid'
 import { uploadStatusApi } from '../../../../redux/slice/status'
+import { Video, ResizeMode } from 'expo-av'
 
 
 interface StatusScreenProps {
@@ -34,7 +34,7 @@ const StatusViewScreen = ({ navigation, route }: StatusScreenProps) => {
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
             allowsMultipleSelection: true,
             quality: 1,
         });
@@ -50,7 +50,6 @@ const StatusViewScreen = ({ navigation, route }: StatusScreenProps) => {
             })
 
             setAssets([...assets, ...data])
-            setSelectHeroImage(data[0])
         }
     }
 
@@ -63,12 +62,11 @@ const StatusViewScreen = ({ navigation, route }: StatusScreenProps) => {
     }
 
 
-
-
-    return (<Wallpaper_Provider
-        resizeMode="contain"
-        url={selectHeroImage.url}
-        backgroundColor={"black"}>
+    return (<View style={{
+        flex: 1,
+        backgroundColor: useThem.primaryBackground,
+    }}>
+        <Hero useThem={useThem} selectHeroImage={selectHeroImage} />
         <StatusHeader theme={useThem} navigation={navigation} />
         <View style={{
             flex: 1,
@@ -114,13 +112,94 @@ const StatusViewScreen = ({ navigation, route }: StatusScreenProps) => {
                 pickImage={pickImage}
                 setAssets={setAssets}
                 submitStatus={uploadStatus} />
-            <Padding size={30} />
+            <Padding size={20} />
         </View>
-    </Wallpaper_Provider>)
+    </View>)
 
 }
 
 export default memo(StatusViewScreen)
+
+const Hero = ({
+    useThem,
+    selectHeroImage
+}: {
+    useThem: CurrentTheme,
+    selectHeroImage: Status
+}) => {
+    const video = useRef(null) as any;
+    const [status, setStatus] = React.useState({}) as any;
+
+    return <Suspense fallback={
+        <View style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+        }}>
+            <Text style={{
+                color: useThem.textColor,
+                fontSize: 20,
+            }}>Loading...</Text>
+        </View>
+    }>
+        {selectHeroImage.type === "image" ? <Image source={{ uri: selectHeroImage.url }}
+            style={{
+                width: "100%",
+                height: "100%",
+                position: "absolute",
+                resizeMode: "contain",
+            }} /> :
+            <TouchableOpacity
+                activeOpacity={1}
+                style={{
+                    width: "100%",
+                    height: "100%",
+                    position: "absolute",
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}
+                onPress={() => {
+                    if (status.isPlaying) {
+                        video.current.pauseAsync()
+                    } else {
+                        video.current.playAsync()
+                    }
+                }}>
+                {
+                    !status.isPlaying ? <View style={{
+                        width: 80,
+                        height: 80,
+                        position: "absolute",
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 10,
+                        borderRadius: 100,
+                    }}>
+                        <Play size={60} color={"white"} />
+                    </View> : null
+                }
+
+                <Video
+                    source={{ uri: selectHeroImage.url }}
+                    rate={1.0}
+                    volume={1.0}
+                    isMuted={false}
+                    ref={video}
+                    shouldPlay
+                    isLooping
+                    onPlaybackStatusUpdate={status => setStatus(() => status)}
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        position: "absolute",
+                    }}
+                    resizeMode={ResizeMode.COVER}
+                />
+            </TouchableOpacity>
+        }
+    </Suspense>
+}
 
 const Footer = ({ useTheme,
     submitStatus, pickImage,

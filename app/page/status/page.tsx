@@ -1,4 +1,4 @@
-import React, { useState, useContext, useCallback } from 'react';
+import React, { useState, useContext, useCallback, useEffect } from 'react';
 import { Animated, View, Text, TouchableOpacity, Button } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { AnimatedContext } from '../../../provider/Animated_Provider';
@@ -18,11 +18,12 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
   const AnimatedState = useContext(AnimatedContext)
   const useProfile = useSelector((state: RootState) => state.profile)
   const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
-  
+  const statusState = useSelector((state: RootState) => state.statusState)
+
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsMultipleSelection: true,
       quality: 1,
     });
@@ -51,6 +52,10 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
     } else {
       pickImage()
     }
+
+  }, [])
+
+  useEffect(() => {
 
   }, [])
 
