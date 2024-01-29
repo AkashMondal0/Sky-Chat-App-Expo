@@ -15,7 +15,7 @@ interface PrivateChatCardProps {
     title: string;
     date: Date | string | any;
     lastMessage: string;
-    onPress: () => void;
+    onPress?: () => void;
     onLongPress?: () => void;
     indicator: number;
     avatarUrl?: string;
@@ -62,12 +62,10 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
                 onPress={onPress}>
                 <>
                     <Avatar
-                        AnimatedState={AnimatedState}
                         size={55}
                         style={{
                             marginHorizontal: 5,
                         }}
-                        theme={them}
                         text={title[0]}
                         url={avatarUrl as string} />
                     <View style={{

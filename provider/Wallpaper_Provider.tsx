@@ -11,13 +11,14 @@ interface Socket_ProviderProps {
     url: string;
     backgroundColor?: string;
     defaultWallpaper?: boolean;
-
+    resizeMode?: "contain" | "cover" | "stretch" | "repeat" | "center";
 }
 const Wallpaper_Provider: FC<Socket_ProviderProps> = ({
     children,
     url,
     backgroundColor,
-    defaultWallpaper
+    defaultWallpaper,
+    resizeMode = "cover"
 }) => {
 
     return (
@@ -30,6 +31,7 @@ const Wallpaper_Provider: FC<Socket_ProviderProps> = ({
                     flex: 1,
                     backgroundColor: backgroundColor,
                 }}
+                resizeMode={resizeMode}
             >
                 {children}
             </ImageBackground>

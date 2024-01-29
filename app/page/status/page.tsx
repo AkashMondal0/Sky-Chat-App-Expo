@@ -9,6 +9,7 @@ import { FlashList } from "@shopify/flash-list";
 import SingleCard from '../../../components/shared/Single-Card';
 import FloatingButton from '../../../components/shared/Floating';
 import { Camera } from 'lucide-react-native';
+import uid from '../../../utils/uuid';
 
 interface StatusScreenProps {
   navigation?: any
@@ -16,18 +17,30 @@ interface StatusScreenProps {
 const StatusScreen = ({ navigation }: StatusScreenProps) => {
   const AnimatedState = useContext(AnimatedContext)
   const useProfile = useSelector((state: RootState) => state.profile)
-  const usePrivateChat = useSelector((state: RootState) => state.privateChat)
   const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
+  
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      // aspect: [1, 1],
+      allowsMultipleSelection: true,
       quality: 1,
     });
     if (!result.canceled) {
+      const data = result.assets.map((item: any) => {
+        item = {
+          _id: uid(),
+          url: item.uri,
+          type: item.type,
+          caption: "",
+        }
+        return item
+      })
 
+      navigation.navigate('StatusView', {
+        assets: data,
+        user: useProfile.user,
+      })
     }
   }
 
@@ -49,20 +62,18 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
       <StatusHeader theme={useTheme}
         navigation={navigation}
         AnimatedState={AnimatedState} />
-      <View style={{ margin: 5 }}>
-        <SingleCard label={"My Status"}
-          subTitle='Today, 10:00 PM'
-          onPress={uploadStatus}
-          height={80} />
-      </View>
+
       <FlashList
         estimatedItemSize={100}
         renderItem={({ item }) => {
-          return <View style={{ margin: 5 }}>
+          return <>
             <SingleCard label={item.name}
               subTitle='Today, 10:00 PM'
-              height={80} />
-          </View>
+              backgroundColor={false}
+              elevation={0}
+              avatarSize={55}
+              height={70} />
+          </>
         }}
         getItemType={(item) => item.id}
         data={Array.from({ length: 100 }).map((_, i) => ({
@@ -70,6 +81,18 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
           name: `Item ${i}`,
         }))}
         keyExtractor={(item) => item.id.toString()}
+        ListHeaderComponent={() => (
+          <>
+            <SingleCard label={"My Status"}
+              subTitle='Today, 10:00 PM'
+              backgroundColor={false}
+              elevation={0}
+              avatarSize={55}
+              avatarUrl={useProfile.user?.profilePicture}
+              onPress={uploadStatus}
+              height={70} />
+          </>
+        )}
       />
       <FloatingButton
         onPress={uploadStatus}

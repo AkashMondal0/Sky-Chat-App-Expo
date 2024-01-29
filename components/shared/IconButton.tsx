@@ -24,7 +24,7 @@ const Icon_Button: FC<Icon_ButtonProps> = ({
             justifyContent: 'center',
             alignItems: 'center',
             borderRadius: 100,
-            backgroundColor: theme.background,
+            backgroundColor: theme.cardBackground,
             overflow: 'hidden',
             padding: 10,
         }}>

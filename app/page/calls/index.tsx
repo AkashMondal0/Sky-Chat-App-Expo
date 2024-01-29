@@ -1,138 +1,64 @@
-// import { useState, useEffect, useRef } from 'react';
-// import { Text, View, Button, Platform } from 'react-native';
-// import * as Notifications from 'expo-notifications';
+import * as React from 'react';
+import { View, StyleSheet, Button } from 'react-native';
+import { Video, ResizeMode } from 'expo-av';
+import * as ImagePicker from 'expo-image-picker';
 
-// // First, set the handler that will cause the notification
-// // to show the alert
+export default function App() {
+  const video = React.useRef(null) as any;
+  const [status, setStatus] = React.useState({});
+  const [videoUri, setVideoUri] = React.useState(null)
 
-// Notifications.setNotificationHandler({
-//   handleNotification: async () => ({
-//     shouldShowAlert: true,
-//     shouldPlaySound: false,
-//     shouldSetBadge: false,
-//   }),
-// });
-
-// // Second, call the method
-
-// Notifications.scheduleNotificationAsync({
-//   content: {
-//     title: 'Look at that notification',
-//     body: "I'm so proud of myself!",
-//     badge: 1,
-//     color: 'red',
-//     categoryIdentifier: 'yes',
-//   },
-//   trigger: null,
-// });
-// Notifications.setNotificationHandler({
-//   handleNotification: async () => ({
-//     shouldShowAlert: true,
-//     shouldPlaySound: false,
-//     shouldSetBadge: false,
-//   }),
-// });
-
-// export default function App() {
-//   const [expoPushToken, setExpoPushToken] = useState('');
-//   const [notification, setNotification] = useState(false);
-//   const notificationListener = useRef();
-//   const responseListener = useRef();
-
-//   useEffect(() => {
-//     registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
-
-//     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-//       setNotification(notification);
-//     });
-
-//     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-//       console.log(response);
-//     });
-
-//     return () => {
-//       Notifications.removeNotificationSubscription(notificationListener.current);
-//       Notifications.removeNotificationSubscription(responseListener.current);
-//     };
-//   }, []);
-
-//   return (
-//     <View
-//       style={{
-//         flex: 1,
-//         alignItems: 'center',
-//         justifyContent: 'space-around',
-//       }}>
-//       <Text>Your expo push token: {expoPushToken}</Text>
-//       <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-//         <Text>Title: {notification && notification.request.content.title} </Text>
-//         <Text>Body: {notification && notification.request.content.body}</Text>
-//         <Text>Data: {notification && JSON.stringify(notification.request.content.data)}</Text>
-//       </View>
-//       <Button
-//         title="Press to schedule a notification"
-//         onPress={async () => {
-//           await schedulePushNotification();
-//         }}
-//       />
-//     </View>
-//   );
-// }
-
-// async function schedulePushNotification() {
-//   await Notifications.scheduleNotificationAsync({
-//     content: {
-//       title: "You've got mail! 📬",
-//       body: 'Here is the notification body',
-//       data: { data: 'goes here' },
-//     },
-//     trigger: { seconds: 1 },
-//   });
-// }
-
-// async function registerForPushNotificationsAsync() {
-//   let token;
-
-//   if (Platform.OS === 'android') {
-//     await Notifications.setNotificationChannelAsync('default', {
-//       name: 'default',
-//       importance: Notifications.AndroidImportance.MAX,
-//       vibrationPattern: [0, 250, 250, 250],
-//       lightColor: '#FF231F7C',
-//     });
-//   }
-
-// //   if (Device.isDevice) {
-// //     const { status: existingStatus } = await Notifications.getPermissionsAsync();
-// //     let finalStatus = existingStatus;
-// //     if (existingStatus !== 'granted') {
-// //       const { status } = await Notifications.requestPermissionsAsync();
-// //       finalStatus = status;
-// //     }
-// //     if (finalStatus !== 'granted') {
-// //       alert('Failed to get push token for push notification!');
-// //       return;
-// //     }
-// //     // Learn more about projectId:
-// //     // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
-// //     token = (await Notifications.getExpoPushTokenAsync({ projectId: 'your-project-id' })).data;
-// //     console.log(token);
-// //   } else {
-// //     alert('Must use physical device for Push Notifications');
-// //   }
-
-//   return token;
-// }
-
-import { View, Text } from 'react-native'
-import React from 'react'
-
-const Status = () => {
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+      // allowsEditing: true,
+      // aspect: [1, 1],
+      quality: 1,
+    });
+    if (!result.canceled) {
+      setVideoUri(result.assets[0].uri)
+    }
+  }
   return (
-    <View>
-      <Text>Status</Text>
+    <View style={styles.container}>
+      {videoUri && <Video
+        ref={video}
+        style={styles.video}
+        source={{
+          uri: "http://13.127.232.152:4001/file/test/1706532866909-4_5887441612014880094.mp4",
+        }}
+        // useNativeControls
+        resizeMode={ResizeMode.CONTAIN}
+        isLooping
+        onPlaybackStatusUpdate={status => setStatus(() => status)}
+      />}
+      <View style={styles.buttons}>
+        <Button
+          title={status.isPlaying ? 'Pause' : 'Play'}
+          onPress={() =>
+            status.isPlaying ? video.current.pauseAsync() : video.current.playAsync()
+          }
+        />
+        <Button title={'Upload'} onPress={pickImage} />
+      </View>
     </View>
-  )
+  );
 }
 
-export default Status
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#ecf0f1',
+  },
+  video: {
+    alignSelf: 'center',
+    width: "100%",
+    height: "100%",
+  },
+  buttons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

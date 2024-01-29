@@ -6,7 +6,6 @@ import socket from '../../../utils/socket-connect';
 import { localhost } from '../../../keys';
 import { User } from '../../../types/profile';
 import uid from '../../../utils/uuid';
-export type Theme = "light" | "dark" | "system"
 
 export const createPrivateChatConversation = createAsyncThunk(
   'createPrivateChatConversation/post',

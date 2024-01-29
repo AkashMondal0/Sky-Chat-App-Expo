@@ -16,6 +16,9 @@ interface Props {
     textColor?: string
     height?: number
     onPress?: () => void
+    backgroundColor?: boolean
+    elevation?: number
+    avatarSize?: number
 }
 
 const SingleCard: React.FC<Props> = ({
@@ -28,7 +31,10 @@ const SingleCard: React.FC<Props> = ({
     subTitle,
     textColor,
     height,
-    onPress
+    onPress,
+    backgroundColor = true,
+    elevation = 0.5,
+    avatarSize = 60,
 }) => {
     const theme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
 
@@ -41,13 +47,13 @@ const SingleCard: React.FC<Props> = ({
                 borderRadius: 20,
                 width: '100%',
                 overflow: 'hidden',
-                elevation: 0.5,
+                elevation: elevation,
             }}>
                 <Pressable
                     onPress={onPress}
                     android_ripple={{ color: theme.selectedItemColor, borderless: false, }}
                     style={{
-                        backgroundColor: theme.cardBackground,
+                        backgroundColor: backgroundColor ? theme.cardBackground : theme.background,
                         borderRadius: 20,
                         height: height || 70,
                         justifyContent: 'center',
@@ -75,7 +81,7 @@ const SingleCard: React.FC<Props> = ({
                             }}>
                                 {icon}
                             </View> :
-                                <Avatar url={avatarUrl || ""} size={60} />
+                                <Avatar url={avatarUrl || ""} size={avatarSize} />
                             }
                             <View>
                                 <Text style={{
@@ -87,7 +93,7 @@ const SingleCard: React.FC<Props> = ({
                                 </Text>
                                 {subTitle && <Text style={{
                                     fontSize: 12,
-                                    color: textColor,
+                                    color: textColor || theme.textColor,
                                 }}>
                                     {subTitle}
                                 </Text>}
