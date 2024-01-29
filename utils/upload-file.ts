@@ -23,7 +23,30 @@ const skyUploadImage = async (filesUri: string[],userId:string) => {
     console.log(error);
   }
 }
+const skyUploadVideo = async (filesUri: string[],userId:string) => {
+  try {
+    const data = new FormData();
+    for (let i = 0; i < filesUri.length; i++) {
+      data.append('file', {
+        //@ts-ignore
+        uri: filesUri[i],
+        type: "video/mp4",
+        name: `${userId}.mp4`,
+      } as any);
+    }
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    };
+    const res = await axios.post(`${localhostStorage}/file/multiple/${userId}`, data, config);
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 export {
-  skyUploadImage
+  skyUploadImage,
+  skyUploadVideo
 }

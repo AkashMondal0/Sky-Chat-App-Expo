@@ -162,6 +162,7 @@ export interface Private_Chat_State {
   messageLoading: boolean
   messageSendLoading: boolean
   newConversationId: string | null
+  friendListWithDetails: User[]
 }
 
 
@@ -174,7 +175,8 @@ const initialState: Private_Chat_State = {
   recentChat: null,
   messageLoading: false,
   messageSendLoading: false,
-  newConversationId: null
+  newConversationId: null,
+  friendListWithDetails: []
 }
 
 export const Private_Chat_Slice = createSlice({
@@ -230,7 +232,8 @@ export const Private_Chat_Slice = createSlice({
       })
       .addCase(getProfileChatList.fulfilled, (state, action) => {
         state.loading = false;
-        state.List = action.payload;
+        state.List = action.payload?.privateConversationList;
+        state.friendListWithDetails = action.payload?.friendListWithDetails;
         state.updateList = "true"
       })
       .addCase(getProfileChatList.rejected, (state, action) => {

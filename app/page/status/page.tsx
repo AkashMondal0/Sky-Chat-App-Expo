@@ -3,13 +3,17 @@ import { Animated, View, Text, TouchableOpacity, Button } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { AnimatedContext } from '../../../provider/Animated_Provider';
 import StatusHeader from './components/header';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import { FlashList } from "@shopify/flash-list";
 import SingleCard from '../../../components/shared/Single-Card';
 import FloatingButton from '../../../components/shared/Floating';
 import { Camera } from 'lucide-react-native';
 import uid from '../../../utils/uuid';
+import { getFriendStatuses } from '../../../redux/slice/status';
+import privateChat from '../../../redux/slice/private-chat';
+import { Status, User } from '../../../types/profile';
+import { timeFormat } from '../../../utils/timeFormat';
 
 interface StatusScreenProps {
   navigation?: any
@@ -19,6 +23,8 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
   const useProfile = useSelector((state: RootState) => state.profile)
   const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
   const statusState = useSelector((state: RootState) => state.statusState)
+  const { friendListWithDetails } = useSelector((state: RootState) => state.privateChat)
+  const dispatch = useDispatch()
 
 
   const pickImage = async () => {
@@ -56,7 +62,19 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
   }, [])
 
   useEffect(() => {
+    if (useProfile?.user) {
+      dispatch(getFriendStatuses({
+        profileId: useProfile.user?._id,
+        friendIds: friendListWithDetails.map((item) => item._id)
+      }) as any)
+    }
+  }, [useProfile?.user])
 
+  const ViewStatus = useCallback((data: { user: User, statuses: Status[] }) => {
+    navigation.navigate('ViewStatus', {
+      assets: data.statuses,
+      user: data.user,
+    })
   }, [])
 
   return (
@@ -71,21 +89,25 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
       <FlashList
         estimatedItemSize={100}
         renderItem={({ item }) => {
+          const user = friendListWithDetails.find((friend) => friend._id === item.userId)
           return <>
-            <SingleCard label={item.name}
-              subTitle='Today, 10:00 PM'
-              backgroundColor={false}
-              elevation={0}
-              avatarSize={55}
-              height={70} />
+            {
+              item.status.length >= 1 ?
+                <SingleCard
+                  label={user?.username || ''}
+                  subTitle={timeFormat(item.status[item.status.length - 1].createdAt).toString()}
+                  backgroundColor={false}
+                  elevation={0}
+                  avatarSize={55}
+                  avatarUrl={user?.profilePicture}
+                  onPress={() => { ViewStatus({ user: user, statuses: item.status } as any) }}
+                  height={70} /> : null
+            }
           </>
         }}
-        getItemType={(item) => item.id}
-        data={Array.from({ length: 100 }).map((_, i) => ({
-          id: i,
-          name: `Item ${i}`,
-        }))}
-        keyExtractor={(item) => item.id.toString()}
+        getItemType={(item) => item.userId}
+        data={statusState.friendStatus}
+        keyExtractor={(item) => item.userId.toString()}
         ListHeaderComponent={() => (
           <>
             <SingleCard label={"My Status"}
@@ -96,6 +118,17 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
               avatarUrl={useProfile.user?.profilePicture}
               onPress={uploadStatus}
               height={70} />
+              <View style={{
+                height: 40,
+                justifyContent: "center",
+                paddingHorizontal: 15,
+              }}>
+                <Text style={{
+                  fontSize: 12,
+                  fontWeight: "bold",
+                  color: useTheme.textColor,
+                }}>Recent Updates</Text>
+              </View>
           </>
         )}
       />
