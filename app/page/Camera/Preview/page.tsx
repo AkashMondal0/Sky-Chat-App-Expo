@@ -1,6 +1,6 @@
 import React, { Suspense, memo, useRef } from 'react'
 import { View, Text, Image, FlatList, TouchableOpacity, TextInput } from 'react-native'
-import { Status, User } from '../../../../types/profile'
+import { Assets, Status, User } from '../../../../types/profile'
 import { useDispatch, useSelector } from 'react-redux'
 import StatusHeader from './components/header'
 import Padding from '../../../../components/shared/Padding'
@@ -12,24 +12,27 @@ import * as ImagePicker from 'expo-image-picker';
 import uid from '../../../../utils/uuid'
 import { uploadStatusApi } from '../../../../redux/slice/status'
 import { Video, ResizeMode } from 'expo-av'
+import { PrivateMessage } from '../../../../types/private-chat'
 
 
 interface StatusScreenProps {
     navigation?: any
     route?: {
         params: {
-            assets: Status[],
+            assets: Assets[],
             user: User,
+            type: "status" | "message",
+            goBackPath?: string | undefined,
         }
     }
 }
-const StatusViewScreen = ({ navigation, route }: StatusScreenProps) => {
+const PreViewScreen = ({ navigation, route }: StatusScreenProps) => {
     const dispatch = useDispatch()
     const useThem = useSelector((state: RootState) => state.ThemeMode.currentTheme)
     const profileState = useSelector((state: RootState) => state.profile.user)
-    const [selectHeroImage, setSelectHeroImage] = React.useState<Status>(route?.params.assets[0] as Status)
+    const [selectHeroImage, setSelectHeroImage] = React.useState<Assets>(route?.params.assets[0] as Assets)
     const profile = route?.params.user
-    const [assets, setAssets] = React.useState<Status[]>(route?.params.assets || [])
+    const [assets, setAssets] = React.useState<Assets[]>(route?.params.assets || [])
     const statusState = useSelector((state: RootState) => state.statusState)
 
     const pickImage = async () => {
@@ -54,11 +57,17 @@ const StatusViewScreen = ({ navigation, route }: StatusScreenProps) => {
     }
 
     const uploadStatus = async () => {
-        await dispatch(uploadStatusApi({
-            _id: profile?._id || profileState?._id as string,
-            status: assets,
-        }) as any)
-        navigation.goBack()
+        if (route?.params.type === "status") {
+            await dispatch(uploadStatusApi({
+                _id: profile?._id || profileState?._id as string,
+                status: assets as Status[],
+            }) as any) //TODO: fix this
+            // console.log(assets)
+            navigation.goBack()
+        }
+        else if (route?.params.type === "message") {
+            console.log(assets)
+        }
     }
 
 
@@ -118,14 +127,14 @@ const StatusViewScreen = ({ navigation, route }: StatusScreenProps) => {
 
 }
 
-export default memo(StatusViewScreen)
+export default memo(PreViewScreen)
 
 const Hero = ({
     useThem,
     selectHeroImage
 }: {
     useThem: CurrentTheme,
-    selectHeroImage: Status
+    selectHeroImage: Assets
 }) => {
     const video = useRef(null) as any;
     const [status, setStatus] = React.useState({}) as any;
@@ -211,9 +220,9 @@ const Footer = ({ useTheme,
     useTheme: CurrentTheme,
     pickImage?: () => void,
     submitStatus: () => void
-    assets: Status[]
-    setAssets: (data: Status[]) => void
-    selectHeroImage: Status
+    assets: Assets[]
+    setAssets: (data: Assets[]) => void
+    selectHeroImage: Assets
     loading?: boolean
 }) => {
 

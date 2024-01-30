@@ -12,7 +12,7 @@ import { Camera } from 'lucide-react-native';
 import uid from '../../../utils/uuid';
 import { getFriendStatuses } from '../../../redux/slice/status';
 import privateChat from '../../../redux/slice/private-chat';
-import { Status, User } from '../../../types/profile';
+import { Assets, Status, User } from '../../../types/profile';
 import { timeFormat } from '../../../utils/timeFormat';
 
 interface StatusScreenProps {
@@ -27,38 +27,45 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
   const dispatch = useDispatch()
 
 
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsMultipleSelection: true,
-      quality: 1,
-    });
-    if (!result.canceled) {
-      const data = result.assets.map((item: any) => {
-        item = {
-          _id: uid(),
-          url: item.uri,
-          type: item.type,
-          caption: "",
-        }
-        return item
-      })
+  // const pickImage = async () => {
+  //   let result = await ImagePicker.launchImageLibraryAsync({
+  //     mediaTypes: ImagePicker.MediaTypeOptions.All,
+  //     allowsMultipleSelection: true,
+  //     quality: 1,
+  //   });
+  //   if (!result.canceled) {
+  //     const data:Assets[] = result.assets.map((item: any) => {
+  //       item = {
+  //         _id: uid(),
+  //         url: item.uri,
+  //         type: item.type,
+  //         caption: "",
+  //       }
+  //       return item
+  //     })
 
-      navigation.navigate('StatusView', {
-        assets: data,
-        user: useProfile.user,
-      })
-    }
-  }
+  //     navigation.navigate('Preview', {
+  //       assets: data,
+  //       user: useProfile.user,
+  //       type: "status",
+  //     })
+  //   }
+  // }
 
-  const uploadStatus = useCallback(async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Sorry, we need camera roll permissions to upload status!');
-    } else {
-      pickImage()
-    }
+  // const uploadStatus = useCallback(async () => {
+  //   const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  //   if (status !== 'granted') {
+  //     alert('Sorry, we need camera roll permissions to upload status!');
+  //   } else {
+  //     pickImage()
+  //   }
 
+  // }, [])
+
+  const handleNavigation = useCallback(() => {
+    navigation.navigate('CameraScreen', {
+      type: "status"
+    })
   }, [])
 
   const fetchStatus = useCallback(async () => {
@@ -76,7 +83,7 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
 
   const ViewStatus = useCallback((data: { user: User, statuses: Status[] }) => {
     if (data.statuses.length === 0) {
-      uploadStatus()
+      handleNavigation()
     }
     else {
       navigation.navigate('ViewStatus', {
@@ -145,11 +152,11 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
             </View>
           </>
         )}
-        // refreshing={statusState.fetchLoading}
-        // onRefresh={fetchStatus}
+      // refreshing={statusState.fetchLoading}
+      // onRefresh={fetchStatus}
       />
       <FloatingButton
-        onPress={uploadStatus}
+        onPress={handleNavigation}
         theme={useTheme}
         icon={<Camera color={useTheme.color}
           size={35} />} />

@@ -33,3 +33,10 @@ export interface Status {
     createdAt: string | Date;
     seen?: string[];
 }
+
+export interface Assets {
+    _id: string,
+    url: string,
+    type: 'image' | 'video' | 'audio' | "text"
+    caption: string;
+}

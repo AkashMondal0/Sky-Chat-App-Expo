@@ -13,6 +13,8 @@ import { RootState } from '../../../../redux/store';
 import { localhost } from '../../../../keys';
 import axios from 'axios';
 import { ProfileContext } from '../../../../provider/Profile_Provider';
+import Icon_Button from '../../../../components/shared/IconButton';
+import * as ImagePicker from 'expo-image-picker';
 
 interface FooterChatProps {
   theme: CurrentTheme
@@ -116,6 +118,10 @@ const FooterChat: FC<FooterChatProps> = ({
     }
   }, [])
 
+  const sendPhoto = useCallback(async () => {
+    navigation.navigate('CameraScreen', { type: "message" })
+  }, [])
+
   return (
     <View style={{
       flexDirection: "row",
@@ -132,24 +138,27 @@ const FooterChat: FC<FooterChatProps> = ({
         flexDirection: "row",
         alignItems: "center",
         maxHeight: 100,
-        paddingHorizontal: 10,
+        paddingHorizontal: 5,
       }}>
         <View style={{
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
           elevation: 5,
-          gap: 5,
+          gap: 10,
         }}>
-          <Smile
-            size={25}
-            color={_color}
-          />
+          <Icon_Button
+            theme={theme}
+            backgroundEnable={false}
+            onPress={() => {
+              // emoji
+
+            }}
+            size={40}
+            icon={<Smile
+              size={30} color={theme.iconColor} />} />
           <Controller
             control={control}
-            rules={{
-              // maxLength: 100,
-            }}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 onBlur={() => {
@@ -173,14 +182,17 @@ const FooterChat: FC<FooterChatProps> = ({
                 placeholder="Message"
                 placeholderTextColor={_color} />)}
             name="message" />
-          <Paperclip
-            // size={25}
-            color={_color}
-          />
-          {/* <Camera
+          {/* <Paperclip
             // size={25}
             color={_color}
           /> */}
+          <Icon_Button
+            theme={theme}
+            backgroundEnable={false}
+            onPress={sendPhoto}
+            size={40}
+            icon={<Camera
+              size={30} color={theme.iconColor} />} />
         </View>
       </View>
       <MyButton theme={theme}

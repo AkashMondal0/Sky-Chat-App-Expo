@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Provider, useSelector } from 'react-redux';
@@ -14,8 +13,10 @@ import NewMessageScreen from './app/page/home/newMessage/page';
 import ChatScreen from './app/page/[chat]/page';
 import Animated_Provider from './provider/Animated_Provider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import StatusUploadScreen from './app/page/status/StatusUpload/page';
 import ViewStatusScreen from './app/page/status/ViewStatus/page';
+import CameraScreen from './app/page/Camera/page';
+import CameraAndMedia_Provider from './provider/CameraAndMedia_Provider';
+import PreViewScreen from './app/page/Camera/Preview/page';
 
 
 
@@ -62,8 +63,7 @@ function Routes() {
       <Stack.Screen name="login" component={LoginScreen} options={Option2 as any} />
       <Stack.Screen name="register" component={RegisterScreen} options={Option2 as any} />
 
-      <Stack.Screen name="Chat" component={ChatScreen} options={
-        {
+      <Stack.Screen name="Chat" component={ChatScreen} options={{
           headerShown: false,
           animation: "slide_from_right",
           animationDuration: 300,
@@ -71,14 +71,13 @@ function Routes() {
             backgroundColor: backgroundColor,
             elevation: 0,
             height: "auto"
-          }
-        }
-      } />
+          }}} />
 
       <Stack.Screen name="Message" component={NewMessageScreen} options={options as any} />
       <Stack.Screen name="Setting" component={SettingsScreen} options={options as any} />
-      <Stack.Screen name="StatusView" component={StatusUploadScreen} options={Option2 as any} />
       <Stack.Screen name="ViewStatus" component={ViewStatusScreen} options={Option2 as any} />
+      <Stack.Screen name="CameraScreen" component={CameraScreen} options={Option2 as any} />
+      <Stack.Screen name="Preview" component={PreViewScreen} options={Option2 as any} />
     </Stack.Navigator>
   );
 }
@@ -91,9 +90,11 @@ function App() {
       <NavigationContainer>
         <Provider store={store}>
           <Animated_Provider>
+            <CameraAndMedia_Provider>
             <Profile_Provider>
               <Routes />
             </Profile_Provider>
+            </CameraAndMedia_Provider>
           </Animated_Provider>
         </Provider>
       </NavigationContainer>

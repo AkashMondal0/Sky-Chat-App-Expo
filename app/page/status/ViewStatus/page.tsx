@@ -166,6 +166,12 @@ const ViewStatusScreen = ({ navigation, route }: StatusScreenProps) => {
                 // pickImage={pickImage}
                 setAssets={setAssets}
                 submitStatus={uploadStatus} /> : <></>}
+                <Text style={{
+                    color: useThem.textColor,
+                    fontSize: 20,
+                    textAlign: "center",
+                    width: "80%",
+                }}>{selectHeroImage.caption || ""}</Text>
             <Padding size={20} />
         </View>
     </View>)
