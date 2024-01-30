@@ -1,29 +1,30 @@
 import React, { FC } from 'react';
 import { Image, Text, View } from 'react-native';
-import { CheckCheck} from 'lucide-react-native';
+import { CheckCheck } from 'lucide-react-native';
 import { CurrentTheme } from '../../../../types/theme';
 import { File } from '../../../../types/private-chat';
 import { timeFormat } from '../../../../utils/timeFormat';
 import { ResizeMode, Video } from 'expo-av';
 
-interface MessageImageProps {
+interface MessageVideoProps {
     sender: boolean
     theme: CurrentTheme
     seen?: boolean
     file: File
     time: string
 }
-const MessageImage: FC<MessageImageProps> = ({
+const MessageVideo: FC<MessageVideoProps> = ({
     theme,
     sender,
     seen,
-    file,
-    time
+    time,
+    file
 }) => {
     const senderColor = theme.primary;
     const receiverColor = theme.background;
     const textColor = sender ? theme.color : theme.textColor;
-    const video = React.useRef(null);
+    const video = React.useRef<any>(null);
+    const [status, setStatus] = React.useState<any>(null);
 
     return (
         <View style={{
@@ -43,13 +44,22 @@ const MessageImage: FC<MessageImageProps> = ({
                 elevation: 2,
                 gap: 5,
             }}>
-                <Image source={{ uri: file.url }} style={{
+               <Video
+                ref={video}
+                style={{
                     width: 250,
                     maxHeight: 350,
                     height: 350,
                     borderRadius: 20,
-                    resizeMode: "cover",
-                }} />
+                }}
+                source={{
+                  uri: file.url,
+                }}
+                useNativeControls
+                resizeMode={ResizeMode.COVER}
+                isLooping
+                // onPlaybackStatusUpdate={status => setStatus(() => status)}
+              />
 
                 <View style={{
                     flexDirection: "row",
@@ -72,4 +82,4 @@ const MessageImage: FC<MessageImageProps> = ({
     );
 };
 
-export default MessageImage;
+export default MessageVideo;

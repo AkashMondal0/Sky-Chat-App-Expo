@@ -13,6 +13,7 @@ import { ArrowDown } from 'lucide-react-native';
 import _ from 'lodash';
 import { dateFormat } from '../../../../utils/timeFormat';
 import MessageImage from './MessageImage';
+import MessageType from './MessageType';
 
 interface BodyChatProps {
     theme: CurrentTheme
@@ -117,20 +118,16 @@ const BodyChat: FC<BodyChatProps> = ({
         }
         if (item.fileUrl?.length! > 0 && item?.fileUrl) {
 
-            if (item?.fileUrl[0]?.type === "image") {
-                return <MessageImage
-                    key={item._id}
-                    files={item.fileUrl}
-                    sender={item.memberId === profile?._id}
-                    seen={item.seenBy.length >= 2 && item.seenBy.includes(profile?._id as string)}
-                    theme={theme}
-                />
-            }
-            else if (item?.fileUrl[0]?.type === "video") {
-                return <></>
-            }
+            return <MessageType
+                files={item.fileUrl}
+                sender={item.memberId === profile?._id}
+                seen={item.seenBy.length >= 2 && item.seenBy.includes(profile?._id as string)}
+                theme={theme}
+                time={item.createdAt}
+            />
 
         }
+
         return (
             <ChatCard
                 key={item._id}
@@ -161,7 +158,7 @@ const BodyChat: FC<BodyChatProps> = ({
                 getItemCount={(data) => data.length}
                 onEndReached={throttledFunction}
                 // @ts-ignore
-                renderItem={({ item }) => <ItemView item={item} />}
+                renderItem={({ item, index }) => <ItemView item={item} key={index} />}
                 onScroll={(e) => {
                     if (e.nativeEvent.contentOffset.y > 200) {
                         setUserScrollIcon(true)
