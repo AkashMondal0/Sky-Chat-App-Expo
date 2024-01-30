@@ -65,7 +65,7 @@ const ViewStatusScreen = ({ navigation, route }: StatusScreenProps) => {
         const index = assets.findIndex((item) => item._id === selectHeroImage._id)
         if (index + 1 < assets.length) {
             setSelectHeroImage(assets[index + 1])
-        }else{
+        } else {
             navigation.goBack()
         }
     }, [selectHeroImage])
@@ -75,10 +75,12 @@ const ViewStatusScreen = ({ navigation, route }: StatusScreenProps) => {
         const index = assets.findIndex((item) => item._id === selectHeroImage._id)
         if (index - 1 >= 0) {
             setSelectHeroImage(assets[index - 1])
-        }else{
+        } else {
             navigation.goBack()
         }
     }, [selectHeroImage])
+
+    const deleteStatus = useCallback(() => { }, [])
 
 
 
@@ -86,15 +88,15 @@ const ViewStatusScreen = ({ navigation, route }: StatusScreenProps) => {
         flex: 1,
         backgroundColor: useThem.primaryBackground,
     }}>
-        <Hero useThem={useThem} 
-        next={Next}
-        previous={Previous}
-        selectHeroImage={selectHeroImage} />
+        <Hero useThem={useThem}
+            next={Next}
+            previous={Previous}
+            selectHeroImage={selectHeroImage} />
         <StatusHeader theme={useThem}
             avatarUrl={userprofile?.profilePicture}
             name={userprofile?.username}
             time={selectHeroImage.createdAt}
-            onBackPress={() =>{
+            onBackPress={() => {
                 navigation.goBack()
             }} />
         <View style={{
@@ -157,13 +159,13 @@ const ViewStatusScreen = ({ navigation, route }: StatusScreenProps) => {
                         }
                     }} /> */}
             </View>
-            <Footer useTheme={useThem}
+            {route?.params.user._id !== profileState?._id ? <Footer useTheme={useThem}
                 selectHeroImage={selectHeroImage}
                 assets={assets}
                 loading={statusState.fetchLoading}
                 // pickImage={pickImage}
                 setAssets={setAssets}
-                submitStatus={uploadStatus} />
+                submitStatus={uploadStatus} /> : <></>}
             <Padding size={20} />
         </View>
     </View>)
@@ -295,17 +297,6 @@ const Footer = ({ useTheme,
 
     const _color = useTheme.textColor
     const backgroundColor = useTheme.background
-    const inputRef = useRef<any>(null);
-
-    // useEffect(() => {
-    //     const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-    //         inputRef.current.blur();
-    //     });
-
-    //     return () => {
-    //         hideSubscription.remove();
-    //     };
-    // }, []);
 
 
     const onChangeText = (text: string) => {
@@ -348,11 +339,6 @@ const Footer = ({ useTheme,
                         />
                     </TouchableOpacity>
                     <TextInput
-                        onBlur={() => {
-                            // onBlur()
-                            // Keyboard.dismiss()
-                        }}
-                        ref={inputRef}
                         onChangeText={onChangeText}
                         value={assets.find((item) => item._id === selectHeroImage._id)?.caption}
                         multiline={true}

@@ -14,10 +14,16 @@ export const getFriendStatuses = createAsyncThunk(
     try {
 
       const response = await axios.post(`${localhost}/status/get`, {
-        _ids: data.friendIds,
+        _ids: [...data.friendIds, data.profileId],
         profileId: data.profileId
       })
-      return response.data;
+
+      const myStatus = response.data?.find((item: Status_) => item.userId === data.profileId)
+      const friendStatus = response.data?.filter((item: any) => item.userId !== data.profileId)
+      return {
+        friendStatus: friendStatus || [],
+        myStatus: myStatus || null
+      };
     } catch (error: any) {
       return thunkApi.rejectWithValue(error.response.data)
     }
@@ -49,23 +55,24 @@ export const uploadStatusApi = createAsyncThunk(
         _id,
         status
       }
-      const response = await axios.post(`${localhost}/status/upload`, data)
-      return response.data;
+      await axios.post(`${localhost}/status/upload`, data)
+      return data.status;
     } catch (error: any) {
       return thunkApi.rejectWithValue(error.response.data)
     }
   }
 );
 
-interface Status_Friends {
+interface Status_ {
   userId: string,
   status: Status[]
 }
 export interface Status_State {
-  friendStatus: Status_Friends[]
+  friendStatus: Status_[]
   fetchLoading: boolean
   fetchError: string | null
   uploadSuccess: boolean
+  myStatus: Status_ | null
 }
 
 
@@ -73,7 +80,8 @@ const initialState: Status_State = {
   friendStatus: [],
   fetchLoading: false,
   fetchError: null,
-  uploadSuccess: false
+  uploadSuccess: false,
+  myStatus: null
 }
 
 export const Status_Slice = createSlice({
@@ -92,6 +100,8 @@ export const Status_Slice = createSlice({
       .addCase(uploadStatusApi.fulfilled, (state, action) => {
         state.uploadSuccess = true
         state.fetchLoading = false
+        state.myStatus?.status.unshift(...action.payload)
+        // console.log(action.payload)
       })
       .addCase(uploadStatusApi.rejected, (state, action) => {
         state.fetchLoading = false
@@ -103,8 +113,11 @@ export const Status_Slice = createSlice({
         state.fetchError = null
       })
       .addCase(getFriendStatuses.fulfilled, (state, action) => {
-        state.friendStatus = action.payload
+        state.friendStatus = [...state.friendStatus, ...action.payload.friendStatus]
+        state.myStatus = action.payload.myStatus
         state.fetchLoading = false
+        // console.log(action.payload.myStatus)
+
       })
       .addCase(getFriendStatuses.rejected, (state, action) => {
         state.fetchLoading = false

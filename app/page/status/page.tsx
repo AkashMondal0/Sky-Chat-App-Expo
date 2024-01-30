@@ -61,22 +61,31 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
 
   }, [])
 
-  useEffect(() => {
+  const fetchStatus = useCallback(async () => {
     if (useProfile?.user) {
       dispatch(getFriendStatuses({
         profileId: useProfile.user?._id,
         friendIds: friendListWithDetails.map((item) => item._id)
       }) as any)
     }
+  }, [])
+
+  useEffect(() => {
+    fetchStatus()
   }, [useProfile?.user])
 
   const ViewStatus = useCallback((data: { user: User, statuses: Status[] }) => {
-    navigation.navigate('ViewStatus', {
-      assets: data.statuses,
-      user: data.user,
-    })
+    if (data.statuses.length === 0) {
+      uploadStatus()
+    }
+    else {
+      navigation.navigate('ViewStatus', {
+        assets: data.statuses,
+        user: data.user,
+      })
+    }
   }, [])
-
+  // console.log(statusState.myStatus)
   return (
     <Animated.View style={{
       flex: 1,
@@ -116,21 +125,28 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
               elevation={0}
               avatarSize={55}
               avatarUrl={useProfile.user?.profilePicture}
-              onPress={uploadStatus}
+              onPress={() => {
+                ViewStatus({
+                  user: useProfile.user,
+                  statuses: statusState.myStatus?.status
+                } as any)
+              }}
               height={70} />
-              <View style={{
-                height: 40,
-                justifyContent: "center",
-                paddingHorizontal: 15,
-              }}>
-                <Text style={{
-                  fontSize: 12,
-                  fontWeight: "bold",
-                  color: useTheme.textColor,
-                }}>Recent Updates</Text>
-              </View>
+            <View style={{
+              height: 40,
+              justifyContent: "center",
+              paddingHorizontal: 15,
+            }}>
+              <Text style={{
+                fontSize: 12,
+                fontWeight: "bold",
+                color: useTheme.textColor,
+              }}>Recent Updates</Text>
+            </View>
           </>
         )}
+        // refreshing={statusState.fetchLoading}
+        // onRefresh={fetchStatus}
       />
       <FloatingButton
         onPress={uploadStatus}

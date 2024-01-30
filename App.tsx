@@ -14,7 +14,7 @@ import NewMessageScreen from './app/page/home/newMessage/page';
 import ChatScreen from './app/page/[chat]/page';
 import Animated_Provider from './provider/Animated_Provider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import StatusViewScreen from './app/page/status/StatusView/page';
+import StatusUploadScreen from './app/page/status/StatusUpload/page';
 import ViewStatusScreen from './app/page/status/ViewStatus/page';
 
 
@@ -77,7 +77,7 @@ function Routes() {
 
       <Stack.Screen name="Message" component={NewMessageScreen} options={options as any} />
       <Stack.Screen name="Setting" component={SettingsScreen} options={options as any} />
-      <Stack.Screen name="StatusView" component={StatusViewScreen} options={Option2 as any} />
+      <Stack.Screen name="StatusView" component={StatusUploadScreen} options={Option2 as any} />
       <Stack.Screen name="ViewStatus" component={ViewStatusScreen} options={Option2 as any} />
     </Stack.Navigator>
   );

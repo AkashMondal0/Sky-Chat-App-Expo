@@ -25,7 +25,7 @@ export default function App() {
         ref={video}
         style={styles.video}
         source={{
-          uri: "http://13.127.232.152:4001/file/test/1706532866909-4_5887441612014880094.mp4",
+          uri: "http://13.127.232.152:4001/file/65b69650dcec01a40f1421f5/1706559890417-65b69650dcec01a40f1421f5.mp4",
         }}
         // useNativeControls
         resizeMode={ResizeMode.CONTAIN}
