@@ -1,15 +1,17 @@
-import React, { memo } from 'react'
+import React, { memo, useEffect } from 'react'
 import { Camera, CameraType, } from 'expo-camera';
 import { useState } from 'react';
-import { Button, Text, TouchableOpacity, View } from 'react-native';
+import { Button, FlatList, Text, TouchableOpacity, View, Image } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import Icon_Button from '../../../components/shared/IconButton';
-import { X, Zap, Image, SwitchCamera } from 'lucide-react-native';
+import { X, Zap, SwitchCamera, ImageIcon, Check } from 'lucide-react-native';
 import { CurrentTheme } from '../../../types/theme';
 import Padding from '../../../components/shared/Padding';
 import { Assets, User } from '../../../types/profile';
 import uid from '../../../utils/uuid';
+import * as MediaLibrary from 'expo-media-library';
+import MyButton from '../../../components/shared/Button';
 
 interface SendImagesScreenProps {
     navigation?: any
@@ -31,6 +33,11 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
     const [type, setType] = useState(CameraType.back);
     const cameraRef = React.useRef<Camera>(null);
     const [permission, requestPermission] = Camera.useCameraPermissions();
+    const [media, setMedia] = useState<MediaLibrary.Asset[]>([]);
+    const [totalCount, setTotalCount] = useState<number>(0);
+    const [selectedAssets, setSelectedAssets] = useState<MediaLibrary.Asset[]>([]);
+
+
 
     if (!permission) {
         // Camera permissions are still loading
@@ -54,6 +61,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
             </View>
         );
     }
+
 
     const toggleCameraType = () => {
         setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
@@ -81,6 +89,48 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
             })
         }
     }
+    // Asset ID of the last item returned on the previous page. 
+    // To get the ID of the next page, pass endCursor as its value.
+    const fetchMediaPagination = async () => {
+        // permission
+        const permission = await MediaLibrary.requestPermissionsAsync();
+        if (!permission.granted) {
+            return;
+        }
+        const {
+            assets: mediaResult,
+            endCursor,
+        } = await MediaLibrary.getAssetsAsync({
+            mediaType: ['photo', 'video'],
+            first: 20,
+            sortBy: MediaLibrary.SortBy.creationTime,
+            after: totalCount.toString(),
+        });
+
+        setMedia([...media, ...mediaResult]);
+        setTotalCount(Number(endCursor))
+    }
+
+    const SelectAssets = async (assets: MediaLibrary.Asset) => {
+        setSelectedAssets([...selectedAssets, assets])
+    }
+
+    const navigateToPreview = () => {
+        const data: Assets[] = selectedAssets.map((item) => {
+            return {
+                _id: uid(),
+                url: item.uri,
+                type: item.mediaType === "photo" ? "image" : "video",
+                caption: "",
+            }
+        })
+        navigation.replace('Preview', {
+            assets: data,
+            user: profileState,
+            type: route?.params.type,
+            forDirectMessage: route?.params.forDirectMessage,
+        })
+    }
 
     return (
         <View style={{
@@ -98,12 +148,81 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
                     navigation={navigation}
                     theme={useTheme}
                 />
-                <Footer navigation={navigation}
-                    theme={useTheme}
-                    photoCapture={photoCapture}
-                    imagePicker={() => { }}
-                    toggleCameraType={toggleCameraType}
-                />
+                <View style={{
+                    justifyContent: "flex-end",
+                }}>
+                    <View style={{
+                        justifyContent: "flex-end",
+                        alignItems: "flex-end",
+                        paddingBottom: 10,
+                    }}>
+                        {selectedAssets.length > 0 ? <MyButton
+                            width={70}
+                            height={60}
+                            radius={30}
+                            title={selectedAssets.length.toString()}
+                            icon={<Check size={30} color={"white"} />}
+                            onPress={navigateToPreview}
+                            theme={useTheme} /> : <></>}
+                    </View>
+                    <FlatList
+                        contentContainerStyle={{
+                            justifyContent: "flex-end",
+                            alignItems: "flex-end",
+                            alignSelf: "flex-end",
+                        }}
+                        onEndReached={fetchMediaPagination}
+                        data={media}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item, index }) => {
+                            return <TouchableOpacity
+                                style={{
+                                    justifyContent: "center",
+                                    alignItems: "center",
+
+                                }}
+                                onPress={() => {
+                                    if (selectedAssets.includes(item)) {
+                                        const index = selectedAssets.indexOf(item);
+                                        if (index > -1) {
+                                            selectedAssets.splice(index, 1);
+                                        }
+                                        setSelectedAssets([...selectedAssets])
+                                    } else {
+                                        SelectAssets(item)
+                                    }
+                                }}>
+                                {selectedAssets.includes(item) ? <View style={{
+                                    position: "absolute",
+                                    backgroundColor: "rgba(0,0,0,0.5)",
+                                    zIndex: 1,
+                                    borderRadius: 30,
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                }}>
+                                    <X size={40} color={"white"} />
+                                </View> : <></>}
+                                <Image source={{ uri: item.uri }}
+                                    style={{
+                                        width: 60,
+                                        height: 60,
+                                        borderRadius: 10,
+                                        marginHorizontal: 5,
+                                        resizeMode: "cover",
+                                        borderColor: useTheme.borderColor,
+                                        borderWidth: 1,
+                                    }} />
+                            </TouchableOpacity>
+                        }} />
+                    <Footer navigation={navigation}
+                        theme={useTheme}
+                        photoCapture={photoCapture}
+                        imagePicker={fetchMediaPagination}
+                        toggleCameraType={toggleCameraType}
+                    />
+                </View>
             </Camera>
         </View>
     );
@@ -183,12 +302,10 @@ const Footer = ({
     const backgroundColor = "white"
     const iconColor = "black"
     return (
-        <View style={{
-            flex: 1,
-            justifyContent: 'flex-end',
-        }}>
+        <>
             <View style={{
-                height: 60,
+                // height: 60,
+                paddingTop: 20,
                 justifyContent: "center",
                 paddingHorizontal: 15,
                 alignContent: "space-between",
@@ -204,7 +321,9 @@ const Footer = ({
                         onPress={imagePicker}
                         backgroundColor={backgroundColor}
                         size={40}
-                        icon={<Image size={30} color={iconColor} />} />
+                        icon={
+                            <ImageIcon size={30} color={iconColor} />
+                        } />
                     <View style={{
                         width: 60,
                         height: 60,
@@ -238,6 +357,6 @@ const Footer = ({
                 </View>
                 <Padding size={30} />
             </View>
-        </View>
+        </>
     )
 }

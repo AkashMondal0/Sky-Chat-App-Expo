@@ -90,11 +90,11 @@ function App() {
       <NavigationContainer>
         <Provider store={store}>
           <Animated_Provider>
-            <CameraAndMedia_Provider>
+            {/* <CameraAndMedia_Provider> */}
             <Profile_Provider>
               <Routes />
             </Profile_Provider>
-            </CameraAndMedia_Provider>
+            {/* </CameraAndMedia_Provider> */}
           </Animated_Provider>
         </Provider>
       </NavigationContainer>
