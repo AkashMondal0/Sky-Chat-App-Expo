@@ -1,11 +1,12 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { PrivateChat, PrivateMessage, PrivateMessageSeen, typingState } from '../../../types/private-chat';
+import { File, PrivateChat, PrivateMessage, PrivateMessageSeen, typingState } from '../../../types/private-chat';
 import axios from 'axios';
 import socket from '../../../utils/socket-connect';
 import { localhost } from '../../../keys';
-import { User } from '../../../types/profile';
+import { Assets, User } from '../../../types/profile';
 import uid from '../../../utils/uuid';
+import { skyUploadImage, skyUploadVideo } from '../../../utils/upload-file';
 
 export const createPrivateChatConversation = createAsyncThunk(
   'createPrivateChatConversation/post',
@@ -87,31 +88,60 @@ export const sendMessagePrivate = createAsyncThunk(
     content,
     member,
     receiver,
-    conversationId
+    conversationId,
+    assets
   }: {
     content: string,
     member: User,
     receiver: User,
-    conversationId: string
+    conversationId: string,
+    assets: Assets[]
   }, thunkApi) => {
     try {
-      const newMessage: PrivateMessage = {
-        _id: new Date().getTime().toString(),
-        content: content,
-        memberId: member._id,
-        memberDetails: member,
-        conversationId: conversationId,
-        senderId: member._id,
-        receiverId: receiver._id,
-        deleted: false,
-        seenBy: [
-          member._id,
-        ],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+
+      const sendMessageApi = async (files: File[]) => {
+        const newMessage: PrivateMessage = {
+          _id: new Date().getTime().toString(),
+          content: content,
+          memberId: member._id,
+          memberDetails: member,
+          conversationId: conversationId,
+          senderId: member._id,
+          receiverId: receiver._id,
+          deleted: false,
+          fileUrl: files.length >= 1 ? files : null,
+          seenBy: [
+            member._id,
+          ],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+        socket.emit('message_sender', newMessage)
+        return newMessage
       }
-      socket.emit('message_sender', newMessage)
-      return newMessage
+
+      if (assets.length >= 1) {
+
+        for (let i = 0; i < assets.length; i++) {
+          if (assets[i].type === 'image') {
+            assets[i].url = await skyUploadImage([assets[i].url], member._id).then(res => res.data[0])
+          } else {
+            assets[i].url = await skyUploadVideo([assets[i].url], member._id).then(res => res.data[0])
+          }
+        }
+
+        assets.map(item => {
+          return {
+            url: item.url,
+            type: item.type,
+            caption: item.caption
+          }
+        })
+
+        return sendMessageApi(assets as File[])
+      } else {
+        return sendMessageApi([])
+      }
     } catch (error: any) {
       return thunkApi.rejectWithValue(error.response.data)
     }

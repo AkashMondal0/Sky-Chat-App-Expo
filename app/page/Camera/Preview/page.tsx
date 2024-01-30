@@ -1,5 +1,5 @@
 import React, { Suspense, memo, useRef } from 'react'
-import { View, Text, Image, FlatList, TouchableOpacity, TextInput } from 'react-native'
+import { View, Text, Image, FlatList, TouchableOpacity, TextInput, ToastAndroid } from 'react-native'
 import { Assets, Status, User } from '../../../../types/profile'
 import { useDispatch, useSelector } from 'react-redux'
 import StatusHeader from './components/header'
@@ -13,6 +13,7 @@ import uid from '../../../../utils/uuid'
 import { uploadStatusApi } from '../../../../redux/slice/status'
 import { Video, ResizeMode } from 'expo-av'
 import { PrivateMessage } from '../../../../types/private-chat'
+import { sendMessagePrivate } from '../../../../redux/slice/private-chat'
 
 
 interface StatusScreenProps {
@@ -22,7 +23,12 @@ interface StatusScreenProps {
             assets: Assets[],
             user: User,
             type: "status" | "message",
-            goBackPath?: string | undefined,
+            forDirectMessage: {
+                conversationId: string,
+                content: string,
+                member: User,
+                receiver: User,
+            } | null,
         }
     }
 }
@@ -65,8 +71,19 @@ const PreViewScreen = ({ navigation, route }: StatusScreenProps) => {
             // console.log(assets)
             navigation.goBack()
         }
-        else if (route?.params.type === "message") {
-            console.log(assets)
+        else if (route?.params.type === "message" && route?.params.forDirectMessage) {
+
+            const data = route?.params.forDirectMessage
+            dispatch(sendMessagePrivate({
+                conversationId: data?.conversationId,
+                content: data?.content,
+                member: data?.member,
+                receiver: data?.receiver,
+                assets: assets,
+            }) as any)
+            navigation.goBack()
+        } else{
+            ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         }
     }
 

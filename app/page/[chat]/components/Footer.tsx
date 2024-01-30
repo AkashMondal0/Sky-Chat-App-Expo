@@ -109,6 +109,7 @@ const FooterChat: FC<FooterChatProps> = ({
             content: data.message,
             member: profile,
             receiver: user,
+            assets: []
           }) as any)
           reset()
         } else {
@@ -119,7 +120,15 @@ const FooterChat: FC<FooterChatProps> = ({
   }, [])
 
   const sendPhoto = useCallback(async () => {
-    navigation.navigate('CameraScreen', { type: "message" })
+    navigation.navigate('CameraScreen', {
+      type: "message",
+      forDirectMessage: {
+        conversationId: conversation?._id as string,
+        content: "Photo",
+        member: profile,
+        receiver: user,
+      }
+    })
   }, [])
 
   return (

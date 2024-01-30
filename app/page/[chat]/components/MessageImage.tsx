@@ -1,20 +1,20 @@
 import React, { FC } from 'react';
 import { Image, Text, View } from 'react-native';
-import MyText from '../../../components/shared/My-Text';
-import { CurrentTheme } from '../../../types/theme';
 import { CheckCheck } from 'lucide-react-native';
+import { CurrentTheme } from '../../../../types/theme';
+import { File } from '../../../../types/private-chat';
 
 interface MessageImageProps {
-    content: string;
     sender: boolean
     theme: CurrentTheme
     seen?: boolean
+    files: File[]
 }
 const MessageImage: FC<MessageImageProps> = ({
-    content,
     theme,
     sender,
-    seen
+    seen,
+    files
 }) => {
     const senderColor = theme.primary;
     const receiverColor = theme.background;
@@ -33,17 +33,34 @@ const MessageImage: FC<MessageImageProps> = ({
                 borderBottomRightRadius: 20,
                 borderTopLeftRadius: !sender ? 0 : 20,
                 borderTopRightRadius: !sender ? 20 : 0,
-                padding: 10,
+                padding: 5,
                 maxWidth: "80%",
                 elevation: 2,
                 gap: 5,
             }}>
-               <Image source={{ uri: content }} style={{
-                     width: 200,
-                     height: 200,
-                     borderRadius: 10,
-                        resizeMode: "cover",
-                    }} />
+                {files.length >= 1 ? <Image source={{ uri: files[0].url }} style={{
+                    width: 250,
+                    maxHeight: 350,
+                    height: 350,
+                    borderRadius: 20,
+                    resizeMode: "cover",
+                }} /> : <>
+                    <View style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: sender ? "flex-end" : "flex-start",
+                        padding: 8,
+                    }}>
+                        {files.map((file, index) => (
+                            <Image source={{ uri: file.url }} style={{
+                                width: 250,
+                                height: 250,
+                                borderRadius: 20,
+                                resizeMode: "cover",
+                            }} />
+                        ))}
+                    </View>
+                </>}
 
                 <View style={{
                     flexDirection: "row",

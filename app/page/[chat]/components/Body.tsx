@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useMemo, useCallback, memo } from 'react';
-import { ActivityIndicator, ToastAndroid, View, VirtualizedList, Text } from 'react-native';
+import { ActivityIndicator, ToastAndroid, View, VirtualizedList, Text, Image } from 'react-native';
 import ChatCard from './MessageCard';
 import { useDispatch } from 'react-redux';
 import { CurrentTheme } from '../../../../types/theme';
@@ -12,6 +12,7 @@ import MyButton from '../../../../components/shared/Button';
 import { ArrowDown } from 'lucide-react-native';
 import _ from 'lodash';
 import { dateFormat } from '../../../../utils/timeFormat';
+import MessageImage from './MessageImage';
 
 interface BodyChatProps {
     theme: CurrentTheme
@@ -114,6 +115,22 @@ const BodyChat: FC<BodyChatProps> = ({
             )
 
         }
+        if (item.fileUrl?.length! > 0 && item?.fileUrl) {
+
+            if (item?.fileUrl[0]?.type === "image") {
+                return <MessageImage
+                    key={item._id}
+                    files={item.fileUrl}
+                    sender={item.memberId === profile?._id}
+                    seen={item.seenBy.length >= 2 && item.seenBy.includes(profile?._id as string)}
+                    theme={theme}
+                />
+            }
+            else if (item?.fileUrl[0]?.type === "video") {
+                return <></>
+            }
+
+        }
         return (
             <ChatCard
                 key={item._id}
@@ -130,14 +147,6 @@ const BodyChat: FC<BodyChatProps> = ({
     return (
         <>
             <VirtualizedList
-                // style={{paddingBottom: 100,
-                // minHeight: "100%"
-                // }}
-                // onContentSizeChange={() => {
-                //     memoSortedDates.sort((a, b) => {
-                //         return new Date(b.createdAt).getSeconds() - new Date(a.createdAt).getSeconds()
-                //     })
-                // }}
                 inverted
                 removeClippedSubviews={true}
                 keyExtractor={(item, index) => index.toString() as string}

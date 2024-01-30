@@ -8,14 +8,20 @@ import Icon_Button from '../../../components/shared/IconButton';
 import { X, Zap, Image, SwitchCamera } from 'lucide-react-native';
 import { CurrentTheme } from '../../../types/theme';
 import Padding from '../../../components/shared/Padding';
-import { Assets } from '../../../types/profile';
+import { Assets, User } from '../../../types/profile';
 import uid from '../../../utils/uuid';
 
 interface SendImagesScreenProps {
     navigation?: any
     route?: {
         params: {
-            type:"status" | "message"
+            type: "status" | "message",
+            forDirectMessage?: {
+                conversationId: string,
+                content: string,
+                member: User,
+                receiver: User,
+            } | null,
         }
     }
 }
@@ -61,17 +67,17 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
         };
         if (cameraRef.current) {
             const photo = await cameraRef.current.takePictureAsync(options);
-            const data:Assets[] = [{
-                _id:uid(),
-                url:photo.uri,
-                type:"image",
-                caption:"",
+            const data: Assets[] = [{
+                _id: uid(),
+                url: photo.uri,
+                type: "image",
+                caption: "",
             }]
             navigation.replace('Preview', {
                 assets: data,
                 user: profileState,
                 type: route?.params.type,
-                goBackPath:""
+                forDirectMessage: route?.params.forDirectMessage,
             })
         }
     }
