@@ -14,6 +14,7 @@ import _ from 'lodash';
 import { dateFormat } from '../../../../utils/timeFormat';
 import MessageImage from './MessageImage';
 import MessageType from './MessageType';
+import { FlashList } from '@shopify/flash-list';
 
 interface BodyChatProps {
     theme: CurrentTheme
@@ -123,6 +124,7 @@ const BodyChat: FC<BodyChatProps> = ({
                 sender={item.memberId === profile?._id}
                 seen={item.seenBy.length >= 2 && item.seenBy.includes(profile?._id as string)}
                 theme={theme}
+                receiver={user as User}
                 time={item.createdAt}
             />
 
@@ -143,21 +145,24 @@ const BodyChat: FC<BodyChatProps> = ({
 
     return (
         <>
-            <VirtualizedList
+            <FlashList
                 inverted
                 removeClippedSubviews={true}
                 keyExtractor={(item, index) => index.toString() as string}
                 scrollEventThrottle={400}
                 ref={scrollViewRef}
                 data={memoSortedDates}
-                initialNumToRender={20}
-                maxToRenderPerBatch={20}
-                windowSize={10}
-                updateCellsBatchingPeriod={100}
-                getItem={(data, index) => data[index]}
-                getItemCount={(data) => data.length}
+                estimatedItemSize={100}
+                getItemType={(item) => item._id}
+                // initialNumToRender={20}
+                // maxToRenderPerBatch={20}
+                // windowSize={10}
+                // updateCellsBatchingPeriod={100}
+                // getItem={(data, index) => data[index]}
+                // getItemCount={(data) => data.length}
+
+
                 onEndReached={throttledFunction}
-                // @ts-ignore
                 renderItem={({ item, index }) => <ItemView item={item} key={index} />}
                 onScroll={(e) => {
                     if (e.nativeEvent.contentOffset.y > 200) {
