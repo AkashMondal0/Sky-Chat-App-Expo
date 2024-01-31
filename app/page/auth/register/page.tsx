@@ -1,5 +1,5 @@
 import React, { Suspense, useCallback, useContext, useEffect } from 'react';
-import { SafeAreaView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { ArrowLeft, Eye, EyeOff, ImagePlus, XCircle } from 'lucide-react-native';
@@ -58,7 +58,7 @@ const RegisterScreen = ({ navigation }: any) => {
     }, [isLogin])
 
     return (
-        <SafeAreaView style={{
+        <ScrollView style={{
             flex: 1,
             padding: 20,
             marginTop: StatusBar.currentHeight || 0,
@@ -182,7 +182,7 @@ const RegisterScreen = ({ navigation }: any) => {
                     disabled={loading}
                     title={'Register'} />
             </View>
-        </SafeAreaView>
+        </ScrollView>
     );
 };
 

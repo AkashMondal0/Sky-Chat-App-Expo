@@ -300,15 +300,14 @@ const Footer = ({ useTheme,
     selectHeroImage: Status
     loading?: boolean
 }) => {
+    const [reply, setReply] = React.useState("")
 
     const _color = useTheme.textColor
     const backgroundColor = useTheme.background
 
 
     const onChangeText = (text: string) => {
-        const index = assets.findIndex((item) => item._id === selectHeroImage._id)
-        assets[index].caption = text
-        setAssets([...assets])
+        setReply(text)
     }
 
 
@@ -346,7 +345,7 @@ const Footer = ({ useTheme,
                     </TouchableOpacity>
                     <TextInput
                         onChangeText={onChangeText}
-                        value={assets.find((item) => item._id === selectHeroImage._id)?.caption}
+                        value={reply}
                         multiline={true}
                         style={{
                             minHeight: 45,
@@ -356,7 +355,7 @@ const Footer = ({ useTheme,
                             fontSize: 18,
                             flex: 1,
                         }}
-                        placeholder="Caption"
+                        placeholder="Reply..."
                         placeholderTextColor={_color} />
                 </View>
             </View>

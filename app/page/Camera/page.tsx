@@ -12,6 +12,7 @@ import { Assets, User } from '../../../types/profile';
 import uid from '../../../utils/uuid';
 import * as MediaLibrary from 'expo-media-library';
 import MyButton from '../../../components/shared/Button';
+import _ from 'lodash';
 
 interface SendImagesScreenProps {
     navigation?: any
@@ -111,6 +112,8 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
         setTotalCount(Number(endCursor))
     }
 
+    const throttledFunction = _.throttle(() => fetchMediaPagination(), 1000);
+
     const SelectAssets = async (assets: MediaLibrary.Asset) => {
         setSelectedAssets([...selectedAssets, assets])
     }
@@ -131,6 +134,8 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
             forDirectMessage: route?.params.forDirectMessage,
         })
     }
+
+
 
     return (
         <View style={{
@@ -171,7 +176,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
                             alignItems: "flex-end",
                             alignSelf: "flex-end",
                         }}
-                        onEndReached={fetchMediaPagination}
+                        onEndReached={throttledFunction}
                         data={media}
                         horizontal
                         showsHorizontalScrollIndicator={false}

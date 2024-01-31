@@ -1,5 +1,5 @@
-import React, { useState, useContext, useCallback, useEffect } from 'react';
-import { Animated, View, Text, TouchableOpacity, Button } from 'react-native';
+import React, { useState, useContext, useCallback, useEffect, useMemo } from 'react';
+import { Animated, View, Text, TouchableOpacity, Button, ToastAndroid } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { AnimatedContext } from '../../../provider/Animated_Provider';
 import StatusHeader from './components/header';
@@ -10,10 +10,12 @@ import SingleCard from '../../../components/shared/Single-Card';
 import FloatingButton from '../../../components/shared/Floating';
 import { Camera } from 'lucide-react-native';
 import uid from '../../../utils/uuid';
-import { getFriendStatuses } from '../../../redux/slice/status';
-import privateChat from '../../../redux/slice/private-chat';
+// import { getFriendStatuses } from '../../../redux/slice/status';
+import privateChat, { getProfileChatList } from '../../../redux/slice/private-chat';
 import { Assets, Status, User } from '../../../types/profile';
 import { timeFormat } from '../../../utils/timeFormat';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import _ from 'lodash';
 
 interface StatusScreenProps {
   navigation?: any
@@ -22,64 +24,14 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
   const AnimatedState = useContext(AnimatedContext)
   const useProfile = useSelector((state: RootState) => state.profile)
   const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
-  const statusState = useSelector((state: RootState) => state.statusState)
-  const { friendListWithDetails } = useSelector((state: RootState) => state.privateChat)
+  const { friendListWithDetails, loading } = useSelector((state: RootState) => state.privateChat)
   const dispatch = useDispatch()
-
-
-  // const pickImage = async () => {
-  //   let result = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.All,
-  //     allowsMultipleSelection: true,
-  //     quality: 1,
-  //   });
-  //   if (!result.canceled) {
-  //     const data:Assets[] = result.assets.map((item: any) => {
-  //       item = {
-  //         _id: uid(),
-  //         url: item.uri,
-  //         type: item.type,
-  //         caption: "",
-  //       }
-  //       return item
-  //     })
-
-  //     navigation.navigate('Preview', {
-  //       assets: data,
-  //       user: useProfile.user,
-  //       type: "status",
-  //     })
-  //   }
-  // }
-
-  // const uploadStatus = useCallback(async () => {
-  //   const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  //   if (status !== 'granted') {
-  //     alert('Sorry, we need camera roll permissions to upload status!');
-  //   } else {
-  //     pickImage()
-  //   }
-
-  // }, [])
 
   const handleNavigation = useCallback(() => {
     navigation.navigate('CameraScreen', {
       type: "status"
     })
   }, [])
-
-  const fetchStatus = useCallback(async () => {
-    if (useProfile?.user) {
-      dispatch(getFriendStatuses({
-        profileId: useProfile.user?._id,
-        friendIds: friendListWithDetails.map((item) => item._id)
-      }) as any)
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchStatus()
-  }, [useProfile?.user])
 
   const ViewStatus = useCallback((data: { user: User, statuses: Status[] }) => {
     if (data.statuses.length === 0) {
@@ -92,7 +44,27 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
       })
     }
   }, [])
-  // console.log(statusState.myStatus)
+
+  const Status = useMemo(() => {
+    return friendListWithDetails.map((friend) => {
+      return {
+        user: friend,
+        status: friend.status?.flatMap((status) => status)
+      }
+    })
+  }, [friendListWithDetails])
+
+  const fetchStatus = useCallback(async () => {
+    const token = await AsyncStorage.getItem("token")
+    if (token) {
+      await dispatch(getProfileChatList(token) as any)
+    } else {
+      ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
+    }
+  }, [])
+
+  const throttledFunction = _.throttle(() => fetchStatus(), 1000);
+
   return (
     <Animated.View style={{
       flex: 1,
@@ -105,37 +77,53 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
       <FlashList
         estimatedItemSize={100}
         renderItem={({ item }) => {
-          const user = friendListWithDetails.find((friend) => friend._id === item.userId)
+          const user = item.user
+          const status = item.status
+          if (!user) {
+            return null
+          }
+          if (!status) {
+            return null
+          }
           return <>
             {
-              item.status.length >= 1 ?
+              status.length >= 1 ?
                 <SingleCard
                   label={user?.username || ''}
-                  subTitle={timeFormat(item.status[item.status.length - 1].createdAt).toString()}
+                  subTitle={timeFormat(status[status.length - 1].createdAt).toString()}
                   backgroundColor={false}
                   elevation={0}
                   avatarSize={55}
-                  avatarUrl={user?.profilePicture}
+                  avatarUrl={status[status.length - 1].url}
                   onPress={() => { ViewStatus({ user: user, statuses: item.status } as any) }}
                   height={70} /> : null
             }
           </>
         }}
-        getItemType={(item) => item.userId}
-        data={statusState.friendStatus}
-        keyExtractor={(item) => item.userId.toString()}
-        ListHeaderComponent={() => (
-          <>
+        getItemType={(item) => item.user._id}
+        data={Status}
+        keyExtractor={(item) => item.user._id}
+        ListHeaderComponent={() => {
+          const myStatuses = useProfile.user?.status?.flatMap((status) => status)
+          const logo = () => {
+            if (myStatuses) {
+              return myStatuses[myStatuses.length - 1].url
+            }
+            else {
+              return useProfile.user?.profilePicture
+            }
+          }
+          return <>
             <SingleCard label={"My Status"}
               subTitle='Today, 10:00 PM'
               backgroundColor={false}
               elevation={0}
               avatarSize={55}
-              avatarUrl={useProfile.user?.profilePicture}
+              avatarUrl={logo()}
               onPress={() => {
                 ViewStatus({
                   user: useProfile.user,
-                  statuses: statusState.myStatus?.status
+                  statuses: useProfile.user?.status?.flatMap((status) => status)
                 } as any)
               }}
               height={70} />
@@ -151,9 +139,9 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
               }}>Recent Updates</Text>
             </View>
           </>
-        )}
-      // refreshing={statusState.fetchLoading}
-      // onRefresh={fetchStatus}
+        }}
+        refreshing={loading}
+        onRefresh={throttledFunction}
       />
       <FloatingButton
         onPress={handleNavigation}

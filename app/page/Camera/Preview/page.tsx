@@ -10,10 +10,11 @@ import MyButton from '../../../../components/shared/Button'
 import { CurrentTheme } from '../../../../types/theme'
 import * as ImagePicker from 'expo-image-picker';
 import uid from '../../../../utils/uuid'
-import { uploadStatusApi } from '../../../../redux/slice/status'
+// import { uploadStatusApi } from '../../../../redux/slice/status'
 import { Video, ResizeMode } from 'expo-av'
 import { PrivateMessage } from '../../../../types/private-chat'
 import { sendMessagePrivate } from '../../../../redux/slice/private-chat'
+import { uploadStatusApi } from '../../../../redux/slice/profile'
 
 
 interface StatusScreenProps {

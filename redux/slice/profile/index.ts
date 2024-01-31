@@ -1,21 +1,59 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { User } from '../../../types/profile';
+import { Status, User } from '../../../types/profile';
 import axios from 'axios';
 import socket from '../../../utils/socket-connect';
 import { localhost } from '../../../keys';
+import { Login } from '../auth';
+import { getProfileChatList } from '../private-chat';
+import { skyUploadImage, skyUploadVideo } from '../../../utils/upload-file';
 
 export const fetchProfileData = createAsyncThunk(
     'profileData/fetch',
-    async (token: string,thunkApi) => {
+    async (token: string, thunkApi) => {
         try {
             const response = await axios.get(`${localhost}/auth/authorization`, {
                 headers: {
                     Authorization: token
                 }
             })
+            thunkApi.dispatch(Login({ token }))
+            thunkApi.dispatch(getProfileChatList(token) as any)
             return response.data;
+        } catch (error: any) {
+            return thunkApi.rejectWithValue(error.response.data)
+        }
+    }
+);
+
+export const uploadStatusApi = createAsyncThunk(
+    'uploadStatus/fetch',
+    async ({
+        _id,
+        status
+    }: {
+        _id: string,
+        status: Status[]
+    }, thunkApi) => {
+        try {
+
+            for (let i = 0; i < status.length; i++) {
+                if (status[i].type === 'image') {
+                    status[i].url = await skyUploadImage([status[i].url], _id).then(res => res.data[0])
+                } else {
+                    status[i].url = await skyUploadVideo([status[i].url], _id).then(res => res.data[0])
+                }
+                status[i].createdAt = new Date().toISOString()
+                status[i].seen = []
+            }
+
+            const data = {
+                _id,
+                status
+            }
+            await axios.post(`${localhost}/status/upload`, data)
+            return data.status;
         } catch (error: any) {
             return thunkApi.rejectWithValue(error.response.data)
         }
@@ -85,9 +123,20 @@ export const Profile_Slice = createSlice({
                 state.error = action.error.message;
                 state.loading = false;
             })
-            .addDefaultCase((state) => {
+            // upload status
+            .addCase(uploadStatusApi.pending, (state,) => {
+                state.loading = true;
+            })
+            .addCase(uploadStatusApi.fulfilled, (state, action) => {
                 state.loading = false;
-            });
+                state.user?.status?.push(...action.payload)
+                // console.log("action.payload", action.payload)
+            })
+            .addCase(uploadStatusApi.rejected, (state, action) => {
+                state.error = action.error.message;
+                state.loading = false;
+            })
+
     },
 })
 

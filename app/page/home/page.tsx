@@ -81,7 +81,7 @@ const HomeScreen = ({ navigation }: any) => {
             </ScrollView>
                 :
                 <>
-                    {sortedListArray.length <= 0 && !usePrivateChat.loading ? <NoItem />
+                    {sortedListArray.length <= 0 && !usePrivateChat.loading ? <NoItem them={useTheme}/>
                         :
                         <FlatList
                             data={sortedListArray}
