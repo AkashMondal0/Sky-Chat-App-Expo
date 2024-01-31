@@ -11,6 +11,7 @@ interface Icon_ButtonProps {
     theme: CurrentTheme;
     backgroundColor?: string;
     backgroundEnable?: boolean;
+    disabled?: boolean;
 }
 const Icon_Button: FC<Icon_ButtonProps> = ({
     size,
@@ -20,6 +21,7 @@ const Icon_Button: FC<Icon_ButtonProps> = ({
     theme,
     backgroundColor = theme.cardBackground,
     backgroundEnable = true,
+    disabled = false,
 }) => {
     return (
         <View style={{
@@ -47,6 +49,7 @@ const Icon_Button: FC<Icon_ButtonProps> = ({
                 radius: size,
             }}
             onPress={onPress}
+            disabled={disabled}
             onLongPress={onLongPress}>
             {icon}
         </Pressable>

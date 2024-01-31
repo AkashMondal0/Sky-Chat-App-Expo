@@ -37,6 +37,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
     const [media, setMedia] = useState<MediaLibrary.Asset[]>([]);
     const [totalCount, setTotalCount] = useState<number>(0);
     const [selectedAssets, setSelectedAssets] = useState<MediaLibrary.Asset[]>([]);
+    const [disable, setDisable] = useState<boolean>(false);
 
 
 
@@ -93,6 +94,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
     // Asset ID of the last item returned on the previous page. 
     // To get the ID of the next page, pass endCursor as its value.
     const fetchMediaPagination = async () => {
+        setDisable(true)
         // permission
         const permission = await MediaLibrary.requestPermissionsAsync();
         if (!permission.granted) {
@@ -101,6 +103,8 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
         const {
             assets: mediaResult,
             endCursor,
+            hasNextPage,
+            totalCount: totalMediaCount,
         } = await MediaLibrary.getAssetsAsync({
             mediaType: ['photo', 'video'],
             first: 20,
@@ -108,8 +112,11 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
             after: totalCount.toString(),
         });
 
-        setMedia([...media, ...mediaResult]);
-        setTotalCount(Number(endCursor))
+        if (totalCount < totalMediaCount) {
+            // console.log("hasNextPage")
+            setMedia([...media, ...mediaResult]);
+            setTotalCount(Number(endCursor))
+        }
     }
 
     const throttledFunction = _.throttle(() => fetchMediaPagination(), 1000);
@@ -186,7 +193,6 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
                                 style={{
                                     justifyContent: "center",
                                     alignItems: "center",
-
                                 }}
                                 onPress={() => {
                                     if (selectedAssets.includes(item)) {
@@ -223,6 +229,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
                         }} />
                     <Footer navigation={navigation}
                         theme={useTheme}
+                        disable={disable}
                         photoCapture={photoCapture}
                         imagePicker={fetchMediaPagination}
                         toggleCameraType={toggleCameraType}
@@ -297,12 +304,14 @@ const Footer = ({
     toggleCameraType,
     photoCapture,
     imagePicker,
+    disable,
 }: {
     navigation?: any,
     theme?: CurrentTheme,
     toggleCameraType?: () => void,
     photoCapture?: () => void,
     imagePicker?: () => void,
+    disable?: boolean,
 }) => {
     const backgroundColor = "white"
     const iconColor = "black"
@@ -322,6 +331,7 @@ const Footer = ({
                 }}>
 
                     <Icon_Button
+                        disabled={disable}
                         theme={theme!}
                         onPress={imagePicker}
                         backgroundColor={backgroundColor}

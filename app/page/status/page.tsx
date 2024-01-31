@@ -1,5 +1,5 @@
-import React, { useState, useContext, useCallback, useEffect, useMemo } from 'react';
-import { Animated, View, Text, TouchableOpacity, Button, ToastAndroid } from 'react-native';
+import React, { useState, useContext, useCallback, useEffect, useMemo, memo } from 'react';
+import { Animated, View, Text, TouchableOpacity, Button, ToastAndroid, SafeAreaView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { AnimatedContext } from '../../../provider/Animated_Provider';
 import StatusHeader from './components/header';
@@ -26,6 +26,7 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
   const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
   const { friendListWithDetails, loading } = useSelector((state: RootState) => state.privateChat)
   const dispatch = useDispatch()
+  const [mounted, setMounted] = useState(false)
 
   const handleNavigation = useCallback(() => {
     navigation.navigate('CameraScreen', {
@@ -65,6 +66,19 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
 
   const throttledFunction = _.throttle(() => fetchStatus(), 1000);
 
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <Animated.View style={{
+      flex: 1,
+      backgroundColor: AnimatedState.backgroundColor
+    }}>
+
+    </Animated.View>
+  }
+
   return (
     <Animated.View style={{
       flex: 1,
@@ -85,7 +99,9 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
           if (!status) {
             return null
           }
-          return <>
+          return <SafeAreaView style={{
+            flex: 1,
+          }}>
             {
               status.length >= 1 ?
                 <SingleCard
@@ -98,7 +114,7 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
                   onPress={() => { ViewStatus({ user: user, statuses: item.status } as any) }}
                   height={70} /> : null
             }
-          </>
+          </SafeAreaView>
         }}
         getItemType={(item) => item.user._id}
         data={Status}
@@ -152,4 +168,4 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
   );
 }
 
-export default StatusScreen;
+export default memo(StatusScreen);
