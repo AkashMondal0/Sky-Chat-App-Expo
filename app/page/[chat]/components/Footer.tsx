@@ -89,6 +89,7 @@ const FooterChat: FC<FooterChatProps> = ({
             users: [profile, user],
             content: data.message,
             conversation: { ...res.data, userDetails: profile },
+            assets: []
           }) as any)
           profileState.fetchUserData()
           navigation.replace("Chat", {
@@ -122,6 +123,7 @@ const FooterChat: FC<FooterChatProps> = ({
   const sendPhoto = useCallback(async () => {
     navigation.navigate('CameraScreen', {
       type: "message",
+      newChat: forNewConnection,
       forDirectMessage: {
         conversationId: conversation?._id as string,
         content: "Photo",

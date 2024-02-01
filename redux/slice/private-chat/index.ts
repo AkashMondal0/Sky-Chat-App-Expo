@@ -7,19 +7,38 @@ import { localhost } from '../../../keys';
 import { Assets, User } from '../../../types/profile';
 import uid from '../../../utils/uuid';
 import { skyUploadImage, skyUploadVideo } from '../../../utils/upload-file';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const createPrivateChatConversation = createAsyncThunk(
   'createPrivateChatConversation/post',
   async ({
     users,
     content,
-    conversation
+    conversation,
+    assets
   }: {
     users: User[],
     content: string,
-    conversation: PrivateChat
+    conversation: PrivateChat,
+    assets: Assets[]
   }, thunkApi) => {
     try {
+      for (let i = 0; i < assets.length; i++) {
+        if (assets[i].type === 'image') {
+          assets[i].url = await skyUploadImage([assets[i].url], users[0]._id).then(res => res.data[0])
+        } else {
+          assets[i].url = await skyUploadVideo([assets[i].url], users[0]._id).then(res => res.data[0])
+        }
+      }
+
+      assets.map(item => {
+        return {
+          url: item.url,
+          type: item.type,
+          caption: item.caption
+        }
+      })
+
       const newMessage2: PrivateMessage = {
         _id: uid(),
         content: content,
@@ -28,6 +47,7 @@ export const createPrivateChatConversation = createAsyncThunk(
         conversationId: conversation._id as string,
         senderId: users[0]._id,
         receiverId: users[1]._id,
+        fileUrl: assets.length >= 1 ? assets as File[] : null,
         deleted: false,
         seenBy: [
           users[0]._id
@@ -167,11 +187,12 @@ export const sendMessageSeenPrivate = createAsyncThunk(
 
 export const getProfileChatList = createAsyncThunk(
   'chatList/fetch',
-  async (token: string, thunkApi) => {
+  async (token: string | null, thunkApi) => {
     try {
+
       const response = await axios.get(`${localhost}/private/chat/list`, {
         headers: {
-          token: token
+          token: token ? token : await AsyncStorage.getItem("token")
         }
       });
       // console.log(response.data)

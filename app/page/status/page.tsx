@@ -26,7 +26,6 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
   const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
   const { friendListWithDetails, loading } = useSelector((state: RootState) => state.privateChat)
   const dispatch = useDispatch()
-  const [mounted, setMounted] = useState(false)
 
   const handleNavigation = useCallback(() => {
     navigation.navigate('CameraScreen', {
@@ -46,14 +45,12 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
     }
   }, [])
 
-  const Status = useMemo(() => {
-    return friendListWithDetails.map((friend) => {
-      return {
-        user: friend,
-        status: friend.status?.flatMap((status) => status)
-      }
-    })
-  }, [friendListWithDetails])
+  const Status = friendListWithDetails.map((friend) => {
+    return {
+      user: friend,
+      status: friend.status?.flatMap((status) => status)
+    }
+  })
 
   const fetchStatus = useCallback(async () => {
     const token = await AsyncStorage.getItem("token")
@@ -63,21 +60,6 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
       ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
     }
   }, [])
-
-  const throttledFunction = _.throttle(() => fetchStatus(), 1000);
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) {
-    return <Animated.View style={{
-      flex: 1,
-      backgroundColor: AnimatedState.backgroundColor
-    }}>
-
-    </Animated.View>
-  }
 
   return (
     <Animated.View style={{
@@ -89,7 +71,10 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
         AnimatedState={AnimatedState} />
 
       <FlashList
-        estimatedItemSize={100}
+        estimatedItemSize={30}
+        getItemType={(item) => item.user._id}
+        data={Status}
+        keyExtractor={(item) => item.user._id}
         renderItem={({ item }) => {
           const user = item.user
           const status = item.status
@@ -116,9 +101,6 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
             }
           </SafeAreaView>
         }}
-        getItemType={(item) => item.user._id}
-        data={Status}
-        keyExtractor={(item) => item.user._id}
         ListHeaderComponent={() => {
           const myStatuses = useProfile.user?.status?.flatMap((status) => status)
           const logo = () => {
@@ -157,7 +139,7 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
           </>
         }}
         refreshing={loading}
-        onRefresh={throttledFunction}
+        onRefresh={fetchStatus}
       />
       <FloatingButton
         onPress={handleNavigation}

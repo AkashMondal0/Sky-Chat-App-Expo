@@ -19,6 +19,7 @@ interface SendImagesScreenProps {
     route?: {
         params: {
             type: "status" | "message",
+            newChat: boolean,
             forDirectMessage?: {
                 conversationId: string,
                 content: string,
@@ -87,6 +88,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
                 assets: data,
                 user: profileState,
                 type: route?.params.type,
+                newChat: route?.params.newChat,
                 forDirectMessage: route?.params.forDirectMessage,
             })
         }
@@ -131,13 +133,14 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
                 _id: uid(),
                 url: item.uri,
                 type: item.mediaType === "photo" ? "image" : "video",
-                caption: "",
+                caption: ""
             }
         })
         navigation.replace('Preview', {
             assets: data,
             user: profileState,
             type: route?.params.type,
+            newChat: route?.params.newChat,
             forDirectMessage: route?.params.forDirectMessage,
         })
     }

@@ -11,8 +11,9 @@ import { skyUploadImage, skyUploadVideo } from '../../../utils/upload-file';
 
 export const fetchProfileData = createAsyncThunk(
     'profileData/fetch',
-    async (token: string, thunkApi) => {
+    async (token: string | null, thunkApi) => {
         try {
+            token = token ? token : await AsyncStorage.getItem('token') as string
             const response = await axios.get(`${localhost}/auth/authorization`, {
                 headers: {
                     Authorization: token

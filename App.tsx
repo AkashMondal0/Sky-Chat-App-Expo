@@ -17,6 +17,7 @@ import ViewStatusScreen from './app/page/status/ViewStatus/page';
 import CameraScreen from './app/page/Camera/page';
 import CameraAndMedia_Provider from './provider/CameraAndMedia_Provider';
 import PreViewScreen from './app/page/Camera/Preview/page';
+import AssetsScreen from './app/page/assets/page';
 
 
 
@@ -78,6 +79,7 @@ function Routes() {
       <Stack.Screen name="ViewStatus" component={ViewStatusScreen} options={Option2 as any} />
       <Stack.Screen name="CameraScreen" component={CameraScreen} options={Option2 as any} />
       <Stack.Screen name="Preview" component={PreViewScreen} options={Option2 as any} />
+      <Stack.Screen name="AssetsScreen" component={AssetsScreen} options={Option2 as any} />
     </Stack.Navigator>
   );
 }

@@ -1,10 +1,10 @@
 import React, { FC } from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { CheckCheck } from 'lucide-react-native';
 import { CurrentTheme } from '../../../../types/theme';
 import { File } from '../../../../types/private-chat';
 import { timeFormat } from '../../../../utils/timeFormat';
-import { ResizeMode, Video } from 'expo-av';
+import { ResizeMode, Video} from 'expo-av';
 
 interface MessageVideoProps {
     sender: boolean
@@ -12,13 +12,15 @@ interface MessageVideoProps {
     seen?: boolean
     file: File
     time: string
+    onPress?: () => void
 }
 const MessageVideo: FC<MessageVideoProps> = ({
     theme,
     sender,
     seen,
     time,
-    file
+    file,
+    onPress
 }) => {
     const senderColor = theme.primary;
     const receiverColor = theme.background;
@@ -33,7 +35,10 @@ const MessageVideo: FC<MessageVideoProps> = ({
             justifyContent: sender ? "flex-end" : "flex-start",
             padding: 8,
         }}>
-            <View style={{
+            <TouchableOpacity
+            onPress={onPress}
+            activeOpacity={1}
+             style={{
                 backgroundColor: sender ? senderColor : receiverColor,
                 borderBottomLeftRadius: 20,
                 borderBottomRightRadius: 20,
@@ -52,13 +57,12 @@ const MessageVideo: FC<MessageVideoProps> = ({
                     height: 350,
                     borderRadius: 20,
                 }}
-                source={{
-                  uri: file.url,
-                }}
+                isLooping={false}
+                source={{uri: file.url}}
                 useNativeControls
+                audioPan={0}
                 resizeMode={ResizeMode.COVER}
-                isLooping
-                // onPlaybackStatusUpdate={status => setStatus(() => status)}
+                onPlaybackStatusUpdate={status => setStatus(() => status)}
               />
 
                 <View style={{
@@ -77,7 +81,7 @@ const MessageVideo: FC<MessageVideoProps> = ({
                         size={20}
                         color={seen ? theme.seen : theme.iconColor} />
                 </View>
-            </View>
+            </TouchableOpacity>
         </View>
     );
 };

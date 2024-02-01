@@ -1,4 +1,4 @@
-import React, { Suspense, memo, useRef } from 'react'
+import React, { Suspense, memo, useContext, useRef } from 'react'
 import { View, Text, Image, FlatList, TouchableOpacity, TextInput, ToastAndroid } from 'react-native'
 import { Assets, Status, User } from '../../../../types/profile'
 import { useDispatch, useSelector } from 'react-redux'
@@ -12,9 +12,12 @@ import * as ImagePicker from 'expo-image-picker';
 import uid from '../../../../utils/uuid'
 // import { uploadStatusApi } from '../../../../redux/slice/status'
 import { Video, ResizeMode } from 'expo-av'
-import { PrivateMessage } from '../../../../types/private-chat'
-import { sendMessagePrivate } from '../../../../redux/slice/private-chat'
+import { PrivateChat, PrivateMessage } from '../../../../types/private-chat'
+import { createPrivateChatConversation, sendMessagePrivate } from '../../../../redux/slice/private-chat'
 import { uploadStatusApi } from '../../../../redux/slice/profile'
+import { localhost } from '../../../../keys'
+import axios from 'axios'
+import { ProfileContext } from '../../../../provider/Profile_Provider'
 
 
 interface StatusScreenProps {
@@ -22,6 +25,7 @@ interface StatusScreenProps {
     route?: {
         params: {
             assets: Assets[],
+            newChat?: boolean,
             user: User,
             type: "status" | "message",
             forDirectMessage: {
@@ -37,10 +41,10 @@ const PreViewScreen = ({ navigation, route }: StatusScreenProps) => {
     const dispatch = useDispatch()
     const useThem = useSelector((state: RootState) => state.ThemeMode.currentTheme)
     const profileState = useSelector((state: RootState) => state.profile.user)
-    const [selectHeroImage, setSelectHeroImage] = React.useState<Assets>(route?.params.assets[0] as Assets)
-    const profile = route?.params.user
+    const [selectHeroImage, setSelectHeroImage] = React.useState<Assets>(route?.params.assets[0] as Assets) || route?.params.user as User
     const [assets, setAssets] = React.useState<Assets[]>(route?.params.assets || [])
     const statusState = useSelector((state: RootState) => state.statusState)
+    const profileStateContext = useContext(ProfileContext) as any
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -66,24 +70,51 @@ const PreViewScreen = ({ navigation, route }: StatusScreenProps) => {
     const uploadStatus = async () => {
         if (route?.params.type === "status") {
             await dispatch(uploadStatusApi({
-                _id: profile?._id || profileState?._id as string,
+                _id: profileState?._id as string,
                 status: assets as Status[],
             }) as any) //TODO: fix this
             // console.log(assets)
             navigation.goBack()
         }
         else if (route?.params.type === "message" && route?.params.forDirectMessage) {
-
             const data = route?.params.forDirectMessage
-            dispatch(sendMessagePrivate({
-                conversationId: data?.conversationId,
-                content: data?.content,
-                member: data?.member,
-                receiver: data?.receiver,
-                assets: assets,
-            }) as any)
-            navigation.goBack()
-        } else{
+            // create new chat
+            if (route.params.newChat && profileState && data.receiver) {
+                const res = await axios.post(`${localhost}/private/chat/connection`, {
+                    users: [
+                        profileState._id, data.receiver._id
+                    ]
+                }) as { data: PrivateChat }
+                if (res.data) {
+                    dispatch(createPrivateChatConversation({
+                        users: [profileState, data.receiver],
+                        content: "Photo",
+                        conversation: { ...res.data, userDetails: profileState },
+                        assets: assets,
+                    }) as any)
+                    profileStateContext.fetchUserData()
+                    navigation.replace("Chat", {
+                        newChat: false,
+                        userDetail: data.receiver,
+                        chatDetails: res.data,
+                        chatId: res.data._id
+                    })
+                } else {
+                    ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
+                }
+            }
+            else {
+                // existing chat
+                dispatch(sendMessagePrivate({
+                    conversationId: data?.conversationId,
+                    content: data?.content,
+                    member: data?.member,
+                    receiver: data?.receiver,
+                    assets: assets,
+                }) as any)
+                navigation.goBack()
+            }
+        } else {
             ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         }
     }

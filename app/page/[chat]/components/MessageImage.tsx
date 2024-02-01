@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { CheckCheck} from 'lucide-react-native';
 import { CurrentTheme } from '../../../../types/theme';
 import { File } from '../../../../types/private-chat';
@@ -12,13 +12,15 @@ interface MessageImageProps {
     seen?: boolean
     file: File
     time: string
+    onPress?: () => void
 }
 const MessageImage: FC<MessageImageProps> = ({
     theme,
     sender,
     seen,
     file,
-    time
+    time,
+    onPress
 }) => {
     const senderColor = theme.primary;
     const receiverColor = theme.background;
@@ -32,7 +34,10 @@ const MessageImage: FC<MessageImageProps> = ({
             justifyContent: sender ? "flex-end" : "flex-start",
             padding: 8,
         }}>
-            <View style={{
+            <TouchableOpacity
+            onPress={onPress}
+            activeOpacity={1}
+            style={{
                 backgroundColor: sender ? senderColor : receiverColor,
                 borderBottomLeftRadius: 20,
                 borderBottomRightRadius: 20,
@@ -67,7 +72,7 @@ const MessageImage: FC<MessageImageProps> = ({
                         size={20}
                         color={seen ? theme.seen : theme.iconColor} />
                 </View>
-            </View>
+            </TouchableOpacity>
         </View>
     );
 };
