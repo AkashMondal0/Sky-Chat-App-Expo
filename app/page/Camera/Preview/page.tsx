@@ -140,24 +140,27 @@ const PreViewScreen = ({ navigation, route }: StatusScreenProps) => {
                 paddingHorizontal: 10,
             }}>
                 {
-                    assets.length > 1 ? <FlashList
+                    assets.length > 1 ? <FlatList
                         data={assets}
-                        estimatedItemSize={50}
-                        getItemType={(item) => item._id}
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         keyExtractor={(item) => item._id}
                         renderItem={({ item, index }) => {
-                            // console.log(item._id === selectHeroImage._id)
                             return <TouchableOpacity
                                 style={{
                                     justifyContent: "center",
                                     alignItems: "center",
                                 }}
                                 onPress={() => {
-                                    setSelectHeroImage(item)
+                                    if (selectHeroImage._id === item._id) {
+                                        const data = assets.filter((item) => item._id !== selectHeroImage._id)
+                                        setAssets(data)
+                                        setSelectHeroImage(assets[index - 1] ? assets[index - 1] : assets[index + 1])
+                                    } else {
+                                        setSelectHeroImage(item)
+                                    }
                                 }}>
-                                {/* {selectHeroImage._id === item._id ? <View style={{
+                                {selectHeroImage._id === item._id ? <View style={{
                                     position: "absolute",
                                     backgroundColor: "rgba(0,0,0,0.5)",
                                     zIndex: 1,
@@ -166,7 +169,7 @@ const PreViewScreen = ({ navigation, route }: StatusScreenProps) => {
                                     alignItems: "center",
                                 }}>
                                     <X size={40} color={"white"} />
-                                </View> : <></>} */}
+                                </View> : <></>}
                                 <Image source={{ uri: item.url }}
                                     style={{
                                         width: 60,

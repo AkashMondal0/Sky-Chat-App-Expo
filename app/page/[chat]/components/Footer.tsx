@@ -121,16 +121,20 @@ const FooterChat: FC<FooterChatProps> = ({
   }, [])
 
   const sendPhoto = useCallback(async () => {
-    navigation.navigate('CameraScreen', {
-      type: "message",
-      newChat: forNewConnection,
-      forDirectMessage: {
-        conversationId: conversation?._id as string,
-        content: "Photo",
-        member: profile,
-        receiver: user,
-      }
-    })
+    if (!forNewConnection) {
+      navigation.navigate('CameraScreen', {
+        type: "message",
+        newChat: forNewConnection,
+        forDirectMessage: {
+          conversationId: conversation?._id as string,
+          content: "Photo",
+          member: profile,
+          receiver: user,
+        }
+      })
+    } else {
+      ToastAndroid.show("send one message first, You can't send photo to new connection", ToastAndroid.SHORT)
+    }
   }, [])
 
   return (

@@ -111,7 +111,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
         } = await MediaLibrary.getAssetsAsync({
             mediaType: ['photo', 'video'],
             first: 20,
-            sortBy: MediaLibrary.SortBy.creationTime,
+            sortBy: MediaLibrary.SortBy.default,
             after: totalCount.toString(),
         });
 
@@ -131,7 +131,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
     const navigateToPreview = () => {
         const data: Assets[] = selectedAssets.map((item) => {
             return {
-                _id: uid(),
+                _id: item.id,
                 url: item.uri,
                 type: item.mediaType === "photo" ? "image" : "video",
                 caption: ""
