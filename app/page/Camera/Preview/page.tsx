@@ -209,18 +209,7 @@ const Hero = ({
     const video = useRef(null) as any;
     const [status, setStatus] = React.useState({}) as any;
 
-    return <Suspense fallback={
-        <View style={{
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "center",
-        }}>
-            <Text style={{
-                color: useThem.textColor,
-                fontSize: 20,
-            }}>Loading...</Text>
-        </View>
-    }>
+    return <Suspense>
         {selectHeroImage.type === "image" ? <Image source={{ uri: selectHeroImage.url }}
             style={{
                 width: "100%",

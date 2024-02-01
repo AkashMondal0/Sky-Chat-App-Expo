@@ -147,6 +147,22 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
     }
 
 
+    const singleAssetSend = async (assets: MediaLibrary.Asset) => {
+        const data: Assets[] = [{
+            _id: assets.id,
+            url: assets.uri,
+            type: assets.mediaType === "photo" ? "image" : "video",
+            caption: ""
+        }]
+        navigation.replace('Preview', {
+            assets: data,
+            user: profileState,
+            type: route?.params.type,
+            newChat: route?.params.newChat,
+            forDirectMessage: route?.params.forDirectMessage,
+        })
+    }
+
 
     return (
         <View style={{
@@ -158,7 +174,8 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
             <Camera
                 ref={cameraRef}
                 style={{
-                    flex: 1,
+                    // flex: 1,
+                    aspectRatio: 9 / 16,
                 }}
                 type={type}
                 ratio="16:9">
@@ -211,15 +228,19 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
                                     }}
                                     activeOpacity={0.8}
                                     onPress={() => {
-                                        if (selectedAssets.includes(item)) {
-                                            const index = selectedAssets.indexOf(item);
-                                            if (index > -1) {
-                                                selectedAssets.splice(index, 1);
-                                            }
-                                            setSelectedAssets([...selectedAssets])
+                                        if (selectedAssets.length === 0) {
+                                            singleAssetSend(item)
                                         } else {
-                                            if (selectedAssets.length > 0) {
-                                                SelectAssets(item)
+                                            if (selectedAssets.includes(item)) {
+                                                const index = selectedAssets.indexOf(item);
+                                                if (index > -1) {
+                                                    selectedAssets.splice(index, 1);
+                                                }
+                                                setSelectedAssets([...selectedAssets])
+                                            } else {
+                                                if (selectedAssets.length > 0) {
+                                                    SelectAssets(item)
+                                                }
                                             }
                                         }
                                     }}
