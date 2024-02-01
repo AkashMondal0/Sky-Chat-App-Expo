@@ -1,9 +1,10 @@
 import { FC, memo } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { ArrowLeft, MoreVertical, Phone, Video } from 'lucide-react-native';
 import React from 'react';
-import { CurrentTheme } from '../../../../types/theme';
-import Avatar from '../../../../components/shared/Avatar';
+import { CurrentTheme } from '../../../../../types/theme';
+import Avatar from '../../../../../components/shared/Avatar';
+import { timeFormat } from '../../../../../utils/timeFormat';
 
 
 interface HeaderChatProps {
@@ -16,7 +17,8 @@ interface HeaderChatProps {
     primaryOnPress?: () => void,
     isOnline?: boolean,
     isTyping?: boolean,
-    AnimatedState?: any,
+    navigation?: any
+    time?: string | number | Date
 }
 const HeaderChat: FC<HeaderChatProps> = ({
     avatarUrl,
@@ -28,7 +30,8 @@ const HeaderChat: FC<HeaderChatProps> = ({
     primaryOnPress,
     isOnline,
     isTyping,
-    AnimatedState
+    navigation,
+    time
 }) => {
     const backgroundColor = theme.background;
     const iconColor = theme.iconColor;
@@ -39,9 +42,10 @@ const HeaderChat: FC<HeaderChatProps> = ({
         <View style={{
             flexDirection: "row",
             alignItems: "center",
-            padding: 10,
-            height: 70,
-            backgroundColor: backgroundColor,
+            height: 80,
+            paddingTop: StatusBar.currentHeight,
+            paddingHorizontal: 15,
+            zIndex: 100,
         }}>
             <View style={{
                 flexDirection: "row",
@@ -84,9 +88,7 @@ const HeaderChat: FC<HeaderChatProps> = ({
                         <Text style={{
                             fontSize: 14,
                             color: TextColor,
-                        }}>{
-                                isTyping ? "typing..." : isOnline ? "online" : lastSeen || "offline"
-                            }</Text>
+                        }}>{timeFormat(time as any)}</Text>
                     </View>
                 </TouchableOpacity>
 
@@ -98,7 +100,7 @@ const HeaderChat: FC<HeaderChatProps> = ({
                 flex: 1,
                 gap: 15,
             }}>
-                <TouchableOpacity>
+                {/* <TouchableOpacity>
                     <Video size={30}
                         color={iconColor} />
                 </TouchableOpacity>
@@ -109,7 +111,7 @@ const HeaderChat: FC<HeaderChatProps> = ({
                 <TouchableOpacity onPress={primaryOnPress}>
                     <MoreVertical size={25}
                         color={iconColor} />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
         </View>
     );

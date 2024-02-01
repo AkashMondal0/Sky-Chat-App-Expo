@@ -1,18 +1,20 @@
 import React, { FC, memo, useCallback, useContext, useEffect, useRef } from 'react';
 import { Keyboard, TextInput, ToastAndroid, View } from 'react-native';
 import { Camera, Paperclip, Send, Smile } from 'lucide-react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { CurrentTheme } from '../../../../types/theme';
 import { User } from '../../../../types/profile';
-import { PrivateChat, PrivateMessage, typingState } from '../../../../types/private-chat';
-import { addToPrivateChatList, createPrivateChatConversation, sendMessagePrivate } from '../../../../redux/slice/private-chat';
+import { PrivateChat, typingState } from '../../../../types/private-chat';
+import { createPrivateChatConversation, sendMessagePrivate } from '../../../../redux/slice/private-chat';
 import socket from '../../../../utils/socket-connect';
 import MyButton from '../../../../components/shared/Button';
 import { RootState } from '../../../../redux/store';
 import { localhost } from '../../../../keys';
 import axios from 'axios';
 import { ProfileContext } from '../../../../provider/Profile_Provider';
+import Icon_Button from '../../../../components/shared/IconButton';
+import * as ImagePicker from 'expo-image-picker';
 
 interface FooterChatProps {
   theme: CurrentTheme
@@ -87,6 +89,7 @@ const FooterChat: FC<FooterChatProps> = ({
             users: [profile, user],
             content: data.message,
             conversation: { ...res.data, userDetails: profile },
+            assets: []
           }) as any)
           profileState.fetchUserData()
           navigation.replace("Chat", {
@@ -107,12 +110,30 @@ const FooterChat: FC<FooterChatProps> = ({
             content: data.message,
             member: profile,
             receiver: user,
+            assets: []
           }) as any)
           reset()
         } else {
           ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         }
       }
+    }
+  }, [])
+
+  const sendPhoto = useCallback(async () => {
+    if (!forNewConnection) {
+      navigation.navigate('CameraScreen', {
+        type: "message",
+        newChat: forNewConnection,
+        forDirectMessage: {
+          conversationId: conversation?._id as string,
+          content: "Photo",
+          member: profile,
+          receiver: user,
+        }
+      })
+    } else {
+      ToastAndroid.show("send one message first, You can't send photo to new connection", ToastAndroid.SHORT)
     }
   }, [])
 
@@ -132,24 +153,27 @@ const FooterChat: FC<FooterChatProps> = ({
         flexDirection: "row",
         alignItems: "center",
         maxHeight: 100,
-        paddingHorizontal: 10,
+        paddingHorizontal: 5,
       }}>
         <View style={{
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
           elevation: 5,
-          gap: 5,
+          gap: 10,
         }}>
-          <Smile
-            size={25}
-            color={_color}
-          />
+          <Icon_Button
+            theme={theme}
+            backgroundEnable={false}
+            onPress={() => {
+              // emoji
+
+            }}
+            size={40}
+            icon={<Smile
+              size={30} color={theme.iconColor} />} />
           <Controller
             control={control}
-            rules={{
-              // maxLength: 100,
-            }}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 onBlur={() => {
@@ -173,14 +197,17 @@ const FooterChat: FC<FooterChatProps> = ({
                 placeholder="Message"
                 placeholderTextColor={_color} />)}
             name="message" />
-          <Paperclip
-            // size={25}
-            color={_color}
-          />
-          {/* <Camera
+          {/* <Paperclip
             // size={25}
             color={_color}
           /> */}
+          <Icon_Button
+            theme={theme}
+            backgroundEnable={false}
+            onPress={sendPhoto}
+            size={40}
+            icon={<Camera
+              size={30} color={theme.iconColor} />} />
         </View>
       </View>
       <MyButton theme={theme}

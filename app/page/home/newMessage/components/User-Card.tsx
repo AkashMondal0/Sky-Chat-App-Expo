@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { View, Text, Pressable } from 'react-native';
 import { CurrentTheme } from '../../../../../types/theme';
 import { User } from '../../../../../types/profile';
 import Avatar from '../../../../../components/shared/Avatar';
+import { AnimatedContext } from '../../../../../provider/Animated_Provider';
 
 interface Props {
     theme: CurrentTheme
@@ -29,7 +30,7 @@ const UserCard: React.FC<Props> = ({
     onPress,
     user
 }) => {
-
+    const AnimatedState = useContext(AnimatedContext);
     const titleTextSize = 16;
     const textWeight = "500";
 
@@ -70,14 +71,16 @@ const UserCard: React.FC<Props> = ({
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }}>
-                                {icon ? icon : <Text style={{
-                                    fontSize: titleTextSize,
-                                    fontWeight: textWeight,
-                                    color: textColor || theme.textColor,
-                                }}>
-                                    {user.email[0].toLocaleUpperCase()}
-                                </Text>}
-                                {avatarUrl && <Avatar url={avatarUrl} size={40} />}
+                                {!avatarUrl ? <>
+                                    {icon ? icon : <Text style={{
+                                        fontSize: titleTextSize,
+                                        fontWeight: textWeight,
+                                        color: textColor || theme.textColor,
+                                    }}>
+                                        {user.email[0].toLocaleUpperCase()}
+                                    </Text>}</> :
+                                    <Avatar url={avatarUrl} size={40} />}
+
                             </View>
                             <View>
                                 <Text style={{

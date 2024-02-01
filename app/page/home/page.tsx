@@ -6,16 +6,12 @@ import { UserPlus } from 'lucide-react-native';
 import NoItem from './components/No_Item';
 import LoadingUserCard from './components/LoadingUserCard';
 import { RootState } from '../../../redux/store';
-import { fetchUsers } from '../../../redux/apis/user';
 import { PrivateChat, PrivateMessage } from '../../../types/private-chat';
 import FloatingButton from '../../../components/shared/Floating';
 import SearchList from './components/SearchList';
-import Header from '../../../components/shared/header';
+import Header from './components/header';
 import { useForm } from 'react-hook-form';
-import { debounce } from 'lodash';
 import { AnimatedContext } from '../../../provider/Animated_Provider';
-import { User } from '../../../types/profile';
-// import Animated from 'react-native-reanimated';
 
 
 const HomeScreen = ({ navigation }: any) => {
@@ -24,7 +20,7 @@ const HomeScreen = ({ navigation }: any) => {
     const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
     const AnimatedState = useContext(AnimatedContext)
     // search form
-    const { control, watch, formState: { errors }, reset } = useForm({
+    const { control, watch, reset } = useForm({
         defaultValues: {
             search: '',
         }
@@ -80,14 +76,20 @@ const HomeScreen = ({ navigation }: any) => {
             <Header theme={useTheme}
                 AnimatedState={AnimatedState}
                 navigation={navigation} />
-            {!usePrivateChat.List && usePrivateChat.loading ? <LoadingUserCard theme={useTheme} />
+            {usePrivateChat.loading ? <ScrollView>
+                {Array.from({ length: 15 }).fill(0).map((item, i) => <LoadingUserCard theme={useTheme} key={i} />)}
+            </ScrollView>
                 :
                 <>
-                    {sortedListArray.length <= 0 && !usePrivateChat.loading ? <ScrollView>
-                        {Array.from({ length: 15 }).fill(0).map((item, i) => <LoadingUserCard theme={useTheme} key={i} />)}
-                    </ScrollView>
+                    {sortedListArray.length <= 0 && !usePrivateChat.loading ? <NoItem them={useTheme}/>
                         :
                         <FlatList
+                        // optimization
+                            initialNumToRender={10}
+                            windowSize={5}
+                            maxToRenderPerBatch={10}
+                            updateCellsBatchingPeriod={30}
+                            removeClippedSubviews={true}
                             data={sortedListArray}
                             renderItem={({ item }) => {
                                 return item ? <PrivateChatCard

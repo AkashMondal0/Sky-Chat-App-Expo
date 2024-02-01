@@ -1,26 +1,74 @@
+import { Animated, StyleSheet, Text, View } from 'react-native'
 import React, { useContext } from 'react'
-import { View, Text, Animated } from 'react-native';
-import { AnimatedContext } from '../../../provider/Animated_Provider';
-import ContentLoader, { Rect, Circle } from 'react-content-loader/native'
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../redux/store';
+import { AnimatedContext } from '../../../provider/Animated_Provider'
+import { RootState } from '../../../redux/store'
+import { useSelector } from 'react-redux'
 
-export default function CallsScreen() {
-    const AnimatedState = useContext(AnimatedContext)
-    const theme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
-    return (
-        < >
-            <Animated.View style={{
-                backgroundColor: AnimatedState.backgroundColor,
-                flex: 1,
-            }}>
-                <Text>Calls Screen</Text>
-                <ContentLoader viewBox="0 0 380 70" backgroundColor={theme.primaryBackground}>
-                    <Circle cx="30" cy="30" r="30" />
-                    <Rect x="80" y="17" rx="4" ry="4" width="300" height="13" />
-                    <Rect x="80" y="40" rx="3" ry="3" width="250" height="10" />
-                </ContentLoader>
-            </Animated.View>
-        </>
-    )
+interface CallScreenProps {
+  navigation?: any
 }
+const CallScreen = ({ navigation }: CallScreenProps) => {
+  const AnimatedState = useContext(AnimatedContext)
+  const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
+
+  return (
+    <Animated.View style={{
+      flex: 1,
+      backgroundColor: AnimatedState.backgroundColor,
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <Text style={{
+        color: useTheme.textColor,
+        fontSize: 20,
+        fontWeight: 'bold'
+      }}>Call Screen</Text>
+
+    </Animated.View>
+  )
+}
+
+export default CallScreen
+
+const styles = StyleSheet.create({})
+
+// import { useEffect, useState } from 'react';
+// import { View, StyleSheet, Button } from 'react-native';
+// import { Audio } from 'expo-av';
+
+// export default function App() {
+//   const [sound, setSound] = useState();
+
+//   async function playSound() {
+//     console.log('Loading Sound');
+//     const { sound } = await Audio.Sound.createAsync({uri: 'http://13.127.232.152:4001/file/65b9fe641680d88be82392d6/1706729665833-65b9fe641680d88be82392d6.mp4'},)
+//     setSound(sound);
+
+//     console.log('Playing Sound');
+//     await sound.playAsync();
+//   }
+
+//   useEffect(() => {
+//     return sound
+//       ? () => {
+//           console.log('Unloading Sound');
+//           sound.unloadAsync();
+//         }
+//       : undefined;
+//   }, [sound]);
+
+//   return (
+//     <View style={styles.container}>
+//       <Button title="Play Sound" onPress={playSound} />
+//     </View>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     justifyContent: 'center',
+//     backgroundColor: '#ecf0f1',
+//     padding: 10,
+//   },
+// });

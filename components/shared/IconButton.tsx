@@ -9,13 +9,19 @@ interface Icon_ButtonProps {
     onLongPress?: () => void;
     icon: React.ReactNode;
     theme: CurrentTheme;
+    backgroundColor?: string;
+    backgroundEnable?: boolean;
+    disabled?: boolean;
 }
 const Icon_Button: FC<Icon_ButtonProps> = ({
     size,
     onPress,
     onLongPress,
     icon,
-    theme
+    theme,
+    backgroundColor = theme.cardBackground,
+    backgroundEnable = true,
+    disabled = false,
 }) => {
     return (
         <View style={{
@@ -24,7 +30,7 @@ const Icon_Button: FC<Icon_ButtonProps> = ({
             justifyContent: 'center',
             alignItems: 'center',
             borderRadius: 100,
-            backgroundColor: theme.background,
+            backgroundColor: backgroundEnable ? backgroundColor : 'transparent',
             overflow: 'hidden',
             padding: 10,
         }}>
@@ -43,6 +49,7 @@ const Icon_Button: FC<Icon_ButtonProps> = ({
                 radius: size,
             }}
             onPress={onPress}
+            disabled={disabled}
             onLongPress={onLongPress}>
             {icon}
         </Pressable>

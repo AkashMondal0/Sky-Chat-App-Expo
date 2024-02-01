@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useMemo, useCallback, memo } from 'react';
-import { ActivityIndicator, ToastAndroid, View, VirtualizedList, Text } from 'react-native';
+import { ActivityIndicator, ToastAndroid, View, VirtualizedList, Text, Image } from 'react-native';
 import ChatCard from './MessageCard';
 import { useDispatch } from 'react-redux';
 import { CurrentTheme } from '../../../../types/theme';
@@ -12,6 +12,9 @@ import MyButton from '../../../../components/shared/Button';
 import { ArrowDown } from 'lucide-react-native';
 import _ from 'lodash';
 import { dateFormat } from '../../../../utils/timeFormat';
+import MessageImage from './MessageImage';
+import MessageType from './MessageType';
+import { FlashList } from '@shopify/flash-list';
 
 interface BodyChatProps {
     theme: CurrentTheme
@@ -114,6 +117,19 @@ const BodyChat: FC<BodyChatProps> = ({
             )
 
         }
+        if (item.fileUrl?.length! > 0 && item?.fileUrl) {
+
+            return <MessageType
+                files={item.fileUrl}
+                sender={item.memberId === profile?._id}
+                seen={item.seenBy.length >= 2 && item.seenBy.includes(profile?._id as string)}
+                theme={theme}
+                receiver={user as User}
+                time={item.createdAt}
+            />
+
+        }
+
         return (
             <ChatCard
                 key={item._id}
@@ -129,30 +145,25 @@ const BodyChat: FC<BodyChatProps> = ({
 
     return (
         <>
-            <VirtualizedList
-                // style={{paddingBottom: 100,
-                // minHeight: "100%"
-                // }}
-                onContentSizeChange={() => {
-                    memoSortedDates.sort((a, b) => {
-                        return new Date(b.createdAt).getSeconds() - new Date(a.createdAt).getSeconds()
-                    })
-                }}
+            <FlashList
                 inverted
                 removeClippedSubviews={true}
                 keyExtractor={(item, index) => index.toString() as string}
                 scrollEventThrottle={400}
                 ref={scrollViewRef}
                 data={memoSortedDates}
-                initialNumToRender={20}
-                maxToRenderPerBatch={20}
-                windowSize={10}
-                updateCellsBatchingPeriod={100}
-                getItem={(data, index) => data[index]}
-                getItemCount={(data) => data.length}
+                estimatedItemSize={100}
+                getItemType={(item) => item._id}
+                // initialNumToRender={20}
+                // maxToRenderPerBatch={20}
+                // windowSize={10}
+                // updateCellsBatchingPeriod={100}
+                // getItem={(data, index) => data[index]}
+                // getItemCount={(data) => data.length}
+
+
                 onEndReached={throttledFunction}
-                // @ts-ignore
-                renderItem={({ item }) => <ItemView item={item} />}
+                renderItem={({ item, index }) => <ItemView item={item} key={index} />}
                 onScroll={(e) => {
                     if (e.nativeEvent.contentOffset.y > 200) {
                         setUserScrollIcon(true)

@@ -1,7 +1,7 @@
 import { FC, memo, useCallback, useContext } from 'react';
 import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import React from 'react';
-import { CurrentTheme } from '../../types/theme';
+import { CurrentTheme } from '../../../../types/theme';
 import { Moon, Search, Settings2, Sun } from 'lucide-react-native';
 
 interface HeaderProps {

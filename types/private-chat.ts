@@ -3,13 +3,14 @@ import { User } from "./profile";
 export interface File {
     url: string;
     type: 'image' | 'video' | 'audio' | 'file';
+    caption?:string
 }
 
 export interface PrivateMessage {
     _id?: string;
     memberDetails?: User;
     content: string;
-    fileUrl?: File[];
+    fileUrl?: File[] | null;
     memberId: string;
     senderId: string;
     receiverId: string;

@@ -5,6 +5,7 @@ import profileReducer from './slice/profile'
 import privateChatReducer from './slice/private-chat'
 import AuthReducer from './slice/auth'
 import NotificationReducer from './slice/notification'
+import StatusReducer from './slice/status'
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     privateChat: privateChatReducer,
     authState: AuthReducer,
     notification: NotificationReducer,
+    statusState: StatusReducer,
   },
 })
 

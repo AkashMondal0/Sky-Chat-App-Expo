@@ -91,7 +91,6 @@ const MyButton: FC<MyButtonProps> = ({
                     padding: padding || 10,
                     height: height,
                 }}>
-                    {icon}
                     {title ? <>
                         {loading ? <RotationAnimation color={theme.color} /> : <Text style={{
                             fontSize: fontSize,
@@ -99,6 +98,7 @@ const MyButton: FC<MyButtonProps> = ({
                             color: theme.color
                         }}>{title}</Text>}
                     </> : <></>}
+                    {icon}
                 </View>
             </Pressable>
         </View>

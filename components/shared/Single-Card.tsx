@@ -3,9 +3,10 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { ChevronRight, CircleDashed, Palette, Pencil, UserRoundPlus } from 'lucide-react-native';
 import { CurrentTheme } from '../../types/theme';
 import Avatar from './Avatar';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 
 interface Props {
-    theme: CurrentTheme
     label: string
     icon?: React.ReactNode
     secondaryIcon?: React.ReactNode
@@ -15,10 +16,13 @@ interface Props {
     textColor?: string
     height?: number
     onPress?: () => void
+    backgroundColor?: boolean
+    elevation?: number
+    avatarSize?: number
 }
 
 const SingleCard: React.FC<Props> = ({
-    theme,
+    // theme,
     label,
     icon,
     secondaryIcon,
@@ -27,8 +31,12 @@ const SingleCard: React.FC<Props> = ({
     subTitle,
     textColor,
     height,
-    onPress
+    onPress,
+    backgroundColor = true,
+    elevation = 0.5,
+    avatarSize = 60,
 }) => {
+    const theme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
 
     const titleTextSize = 16;
     const textWeight = "500";
@@ -39,15 +47,16 @@ const SingleCard: React.FC<Props> = ({
                 borderRadius: 20,
                 width: '100%',
                 overflow: 'hidden',
-                elevation: 0.5,
+                elevation: elevation,
             }}>
                 <Pressable
                     onPress={onPress}
                     android_ripple={{ color: theme.selectedItemColor, borderless: false, }}
                     style={{
-                        backgroundColor: theme.cardBackground,
+                        backgroundColor: backgroundColor ? theme.cardBackground : theme.background,
                         borderRadius: 20,
                         height: height || 70,
+                        justifyContent: 'center',
                     }}>
                     <View style={{
                         paddingHorizontal: 15,
@@ -72,7 +81,7 @@ const SingleCard: React.FC<Props> = ({
                             }}>
                                 {icon}
                             </View> :
-                                <Avatar url={avatarUrl || ""} size={40} />
+                                <Avatar url={avatarUrl || ""} size={avatarSize} />
                             }
                             <View>
                                 <Text style={{
@@ -84,7 +93,7 @@ const SingleCard: React.FC<Props> = ({
                                 </Text>
                                 {subTitle && <Text style={{
                                     fontSize: 12,
-                                    color: textColor,
+                                    color: textColor || theme.textColor,
                                 }}>
                                     {subTitle}
                                 </Text>}

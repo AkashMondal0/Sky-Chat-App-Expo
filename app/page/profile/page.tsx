@@ -29,7 +29,7 @@ export default function ProfileScreen() {
 
     return (
         <Animated.ScrollView style={{
-            backgroundColor:AnimatedState.backgroundColor
+            backgroundColor: AnimatedState.backgroundColor
         }}>
             <Padding size={10} />
             <View style={{
@@ -45,8 +45,9 @@ export default function ProfileScreen() {
                     },
                     styles.container
                 ]}>
-                    <Avatar url={'https://lh3.googleusercontent.com/a/ACg8ocK-Gr8xcZCMlt_G6ZMKvgwtJwz0r0ssqPNrptWbaZp4ybQb=s288-c-no'}
-                        size={130} />
+                    <Avatar
+                        text={user?.username}
+                        url={user?.profilePicture} size={130} />
                 </View>
                 <View style={[styles.container, {
                     paddingHorizontal: 15,
@@ -66,7 +67,7 @@ export default function ProfileScreen() {
                             fontWeight: "300",
                             color: textColor,
                         }}>
-                            @{user?.email}
+                            {user?.email}
                         </Text>
                     </View>
 
@@ -113,7 +114,23 @@ export default function ProfileScreen() {
                         fontWeight: "300",
                         color: textColor,
                     }}>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo, quia.
+                        Sky.inc , Akash Mondal 
+                    </Text>
+
+                    <Text style={{
+                        fontSize: titleTextSize,
+                        fontWeight: textWeight,
+                        color: textColor,
+                    }}>
+                        Location
+                    </Text>
+
+                    <Text style={{
+                        fontSize: 15,
+                        fontWeight: "300",
+                        color: textColor,
+                    }}>
+                        coming soon
                     </Text>
                 </View>
 

@@ -1,24 +1,31 @@
 import React, { FC } from 'react';
-import { Image, Text, View } from 'react-native';
-import MyText from '../../../components/shared/My-Text';
-import { CurrentTheme } from '../../../types/theme';
-import { CheckCheck } from 'lucide-react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { CheckCheck} from 'lucide-react-native';
+import { CurrentTheme } from '../../../../types/theme';
+import { File } from '../../../../types/private-chat';
+import { timeFormat } from '../../../../utils/timeFormat';
+import { ResizeMode, Video } from 'expo-av';
 
 interface MessageImageProps {
-    content: string;
     sender: boolean
     theme: CurrentTheme
     seen?: boolean
+    file: File
+    time: string
+    onPress?: () => void
 }
 const MessageImage: FC<MessageImageProps> = ({
-    content,
     theme,
     sender,
-    seen
+    seen,
+    file,
+    time,
+    onPress
 }) => {
     const senderColor = theme.primary;
     const receiverColor = theme.background;
     const textColor = sender ? theme.color : theme.textColor;
+    const video = React.useRef(null);
 
     return (
         <View style={{
@@ -27,23 +34,27 @@ const MessageImage: FC<MessageImageProps> = ({
             justifyContent: sender ? "flex-end" : "flex-start",
             padding: 8,
         }}>
-            <View style={{
+            <TouchableOpacity
+            onPress={onPress}
+            activeOpacity={1}
+            style={{
                 backgroundColor: sender ? senderColor : receiverColor,
                 borderBottomLeftRadius: 20,
                 borderBottomRightRadius: 20,
                 borderTopLeftRadius: !sender ? 0 : 20,
                 borderTopRightRadius: !sender ? 20 : 0,
-                padding: 10,
+                padding: 5,
                 maxWidth: "80%",
                 elevation: 2,
                 gap: 5,
             }}>
-               <Image source={{ uri: content }} style={{
-                     width: 200,
-                     height: 200,
-                     borderRadius: 10,
-                        resizeMode: "cover",
-                    }} />
+                <Image source={{ uri: file.url }} style={{
+                    width: 250,
+                    maxHeight: 350,
+                    height: 350,
+                    borderRadius: 20,
+                    resizeMode: "cover",
+                }} />
 
                 <View style={{
                     flexDirection: "row",
@@ -55,13 +66,13 @@ const MessageImage: FC<MessageImageProps> = ({
                         color: textColor,
                         fontSize: 12,
                     }}>
-                        12:00 PM
+                        {timeFormat(time)}
                     </Text>
                     <CheckCheck
                         size={20}
                         color={seen ? theme.seen : theme.iconColor} />
                 </View>
-            </View>
+            </TouchableOpacity>
         </View>
     );
 };

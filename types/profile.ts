@@ -17,4 +17,26 @@ export interface User {
     updatedAt?: string;
     createdAt?: string;
     themes?: CurrentTheme[]
+    status?: Status[];
+    online?: boolean;
+}
+
+export interface Status {
+    _id: string,
+    url: string,
+    type: 'image' | 'video' | 'audio' | "text"
+    forText?: string;
+    forTextBackground?: boolean;
+    forTextColor?: string;
+    forTextSize?: string;
+    caption?: string;
+    createdAt: string | Date;
+    seen?: string[];
+}
+
+export interface Assets {
+    _id: string,
+    url: string,
+    type: 'image' | 'video' | 'audio' | "text"
+    caption: string;
 }

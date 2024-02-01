@@ -42,9 +42,7 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
         AsyncStorage.getItem("token")
             .then((token) => {
                 if (token && !isLogin) {
-                    dispatch(Login({ token }))
                     dispatch(fetchProfileData(token) as any)
-                    dispatch(getProfileChatList(token) as any)
                 }
             })
             .catch(() => {
