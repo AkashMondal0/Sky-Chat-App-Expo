@@ -84,6 +84,12 @@ const HomeScreen = ({ navigation }: any) => {
                     {sortedListArray.length <= 0 && !usePrivateChat.loading ? <NoItem them={useTheme}/>
                         :
                         <FlatList
+                        // optimization
+                            initialNumToRender={10}
+                            windowSize={5}
+                            maxToRenderPerBatch={10}
+                            updateCellsBatchingPeriod={30}
+                            removeClippedSubviews={true}
                             data={sortedListArray}
                             renderItem={({ item }) => {
                                 return item ? <PrivateChatCard

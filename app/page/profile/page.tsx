@@ -67,7 +67,7 @@ export default function ProfileScreen() {
                             fontWeight: "300",
                             color: textColor,
                         }}>
-                            @{user?.email}
+                            {user?.email}
                         </Text>
                     </View>
 
@@ -114,7 +114,23 @@ export default function ProfileScreen() {
                         fontWeight: "300",
                         color: textColor,
                     }}>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo, quia.
+                        Sky.inc , Akash Mondal 
+                    </Text>
+
+                    <Text style={{
+                        fontSize: titleTextSize,
+                        fontWeight: textWeight,
+                        color: textColor,
+                    }}>
+                        Location
+                    </Text>
+
+                    <Text style={{
+                        fontSize: 15,
+                        fontWeight: "300",
+                        color: textColor,
+                    }}>
+                        coming soon
                     </Text>
                 </View>
 

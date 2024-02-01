@@ -48,9 +48,9 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
   const Status = friendListWithDetails.map((friend) => {
     return {
       user: friend,
-      status: friend.status?.flatMap((status) => status)
+      status: friend?.status?.flatMap((status) => status) || []
     }
-  })
+  }) || []
 
   const fetchStatus = useCallback(async () => {
     const token = await AsyncStorage.getItem("token")
@@ -71,41 +71,41 @@ const StatusScreen = ({ navigation }: StatusScreenProps) => {
         AnimatedState={AnimatedState} />
 
       <FlashList
-        estimatedItemSize={30}
-        getItemType={(item) => item.user._id}
+        estimatedItemSize={50}
+        getItemType={(item) => item?.user?._id}
         data={Status}
-        keyExtractor={(item) => item.user._id}
+        keyExtractor={(item) => item?.user?._id}
         renderItem={({ item }) => {
-          const user = item.user
-          const status = item.status
+          const user = item?.user
+          const status = item?.status
           if (!user) {
             return null
           }
           if (!status) {
             return null
           }
-          return <SafeAreaView style={{
+          return <View style={{
             flex: 1,
           }}>
             {
               status.length >= 1 ?
                 <SingleCard
                   label={user?.username || ''}
-                  subTitle={timeFormat(status[status.length - 1].createdAt).toString()}
+                  subTitle={timeFormat(status[status?.length - 1]?.createdAt).toString()}
                   backgroundColor={false}
                   elevation={0}
                   avatarSize={55}
-                  avatarUrl={status[status.length - 1].url}
-                  onPress={() => { ViewStatus({ user: user, statuses: item.status } as any) }}
+                  avatarUrl={status[status.length - 1]?.url}
+                  onPress={() => { ViewStatus({ user: user, statuses: item?.status } as any) }}
                   height={70} /> : null
             }
-          </SafeAreaView>
+          </View>
         }}
         ListHeaderComponent={() => {
           const myStatuses = useProfile.user?.status?.flatMap((status) => status)
           const logo = () => {
             if (myStatuses) {
-              return myStatuses[myStatuses.length - 1].url
+              return myStatuses[myStatuses?.length - 1]?.url || useProfile.user?.profilePicture
             }
             else {
               return useProfile.user?.profilePicture

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import StatusHeader from './components/header'
 import Padding from '../../../../components/shared/Padding'
 import { RootState } from '../../../../redux/store'
-import { ImagePlus, Play, Send } from 'lucide-react-native'
+import { ImagePlus, Play, Send, X } from 'lucide-react-native'
 import MyButton from '../../../../components/shared/Button'
 import { CurrentTheme } from '../../../../types/theme'
 import * as ImagePicker from 'expo-image-picker';
@@ -18,6 +18,7 @@ import { uploadStatusApi } from '../../../../redux/slice/profile'
 import { localhost } from '../../../../keys'
 import axios from 'axios'
 import { ProfileContext } from '../../../../provider/Profile_Provider'
+import { FlashList } from '@shopify/flash-list'
 
 
 interface StatusScreenProps {
@@ -119,7 +120,6 @@ const PreViewScreen = ({ navigation, route }: StatusScreenProps) => {
         }
     }
 
-
     return (<View style={{
         flex: 1,
         backgroundColor: useThem.primaryBackground,
@@ -137,31 +137,49 @@ const PreViewScreen = ({ navigation, route }: StatusScreenProps) => {
                 justifyContent: "flex-end",
                 width: "100%",
                 height: 80,
+                paddingHorizontal: 10,
             }}>
-                <FlatList data={assets}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={{
-                        width: "100%",
-                        height: 100,
-                        flex: 1,
-                        alignContent: "flex-end",
-                    }}
-                    keyExtractor={(item) => item._id}
-                    renderItem={({ item, index }) => {
-                        return <TouchableOpacity onPress={() => setSelectHeroImage(item)}>
-                            <Image source={{ uri: item.url }}
+                {
+                    assets.length > 1 ? <FlashList
+                        data={assets}
+                        estimatedItemSize={50}
+                        getItemType={(item) => item._id}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        keyExtractor={(item) => item._id}
+                        renderItem={({ item, index }) => {
+                            // console.log(item._id === selectHeroImage._id)
+                            return <TouchableOpacity
                                 style={{
-                                    width: 60,
-                                    height: 60,
-                                    borderRadius: 10,
-                                    marginHorizontal: 5,
-                                    resizeMode: "cover",
-                                    borderColor: useThem.borderColor,
-                                    borderWidth: 1,
-                                }} />
-                        </TouchableOpacity>
-                    }} />
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                }}
+                                onPress={() => {
+                                    setSelectHeroImage(item)
+                                }}>
+                                {/* {selectHeroImage._id === item._id ? <View style={{
+                                    position: "absolute",
+                                    backgroundColor: "rgba(0,0,0,0.5)",
+                                    zIndex: 1,
+                                    borderRadius: 30,
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                }}>
+                                    <X size={40} color={"white"} />
+                                </View> : <></>} */}
+                                <Image source={{ uri: item.url }}
+                                    style={{
+                                        width: 60,
+                                        height: 60,
+                                        borderRadius: 10,
+                                        marginHorizontal: 5,
+                                        resizeMode: "cover",
+                                        borderColor: useThem.borderColor,
+                                        borderWidth: 1,
+                                    }} />
+                            </TouchableOpacity>
+                        }} /> : <></>
+                }
             </View>
             <Footer useTheme={useThem}
                 selectHeroImage={selectHeroImage}

@@ -1,7 +1,7 @@
 import React, { memo, useEffect } from 'react'
 import { Camera, CameraType, } from 'expo-camera';
 import { useState } from 'react';
-import { Button, FlatList, Text, TouchableOpacity, View, Image } from 'react-native';
+import { Button, FlatList, Text, TouchableOpacity, View, Image, StatusBar, Vibration, Platform } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import Icon_Button from '../../../components/shared/IconButton';
@@ -13,6 +13,7 @@ import uid from '../../../utils/uuid';
 import * as MediaLibrary from 'expo-media-library';
 import MyButton from '../../../components/shared/Button';
 import _ from 'lodash';
+import { FlashList } from '@shopify/flash-list';
 
 interface SendImagesScreenProps {
     navigation?: any
@@ -153,18 +154,24 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
             justifyContent: 'center',
             backgroundColor: useTheme.background,
         }}>
+            <StatusBar barStyle={"light-content"} />
             <Camera
                 ref={cameraRef}
                 style={{
-                    aspectRatio: 9 / 16,
-                }} type={type}
+                    flex: 1,
+                }}
+                type={type}
                 ratio="16:9">
+                <Padding size={StatusBar.currentHeight} />
                 <Header
                     navigation={navigation}
                     theme={useTheme}
                 />
                 <View style={{
                     justifyContent: "flex-end",
+                    alignItems: "flex-end",
+                    flex: 1,
+
                 }}>
                     <View style={{
                         justifyContent: "flex-end",
@@ -180,56 +187,71 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
                             onPress={navigateToPreview}
                             theme={useTheme} /> : <></>}
                     </View>
-                    <FlatList
-                        contentContainerStyle={{
-                            justifyContent: "flex-end",
-                            alignItems: "flex-end",
-                            alignSelf: "flex-end",
-                        }}
-                        onEndReached={throttledFunction}
-                        data={media}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        keyExtractor={(item) => item.id}
-                        renderItem={({ item, index }) => {
-                            return <TouchableOpacity
-                                style={{
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                }}
-                                onPress={() => {
-                                    if (selectedAssets.includes(item)) {
-                                        const index = selectedAssets.indexOf(item);
-                                        if (index > -1) {
-                                            selectedAssets.splice(index, 1);
-                                        }
-                                        setSelectedAssets([...selectedAssets])
-                                    } else {
-                                        SelectAssets(item)
-                                    }
-                                }}>
-                                {selectedAssets.includes(item) ? <View style={{
-                                    position: "absolute",
-                                    backgroundColor: "rgba(0,0,0,0.5)",
-                                    zIndex: 1,
-                                    borderRadius: 30,
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                }}>
-                                    <X size={40} color={"white"} />
-                                </View> : <></>}
-                                <Image source={{ uri: item.uri }}
+                    <View style={{
+                        height: 80,
+                    }}>
+                        <FlatList
+                            // optimize the performance
+                            removeClippedSubviews={true}
+                            initialNumToRender={10}
+                            maxToRenderPerBatch={10}
+                            windowSize={10}
+                            updateCellsBatchingPeriod={100}
+                            onEndReached={throttledFunction}
+                            data={media}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item, index }) => {
+                                return <TouchableOpacity
                                     style={{
-                                        width: 60,
-                                        height: 60,
-                                        borderRadius: 10,
-                                        marginHorizontal: 5,
-                                        resizeMode: "cover",
-                                        borderColor: useTheme.borderColor,
-                                        borderWidth: 1,
-                                    }} />
-                            </TouchableOpacity>
-                        }} />
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        height: 80,
+                                    }}
+                                    activeOpacity={0.8}
+                                    onPress={() => {
+                                        if (selectedAssets.includes(item)) {
+                                            const index = selectedAssets.indexOf(item);
+                                            if (index > -1) {
+                                                selectedAssets.splice(index, 1);
+                                            }
+                                            setSelectedAssets([...selectedAssets])
+                                        } else {
+                                            if (selectedAssets.length > 0) {
+                                                SelectAssets(item)
+                                            }
+                                        }
+                                    }}
+                                    onLongPress={() => {
+                                        if (selectedAssets.length >= 0) {
+                                            SelectAssets(item)
+                                            Vibration.vibrate(100)
+                                        }
+                                    }}>
+                                    {selectedAssets.includes(item) ? <View style={{
+                                        position: "absolute",
+                                        backgroundColor: "rgba(0,0,0,0.5)",
+                                        zIndex: 1,
+                                        borderRadius: 30,
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                    }}>
+                                        <X size={40} color={"white"} />
+                                    </View> : <></>}
+                                    <Image source={{ uri: item.uri }}
+                                        style={{
+                                            width: 60,
+                                            height: 60,
+                                            borderRadius: 10,
+                                            marginHorizontal: 5,
+                                            resizeMode: "cover",
+                                            borderColor: useTheme.borderColor,
+                                            borderWidth: 1,
+                                        }} />
+                                </TouchableOpacity>
+                            }} />
+                    </View>
                     <Footer navigation={navigation}
                         theme={useTheme}
                         disable={disable}
@@ -237,6 +259,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
                         imagePicker={fetchMediaPagination}
                         toggleCameraType={toggleCameraType}
                     />
+                    <Padding size={StatusBar.currentHeight} />
                 </View>
             </Camera>
         </View>
@@ -321,7 +344,8 @@ const Footer = ({
     return (
         <>
             <View style={{
-                // height: 60,
+                height: 60,
+                width: "100%",
                 paddingTop: 20,
                 justifyContent: "center",
                 paddingHorizontal: 15,
@@ -373,7 +397,6 @@ const Footer = ({
                         size={40}
                         icon={<SwitchCamera size={30} color={iconColor} />} />
                 </View>
-                <Padding size={30} />
             </View>
         </>
     )
