@@ -9,12 +9,13 @@ import { PrivateChat, typingState } from '../../../../types/private-chat';
 import { createPrivateChatConversation, sendMessagePrivate } from '../../../../redux/slice/private-chat';
 import socket from '../../../../utils/socket-connect';
 import MyButton from '../../../../components/shared/Button';
-import { RootState } from '../../../../redux/store';
 import { localhost } from '../../../../keys';
 import axios from 'axios';
 import { ProfileContext } from '../../../../provider/Profile_Provider';
 import Icon_Button from '../../../../components/shared/IconButton';
-import * as ImagePicker from 'expo-image-picker';
+import { Audio } from 'expo-av';
+
+
 
 interface FooterChatProps {
   theme: CurrentTheme
@@ -37,6 +38,13 @@ const FooterChat: FC<FooterChatProps> = ({
   const dispatch = useDispatch()
   const inputRef = useRef<any>(null);
   const profileState = useContext(ProfileContext) as any
+
+  const playSound = useCallback(async () => {
+    const { sound } = await Audio.Sound.createAsync(require('../../../../assets/audio/pop.mp3'), {
+      volume: 0.5,
+    });
+    await sound.playAsync();
+  }, [])
 
   const { control, handleSubmit, reset,
     formState: { errors } } = useForm({
@@ -101,18 +109,21 @@ const FooterChat: FC<FooterChatProps> = ({
         } else {
           ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         }
+        playSound()
         reset()
       }
       else {
         if (conversation && profile && user) {
-          dispatch(sendMessagePrivate({
+          const _data = {
             conversationId: conversation?._id as string,
             content: data.message,
             member: profile,
             receiver: user,
             assets: []
-          }) as any)
+          }
           reset()
+          dispatch(sendMessagePrivate(_data) as any)
+          playSound()
         } else {
           ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         }
@@ -185,9 +196,9 @@ const FooterChat: FC<FooterChatProps> = ({
                 onChangeText={onChange}
                 ref={inputRef}
                 value={value}
-                multiline={true}
+                multiline
                 style={{
-                  minHeight: 45,
+                  minHeight: 50,
                   width: "85%",
                   borderRadius: 100,
                   color: _color,
@@ -210,15 +221,18 @@ const FooterChat: FC<FooterChatProps> = ({
               size={30} color={theme.iconColor} />} />
         </View>
       </View>
-      <MyButton theme={theme}
-        onPress={handleSubmit(sendMessageHandle)}
-        variant="primary"
-        radius={100}
-        padding={8}
-        width={55}
-        elevation={5}
-        icon={<Send size={30} color={theme.color} />} />
-
+      <View style={{
+        zIndex: 1000,
+      }}>
+        <MyButton theme={theme}
+          onPress={handleSubmit(sendMessageHandle)}
+          variant="primary"
+          radius={100}
+          padding={8}
+          width={60}
+          elevation={5}
+          icon={<Send size={30} color={theme.color} />} />
+      </View>
     </View>
   );
 };
