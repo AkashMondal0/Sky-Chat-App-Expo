@@ -110,14 +110,14 @@ const HomeScreen = ({ navigation }: any) => {
                             renderItem={({ item }) => {
                                 const userData = usePrivateChat.friendListWithDetails.find((user) => user._id === item.userDetails?._id)
                                 return item ? <PrivateChatCard
-                                    avatarOnPress={() => handleSheetChanges(userData as User)}
-                                    userData={userData}
+                                    avatarOnPress={() => handleSheetChanges(userData || item.userDetails as User)}
+                                    userData={userData || item.userDetails}
                                     AnimatedState={AnimatedState}
                                     indicator={seenCount(item.messages) || 0}
-                                    avatarUrl={userData?.profilePicture} // TODO: add avatar url
+                                    avatarUrl={userData?.profilePicture || item.userDetails?.profilePicture} // TODO: add avatar url
                                     them={useTheme}
                                     profile={useProfile?.user}
-                                    title={userData?.username || "..."}
+                                    title={userData?.username || item.userDetails?.username || "..."}
                                     date={sortedDate(item?.messages)}
                                     isTyping={item.typing}
                                     onPress={() => navigateToChat(item)}

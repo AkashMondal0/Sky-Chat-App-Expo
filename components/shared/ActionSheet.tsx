@@ -28,7 +28,7 @@ const ActionSheet = ({
         style={{
           flex: 1,
           justifyContent: 'center',
-          backgroundColor: 'rgba(0,0,0,0.5)',
+          // backgroundColor: 'rgba(0,0,0,0.5)',
           alignItems: 'center',
           position: 'absolute',
           zIndex: 100,
