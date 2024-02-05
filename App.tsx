@@ -18,6 +18,7 @@ import CameraScreen from './app/page/Camera/page';
 import CameraAndMedia_Provider from './provider/CameraAndMedia_Provider';
 import PreViewScreen from './app/page/Camera/Preview/page';
 import AssetsScreen from './app/page/assets/page';
+import ButtonSheet from './provider/ButtomSheet';
 
 
 
@@ -65,14 +66,15 @@ function Routes() {
       <Stack.Screen name="register" component={RegisterScreen} options={Option2 as any} />
 
       <Stack.Screen name="Chat" component={ChatScreen} options={{
-          headerShown: false,
-          animation: "slide_from_right",
-          animationDuration: 300,
-          contentStyle: {
-            backgroundColor: backgroundColor,
-            elevation: 0,
-            height: "auto"
-          }}} />
+        headerShown: false,
+        animation: "slide_from_right",
+        animationDuration: 300,
+        contentStyle: {
+          backgroundColor: backgroundColor,
+          elevation: 0,
+          height: "auto"
+        }
+      }} />
 
       <Stack.Screen name="Message" component={NewMessageScreen} options={options as any} />
       <Stack.Screen name="Setting" component={SettingsScreen} options={options as any} />
@@ -94,7 +96,9 @@ function App() {
           <Animated_Provider>
             {/* <CameraAndMedia_Provider> */}
             <Profile_Provider>
-              <Routes />
+              <ButtonSheet>
+                <Routes />
+              </ButtonSheet>
             </Profile_Provider>
             {/* </CameraAndMedia_Provider> */}
           </Animated_Provider>

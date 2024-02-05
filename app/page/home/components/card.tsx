@@ -24,6 +24,7 @@ interface PrivateChatCardProps {
     profile?: User | null;
     AnimatedState: any;
     userData?: User | null;
+    avatarOnPress?: () => void;
 }
 const PrivateChatCard: FC<PrivateChatCardProps> = ({
     title,
@@ -37,7 +38,8 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
     isTyping,
     profile,
     AnimatedState,
-    userData
+    userData,
+    avatarOnPress
 }) => {
     const dispatch = useDispatch()
 
@@ -75,9 +77,7 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
                 }}>
                 <>
                     <TouchableOpacity
-                        onPress={() => {
-                            // console.log("long press")
-                        }}>
+                        onPress={avatarOnPress}>
                         <View
                             style={{
                                 width: 15,
