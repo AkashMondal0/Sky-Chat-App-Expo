@@ -14,6 +14,7 @@ import axios from 'axios';
 import { ProfileContext } from '../../../../provider/Profile_Provider';
 import Icon_Button from '../../../../components/shared/IconButton';
 import { Audio } from 'expo-av';
+import { debounce } from 'lodash';
 
 
 
@@ -38,6 +39,7 @@ const FooterChat: FC<FooterChatProps> = ({
   const dispatch = useDispatch()
   const inputRef = useRef<any>(null);
   const profileState = useContext(ProfileContext) as any
+  const [stopTyping, setStopTyping] = React.useState(true)
 
   const playSound = useCallback(async () => {
     const { sound } = await Audio.Sound.createAsync(require('../../../../assets/audio/pop.mp3'), {
@@ -72,7 +74,7 @@ const FooterChat: FC<FooterChatProps> = ({
     }
     socket.emit('message_typing_sender', message)
   }, [])
-
+  
   const onBlurType = useCallback(() => {
     const message: typingState = {
       conversationId: conversation?._id as string,
@@ -81,7 +83,12 @@ const FooterChat: FC<FooterChatProps> = ({
       typing: false
     }
     socket.emit('message_typing_sender', message)
+    setStopTyping(true)
   }, [])
+
+  const debouncedHandleOnfocus = useCallback(debounce(onFocus, 2000), []);
+  const debouncedHandleOnblur = useCallback(debounce(onBlurType, 2000), []);
+
 
   const sendMessageHandle = useCallback(async (data: { message: string }) => {
     if (data.message.trim().length > 0) {
@@ -148,6 +155,8 @@ const FooterChat: FC<FooterChatProps> = ({
     }
   }, [])
 
+
+
   return (
     <View style={{
       flexDirection: "row",
@@ -178,7 +187,7 @@ const FooterChat: FC<FooterChatProps> = ({
             backgroundEnable={false}
             onPress={() => {
               // emoji
-
+              ToastAndroid.show("Emoji coming soon", ToastAndroid.SHORT)
             }}
             size={40}
             icon={<Smile
@@ -192,8 +201,18 @@ const FooterChat: FC<FooterChatProps> = ({
                   Keyboard.dismiss()
                   onBlurType()
                 }}
-                onFocus={onFocus}
-                onChangeText={onChange}
+                // onFocus={onFocus}
+                onChangeText={(e) => {
+                  onChange(e)
+                  if (stopTyping) {
+                    // console.log("typing")
+                    onFocus()
+                    setStopTyping(false)
+                  } else {
+                    // console.log("stop typing")
+                    debouncedHandleOnblur()
+                  }
+                }}
                 ref={inputRef}
                 value={value}
                 multiline

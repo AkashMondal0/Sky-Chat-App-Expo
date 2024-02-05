@@ -84,9 +84,7 @@ const HeaderChat: FC<HeaderChatProps> = ({
                         <Text style={{
                             fontSize: 14,
                             color: TextColor,
-                        }}>{
-                                isTyping ? "typing..." : isOnline ? "online" : lastSeen || "offline"
-                            }</Text>
+                        }}>{isTyping ? "typing..." : isOnline ? "online" : lastSeen || "offline"}</Text>
                     </View>
                 </TouchableOpacity>
 

@@ -18,7 +18,7 @@ export interface User {
     createdAt?: string;
     themes?: CurrentTheme[]
     status?: Status[];
-    online?: boolean;
+    isOnline?: boolean;
 }
 
 export interface Status {

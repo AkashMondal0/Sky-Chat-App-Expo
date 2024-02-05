@@ -64,7 +64,7 @@ const HomeScreen = ({ navigation }: any) => {
         })
     }, [])
 
-
+// console.log(usePrivateChat.friendListWithDetails, "friendListWithDetails")
     return (
         <Animated.View style={{
             flex: 1,
@@ -81,10 +81,10 @@ const HomeScreen = ({ navigation }: any) => {
             </ScrollView>
                 :
                 <>
-                    {sortedListArray.length <= 0 && !usePrivateChat.loading ? <NoItem them={useTheme}/>
+                    {sortedListArray.length <= 0 && !usePrivateChat.loading ? <NoItem them={useTheme} />
                         :
                         <FlatList
-                        // optimization
+                            // optimization
                             initialNumToRender={10}
                             windowSize={5}
                             maxToRenderPerBatch={10}
@@ -93,6 +93,7 @@ const HomeScreen = ({ navigation }: any) => {
                             data={sortedListArray}
                             renderItem={({ item }) => {
                                 return item ? <PrivateChatCard
+                                    userData={usePrivateChat.friendListWithDetails.find((user) => user._id === item.userDetails?._id)}
                                     AnimatedState={AnimatedState}
                                     indicator={seenCount(item.messages) || 0}
                                     avatarUrl={item.userDetails?.profilePicture} // TODO: add avatar url
