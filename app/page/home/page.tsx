@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo } from 'react'
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Animated, Button, FlatList, SafeAreaView, ScrollView, ToastAndroid, View } from 'react-native'
 import PrivateChatCard from './components/card';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,6 +12,10 @@ import SearchList from './components/SearchList';
 import Header from './components/header';
 import { useForm } from 'react-hook-form';
 import { AnimatedContext } from '../../../provider/Animated_Provider';
+import ActionSheet from '../../../components/shared/ActionSheet';
+import { BottomSheetModal, useBottomSheetModal } from '@gorhom/bottom-sheet';
+import { User } from '../../../types/profile';
+import ProfileBottomSheet from './components/ProfileBottomSheet';
 
 
 const HomeScreen = ({ navigation }: any) => {
@@ -19,6 +23,7 @@ const HomeScreen = ({ navigation }: any) => {
     const usePrivateChat = useSelector((state: RootState) => state.privateChat)
     const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
     const AnimatedState = useContext(AnimatedContext)
+    const [bottomSheetData, setBottomSheetData] = useState<User>()
     // search form
     const { control, watch, reset } = useForm({
         defaultValues: {
@@ -63,6 +68,13 @@ const HomeScreen = ({ navigation }: any) => {
             chatId: item._id
         })
     }, [])
+    const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+    const snapPoints = useMemo(() => ["30%", "50%", "90%"], [])
+
+    const handleSheetChanges = useCallback((userData: User) => {
+        setBottomSheetData(userData)
+        bottomSheetModalRef.current?.present()
+    }, [])
 
 
     return (
@@ -70,6 +82,10 @@ const HomeScreen = ({ navigation }: any) => {
             flex: 1,
             backgroundColor: AnimatedState.backgroundColor
         }}>
+            <ActionSheet
+                BottomSheetComponent={<ProfileBottomSheet UserData={bottomSheetData as User} />}
+                bottomSheetModalRef={bottomSheetModalRef}
+                snapPoints={snapPoints} />
             <SearchList theme={useTheme}
                 reset={reset}
                 inputHandleControl={control} />
@@ -81,10 +97,10 @@ const HomeScreen = ({ navigation }: any) => {
             </ScrollView>
                 :
                 <>
-                    {sortedListArray.length <= 0 && !usePrivateChat.loading ? <NoItem them={useTheme}/>
+                    {sortedListArray.length <= 0 && !usePrivateChat.loading ? <NoItem them={useTheme} />
                         :
                         <FlatList
-                        // optimization
+                            // optimization
                             initialNumToRender={10}
                             windowSize={5}
                             maxToRenderPerBatch={10}
@@ -92,13 +108,16 @@ const HomeScreen = ({ navigation }: any) => {
                             removeClippedSubviews={true}
                             data={sortedListArray}
                             renderItem={({ item }) => {
+                                const userData = usePrivateChat.friendListWithDetails.find((user) => user._id === item.userDetails?._id)
                                 return item ? <PrivateChatCard
+                                    avatarOnPress={() => handleSheetChanges(userData || item.userDetails as User)}
+                                    userData={userData || item.userDetails}
                                     AnimatedState={AnimatedState}
                                     indicator={seenCount(item.messages) || 0}
-                                    avatarUrl={item.userDetails?.profilePicture} // TODO: add avatar url
+                                    avatarUrl={userData?.profilePicture || item.userDetails?.profilePicture} // TODO: add avatar url
                                     them={useTheme}
                                     profile={useProfile?.user}
-                                    title={item.userDetails?.username || "..."}
+                                    title={userData?.username || item.userDetails?.username || "..."}
                                     date={sortedDate(item?.messages)}
                                     isTyping={item.typing}
                                     onPress={() => navigateToChat(item)}
@@ -115,7 +134,6 @@ const HomeScreen = ({ navigation }: any) => {
                 theme={useTheme}
                 icon={<UserPlus color={useTheme.color}
                     size={35} />} />
-
         </Animated.View>
     )
 }

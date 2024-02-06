@@ -28,12 +28,12 @@ interface ChatScreenProps {
 
 const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
     const useThem = useSelector((state: RootState) => state.ThemeMode.currentTheme)
-    const { List, messageLoading, error } = useSelector((state: RootState) => state.privateChat)
+    const { List, messageLoading, error, friendListWithDetails } = useSelector((state: RootState) => state.privateChat)
     const profile = useSelector((state: RootState) => state.profile)
     const AnimatedState = useContext(AnimatedContext)
 
     let PrivateConversationData = List.find((item) => item._id === params?.chatId) || params?.chatDetails
-    let userData = PrivateConversationData?.userDetails || params.userDetail
+    let userData = friendListWithDetails.find((user) => user._id === params.userDetail._id) || params.userDetail
 
 
     const onBlurType = useCallback(() => {
@@ -68,7 +68,7 @@ const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
                 AnimatedState={AnimatedState}
                 primaryOnPress={onPressSetting}
                 theme={useThem}
-                isOnline={PrivateConversationData?.typing}
+                isOnline={userData?.isOnline}
                 isTyping={PrivateConversationData?.typing}
                 onBackPress={onBlurType}
                 name={userData?.username || "user"}

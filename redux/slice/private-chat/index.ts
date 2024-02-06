@@ -268,6 +268,12 @@ export const Private_Chat_Slice = createSlice({
         state.List[index].typing = action.payload.typing
       }
     },
+    setUserStatus: (state, action: PayloadAction<{ userId: string, status: boolean }>) => {
+      const index = state.friendListWithDetails.findIndex(item => item._id === action.payload.userId)
+      if (index !== -1) {
+        state.friendListWithDetails[index].isOnline = action.payload.status
+      }
+    },
     recentChatSetter: (state, action: PayloadAction<PrivateChat>) => {
       state.recentChat = action.payload
     },
@@ -357,7 +363,7 @@ export const {
   addToPrivateChatListMessageSeen,
   recentChatSetter,
   addToPrivateChatListMessageTyping,
-  // addMoreMessagesToPrivateChatList
+  setUserStatus
 } = Private_Chat_Slice.actions
 
 export default Private_Chat_Slice.reducer

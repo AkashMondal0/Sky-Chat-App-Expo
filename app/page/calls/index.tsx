@@ -30,45 +30,108 @@ const CallScreen = ({ navigation }: CallScreenProps) => {
 
 export default CallScreen
 
-const styles = StyleSheet.create({})
+// import { useState, useEffect, useRef } from 'react';
+// import { Text, View, Button, Platform } from 'react-native';
+// import * as Device from 'expo-device';
+// import * as Notifications from 'expo-notifications';
 
-// import { useEffect, useState } from 'react';
-// import { View, StyleSheet, Button } from 'react-native';
-// import { Audio } from 'expo-av';
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,
+//     shouldPlaySound: false,
+//     shouldSetBadge: false,
+//     sound: 'default',
+//     badge: 2,
+//   }),
+// });
 
 // export default function App() {
-//   const [sound, setSound] = useState();
-
-//   async function playSound() {
-//     console.log('Loading Sound');
-//     const { sound } = await Audio.Sound.createAsync({uri: 'http://13.127.232.152:4001/file/65b9fe641680d88be82392d6/1706729665833-65b9fe641680d88be82392d6.mp4'},)
-//     setSound(sound);
-
-//     console.log('Playing Sound');
-//     await sound.playAsync();
-//   }
+//   const [expoPushToken, setExpoPushToken] = useState('');
+//   const [notification, setNotification] = useState(false);
+//   const notificationListener = useRef();
+//   const responseListener = useRef();
 
 //   useEffect(() => {
-//     return sound
-//       ? () => {
-//           console.log('Unloading Sound');
-//           sound.unloadAsync();
-//         }
-//       : undefined;
-//   }, [sound]);
+//     registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+
+//     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+//       setNotification(notification);
+//     });
+
+//     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+//       console.log(response);
+//     });
+
+//     return () => {
+//       Notifications.removeNotificationSubscription(notificationListener.current);
+//       Notifications.removeNotificationSubscription(responseListener.current);
+//     };
+//   }, []);
 
 //   return (
-//     <View style={styles.container}>
-//       <Button title="Play Sound" onPress={playSound} />
+//     <View
+//       style={{
+//         flex: 1,
+//         alignItems: 'center',
+//         justifyContent: 'space-around',
+//       }}>
+//       <Text>Your expo push token: {expoPushToken}</Text>
+//       <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+//         <Text>Title: {notification && notification.request.content.title} </Text>
+//         <Text>Body: {notification && notification.request.content.body}</Text>
+//         <Text>Data: {notification && JSON.stringify(notification.request.content.data)}</Text>
+//       </View>
+//       <Button
+//         title="Press to schedule a notification"
+//         onPress={async () => {
+//           await schedulePushNotification();
+//         }}
+//       />
 //     </View>
 //   );
 // }
 
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     backgroundColor: '#ecf0f1',
-//     padding: 10,
-//   },
-// });
+// async function schedulePushNotification() {
+//   await Notifications.scheduleNotificationAsync({
+//     content: {
+//       title: "You've got mail! 📬",
+//       body: 'Here is the notification body',
+//       data: { data: 'goes here' },
+//     },
+//     trigger: { seconds: 2 ,channelId:"1234"},
+//   });
+// }
+
+// async function registerForPushNotificationsAsync() {
+//   let token;
+
+//   if (Platform.OS === 'android') {
+//     await Notifications.setNotificationChannelAsync('default', {
+//       name: 'default',
+//       importance: Notifications.AndroidImportance.MAX,
+//       vibrationPattern: [0, 250, 250, 250],
+//       lightColor: '#FF231F7C',
+//     });
+//   }
+
+//   if (Device.isDevice) {
+//     const { status: existingStatus } = await Notifications.getPermissionsAsync();
+//     let finalStatus = existingStatus;
+//     if (existingStatus !== 'granted') {
+//       const { status } = await Notifications.requestPermissionsAsync();
+//       finalStatus = status;
+//     }
+//     if (finalStatus !== 'granted') {
+//       alert('Failed to get push token for push notification!');
+//       return;
+//     }
+//     // Learn more about projectId:
+//     // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
+//     token = (await Notifications.getExpoPushTokenAsync({ projectId:"1e37d71d-8636-4593-9054-1a07b82eef74" })).data;
+//     console.log(token);
+//   } else {
+//     alert('Must use physical device for Push Notifications');
+//   }
+
+//   return token;
+// }
