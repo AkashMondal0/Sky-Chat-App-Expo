@@ -10,6 +10,14 @@ import Padding from '../../../../components/shared/Padding';
 import MyInput from '../../../../components/shared/Input';
 import MyButton from '../../../../components/shared/Button';
 import { loginApi } from '../../../../redux/slice/auth';
+import { zodResolver } from '@hookform/resolvers/zod';
+import z from "zod"
+const schema = z.object({
+    email: z.string().email({ message: "Invalid email" })
+        .nonempty({ message: "Email is required" }),
+    password: z.string().min(6, { message: "Password must be at least 6 characters" })
+        .nonempty({ message: "Password is required" })
+})
 
 const LoginScreen = ({ navigation }: any) => {
     const profileContext = useContext(ProfileContext)
@@ -24,25 +32,23 @@ const LoginScreen = ({ navigation }: any) => {
         defaultValues: {
             email: '',
             password: '',
-        }
+        },
+        resolver: zodResolver(schema)
     });
 
-    const handleLogin = useCallback((data: {
+    const handleLogin = useCallback(async (data: {
         email: string,
         password: string,
     }) => {
-        dispatch(loginApi({
+        const _data = await dispatch(loginApi({
             email: data.email,
             password: data.password,
         }) as any)
-    }, [])
-
-    useEffect(() => {
-        if (isLogin) {
+        if (_data.payload?.token) {
             profileContext.fetchUserData?.()
             navigation.navigate('home')
         }
-    }, [isLogin])
+    }, [])
 
     return (
         <SafeAreaView style={{
@@ -93,7 +99,15 @@ const LoginScreen = ({ navigation }: any) => {
                     returnKeyType="next"
                     height={50}
                     control={control} name='email' />
-                <Padding size={10} />
+                <Text style={{
+                    fontSize: 12,
+                    color: useTheme.DangerButtonColor,
+                    textAlign: "left",
+                    fontWeight: 'bold',
+                    margin: 4,
+                }}>
+                    {errors.email?.message}
+                </Text>
 
                 <MyInput theme={useTheme}
                     placeholder='Password'
@@ -110,6 +124,15 @@ const LoginScreen = ({ navigation }: any) => {
                     }
                     control={control}
                     name='password' />
+                <Text style={{
+                    fontSize: 12,
+                    color: useTheme.DangerButtonColor,
+                    textAlign: "left",
+                    fontWeight: 'bold',
+                    margin: 4,
+                }}>
+                    {errors.password?.message}
+                </Text>
                 <Padding size={20} />
 
                 <MyButton theme={useTheme}

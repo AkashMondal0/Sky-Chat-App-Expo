@@ -12,6 +12,17 @@ import MyInput from '../../../../components/shared/Input';
 import { registerApi } from '../../../../redux/slice/auth';
 import Avatar from '../../../../components/shared/Avatar';
 import * as ImagePicker from 'expo-image-picker';
+import { zodResolver } from '@hookform/resolvers/zod';
+import z from "zod"
+
+const schema = z.object({
+    email: z.string().email({ message: "Invalid email" })
+        .nonempty({ message: "Email is required" }),
+    password: z.string().min(6, { message: "Password must be at least 6 characters" })
+        .nonempty({ message: "Password is required" }),
+    username: z.string().nonempty({ message: "Username is required" })
+        .max(20, { message: "Username must be at most 20 characters" })
+})
 
 const RegisterScreen = ({ navigation }: any) => {
     const profileContext = useContext(ProfileContext)
@@ -26,7 +37,8 @@ const RegisterScreen = ({ navigation }: any) => {
             username: '',
             password: '',
             email: '',
-        }
+        },
+        resolver: zodResolver(schema)
     });
 
     const pickImage = async () => {
@@ -42,20 +54,17 @@ const RegisterScreen = ({ navigation }: any) => {
     }
 
 
-    const handleRegister = useCallback((data: {
+    const handleRegister = useCallback(async (data: {
         username: string,
         password: string,
         email: string,
     }, _image: string) => {
-        dispatch(registerApi({ ...data, image: _image }) as any)
-    }, []);
-
-    useEffect(() => {
-        if (isLogin) {
+        const _data = await dispatch(registerApi({ ...data, image: _image }) as any)
+        if (_data.payload?.token) {
             profileContext.fetchUserData?.()
             navigation.navigate('home')
         }
-    }, [isLogin])
+    }, []);
 
     return (
         <ScrollView style={{
@@ -101,7 +110,7 @@ const RegisterScreen = ({ navigation }: any) => {
                                 <Avatar
                                     size={120}
                                     url={image}
-                                    onPress={pickImage}/>
+                                    onPress={pickImage} />
                                 <TouchableOpacity
                                     style={{
                                         position: 'absolute',
@@ -145,7 +154,16 @@ const RegisterScreen = ({ navigation }: any) => {
                     control={control}
                     height={50}
                     name='username' />
-                <Padding size={10} />
+                <Text style={{
+                    fontSize: 12,
+                    color: useTheme.DangerButtonColor,
+                    textAlign: "left",
+                    fontWeight: 'bold',
+                    margin: 4,
+                }}>
+                    {errors.username?.message}
+                </Text>
+                {/* <Padding size={10} /> */}
 
                 <MyInput theme={useTheme}
                     placeholder='Email'
@@ -154,7 +172,16 @@ const RegisterScreen = ({ navigation }: any) => {
                     returnKeyType="next"
                     height={50}
                     control={control} name='email' />
-                <Padding size={10} />
+                <Text style={{
+                    fontSize: 12,
+                    color: useTheme.DangerButtonColor,
+                    textAlign: "left",
+                    fontWeight: 'bold',
+                    margin: 4,
+                }}>
+                    {errors.email?.message}
+                </Text>
+                {/* <Padding size={10} /> */}
 
                 <MyInput theme={useTheme}
                     placeholder='Password'
@@ -171,6 +198,15 @@ const RegisterScreen = ({ navigation }: any) => {
                     }
                     control={control}
                     name='password' />
+                <Text style={{
+                    fontSize: 12,
+                    color: useTheme.DangerButtonColor,
+                    textAlign: "left",
+                    fontWeight: 'bold',
+                    margin: 4,
+                }}>
+                    {errors.password?.message}
+                </Text>
                 <Padding size={20} />
 
                 <MyButton theme={useTheme}

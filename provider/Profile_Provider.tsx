@@ -39,18 +39,9 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
 
 
     const fetchUserData = useCallback(async () => {
-        AsyncStorage.getItem("token")
-            .then((token) => {
-                if (token && !isLogin) {
-                    dispatch(fetchProfileData(token) as any)
-                }
-            })
-            .catch(() => {
-                dispatch(Logout())
-            })
-            .finally(() => {
-                SplashScreen.hideAsync()
-            })
+        const token = await AsyncStorage.getItem("token")
+        await dispatch(fetchProfileData(token) as any)
+        SplashScreen.hideAsync()
     }, [])
 
 
