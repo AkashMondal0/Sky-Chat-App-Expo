@@ -17,14 +17,14 @@ const NoItem: FC<NoItemProps> = ({
             height: '100%',
             justifyContent: 'center',
             alignItems: 'center',
+            aspectRatio: 9 / 16,
             flex: 1,
         }}>
             <Image
                 source={require('../../../../assets/images/nochat.png')}
                 style={{
                     width: '80%',
-                    height: 300,
-                    resizeMode: 'contain'
+                    resizeMode: 'contain',
                 }}
             />
 
