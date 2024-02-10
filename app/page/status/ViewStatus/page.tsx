@@ -31,33 +31,9 @@ const ViewStatusScreen = ({ navigation, route }: StatusScreenProps) => {
     const [assets, setAssets] = React.useState<Status[]>(route?.params.assets || [])
     const statusState = useSelector((state: RootState) => state.statusState)
 
-    // const pickImage = async () => {
-    //     let result = await ImagePicker.launchImageLibraryAsync({
-    //         mediaTypes: ImagePicker.MediaTypeOptions.All,
-    //         allowsMultipleSelection: true,
-    //         quality: 1,
-    //     });
-    //     if (!result.canceled) {
-    //         const data = result.assets.map((item: any) => {
-    //             item = {
-    //                 _id: uid(),
-    //                 url: item.uri,
-    //                 type: item.type,
-    //                 createdAt: new Date(),
-    //             }
-    //             return item
-    //         })
-
-    //         setAssets([...assets, ...data])
-    //     }
-    // }
 
     const uploadStatus = async () => {
-        // await dispatch(uploadStatusApi({
-        //     _id: profile?._id || profileState?._id as string,
-        //     status: assets,
-        // }) as any)
-        // navigation.goBack()
+
     }
 
     const Next = useCallback(() => {
@@ -110,61 +86,7 @@ const ViewStatusScreen = ({ navigation, route }: StatusScreenProps) => {
                 width: "100%",
                 height: 80,
             }}>
-                {/* <FlatList data={assets}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={{
-                        width: "100%",
-                        height: 100,
-                        flex: 1,
-                        alignContent: "flex-end",
-                    }}
-                    keyExtractor={(item) => item._id}
-                    renderItem={({ item, index }) => {
-                        if (item.type === "image") {
-                            return <TouchableOpacity onPress={() => setSelectHeroImage(item)}>
-                                <Image source={{ uri: item.url }}
-                                    style={{
-                                        width: 60,
-                                        height: 60,
-                                        borderRadius: 10,
-                                        marginHorizontal: 5,
-                                        resizeMode: "cover",
-                                        borderColor: useThem.borderColor,
-                                        borderWidth: 1,
-                                    }} />
-                            </TouchableOpacity>
-                        } else {
-                            return <TouchableOpacity onPress={() => setSelectHeroImage(item)}>
-                                <Video
-                                    source={{ uri: item.url }}
-                                    rate={1.0}
-                                    volume={1.0}
-                                    isMuted={false}
-                                    shouldPlay={false}
-                                    isLooping={false}
-                                    style={{
-                                        width: 60,
-                                        height: 60,
-                                        borderRadius: 10,
-                                        marginHorizontal: 5,
-                                        // resizeMode: "cover",
-                                        borderColor: useThem.borderColor,
-                                        borderWidth: 1,
-                                    }}
-                                    resizeMode={ResizeMode.COVER}
-                                />
-                            </TouchableOpacity>
-                        }
-                    }} /> */}
             </View>
-            {route?.params.user._id !== profileState?._id ? <Footer useTheme={useThem}
-                selectHeroImage={selectHeroImage}
-                assets={assets}
-                loading={statusState.fetchLoading}
-                // pickImage={pickImage}
-                setAssets={setAssets}
-                submitStatus={uploadStatus} /> : <></>}
             <Text style={{
                 color: useThem.textColor,
                 fontSize: 20,
@@ -172,6 +94,14 @@ const ViewStatusScreen = ({ navigation, route }: StatusScreenProps) => {
                 width: "80%",
             }}>{selectHeroImage.caption || ""}</Text>
             <Padding size={20} />
+            {route?.params.user._id !== profileState?._id ?
+             <Footer useTheme={useThem}
+                selectHeroImage={selectHeroImage}
+                assets={assets}
+                loading={statusState.fetchLoading}
+                // pickImage={pickImage}
+                setAssets={setAssets}
+                submitStatus={uploadStatus} /> : <></>}
         </View>
     </View>)
 
@@ -225,13 +155,17 @@ const Hero = ({
             ></TouchableOpacity>
         </>
 
-        {selectHeroImage.type === "image" ? <Image source={{ uri: selectHeroImage.url }}
-            style={{
-                width: "100%",
-                height: "100%",
-                position: "absolute",
-                resizeMode: "contain",
-            }} /> :
+        {selectHeroImage.type === "image" ?
+            <>
+                <Image
+                    source={{ uri: selectHeroImage.url }}
+                    style={{
+                        width: "100%",
+                        position: "absolute",
+                        resizeMode: "contain",
+                        height: "100%",
+                    }} />
+            </>:
             <TouchableOpacity
                 activeOpacity={1}
                 style={{
@@ -276,6 +210,7 @@ const Hero = ({
                         width: "100%",
                         height: "100%",
                         position: "absolute",
+                        aspectRatio: 9 / 16,
                     }}
                     resizeMode={ResizeMode.COVER}
                 />
@@ -333,7 +268,7 @@ const Footer = ({ useTheme,
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    elevation: 5,
+                    elevation: 25,
                     gap: 5,
                 }}>
                     <TouchableOpacity onPress={pickImage}>
