@@ -8,6 +8,27 @@ import { Assets, User } from '../../../types/profile';
 import uid from '../../../utils/uuid';
 import { skyUploadImage, skyUploadVideo } from '../../../utils/upload-file';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+export const createConnectionApi = createAsyncThunk(
+  'createConnectionApi/post',
+  async ({
+    profileId,
+    userId
+  }: {
+    profileId: string,
+    userId: string
+  }, thunkApi) => {
+    try {
+      const res = await axios.post(`${localhost}/private/chat/connection`, {
+        users: [
+          profileId, userId
+        ]
+      })
+      return res.data
+    } catch (error: any) {
+      return thunkApi.rejectWithValue(error.response.data)
+    }
+  }
+);
 
 export const createPrivateChatConversation = createAsyncThunk(
   'createPrivateChatConversation/post',

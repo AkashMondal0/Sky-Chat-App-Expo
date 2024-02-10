@@ -19,7 +19,6 @@ interface ChatScreenProps {
         params: {
             userDetail: User
             profileDetail: User
-            chatId: PrivateChat["_id"]
             newChat: boolean
             chatDetails: PrivateChat
         }
@@ -32,8 +31,8 @@ const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
     const profile = useSelector((state: RootState) => state.profile)
     const AnimatedState = useContext(AnimatedContext)
 
-    let PrivateConversationData = List.find((item) => item._id === params?.chatId) || params?.chatDetails
-    let userData = friendListWithDetails.find((user) => user._id === params.userDetail._id) || params.userDetail
+    let PrivateConversationData = List.find((item) => item?._id === params?.chatDetails._id) || params?.chatDetails
+    let userData = friendListWithDetails.find((user) => user?._id === params.userDetail._id) || params.userDetail
 
 
     const onBlurType = useCallback(() => {

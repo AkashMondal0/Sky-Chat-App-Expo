@@ -44,8 +44,10 @@ export default function NewMessageScreen({ navigation }: any) {
 
         if (getChat) {
             navigation.navigate('Chat', {
-                chatId: getChat?._id,
                 userId: getChat?.userDetails?._id,
+                newChat: false,
+                chatDetails: getChat,
+                userDetail: receiverData,
             })
         } else {
             try {
@@ -94,14 +96,12 @@ export default function NewMessageScreen({ navigation }: any) {
 
                 {watch("search").length <= 0 ? <>
                     <SingleCard
-                        theme={useTheme}
                         label={'Add a Friend'}
                         iconBackgroundColor={useTheme.primary}
                         icon={<UserRoundPlus color={Color} />}
                         secondaryIcon={<ChevronRight color={iconColor} />} />
 
                     <SingleCard
-                        theme={useTheme}
                         label={'New Group'}
                         iconBackgroundColor={useTheme.selectedItemColor}
                         icon={<UserRoundPlus color={Color} />}

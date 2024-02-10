@@ -6,7 +6,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { CurrentTheme } from '../../../../types/theme';
 import { User } from '../../../../types/profile';
 import { PrivateChat, typingState } from '../../../../types/private-chat';
-import { createPrivateChatConversation, sendMessagePrivate } from '../../../../redux/slice/private-chat';
+import { createConnectionApi, createPrivateChatConversation, sendMessagePrivate } from '../../../../redux/slice/private-chat';
 import socket from '../../../../utils/socket-connect';
 import MyButton from '../../../../components/shared/Button';
 import { localhost } from '../../../../keys';
@@ -74,7 +74,7 @@ const FooterChat: FC<FooterChatProps> = ({
     }
     socket.emit('message_typing_sender', message)
   }, [])
-  
+
   const onBlurType = useCallback(() => {
     const message: typingState = {
       conversationId: conversation?._id as string,
@@ -86,7 +86,6 @@ const FooterChat: FC<FooterChatProps> = ({
     setStopTyping(true)
   }, [])
 
-  const debouncedHandleOnfocus = useCallback(debounce(onFocus, 2000), []);
   const debouncedHandleOnblur = useCallback(debounce(onBlurType, 2000), []);
 
 
@@ -94,27 +93,25 @@ const FooterChat: FC<FooterChatProps> = ({
     if (data.message.trim().length > 0) {
       // for new connection
       if (forNewConnection && profile && user) {
-        const res = await axios.post(`${localhost}/private/chat/connection`, {
-          users: [
-            profile._id, user._id
-          ]
-        }) as { data: PrivateChat }
-        if (res.data) {
-          dispatch(createPrivateChatConversation({
+        const res = await dispatch(createConnectionApi({
+          profileId: profile._id,
+          userId: user._id
+        }) as any)
+        if (res?.payload?._id) {
+          await dispatch(createPrivateChatConversation({
             users: [profile, user],
             content: data.message,
-            conversation: { ...res.data, userDetails: profile },
+            conversation: { ...res?.payload, userDetails: profile },
             assets: []
           }) as any)
           profileState.fetchUserData()
           navigation.replace("Chat", {
             newChat: false,
             userDetail: user,
-            chatDetails: res.data,
-            chatId: res.data._id
+            chatDetails: res?.payload,
           })
         } else {
-          ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
+          ToastAndroid.show("Something went wrong server", ToastAndroid.SHORT)
         }
         playSound()
         reset()
@@ -201,15 +198,12 @@ const FooterChat: FC<FooterChatProps> = ({
                   Keyboard.dismiss()
                   onBlurType()
                 }}
-                // onFocus={onFocus}
                 onChangeText={(e) => {
                   onChange(e)
                   if (stopTyping) {
-                    // console.log("typing")
                     onFocus()
                     setStopTyping(false)
                   } else {
-                    // console.log("stop typing")
                     debouncedHandleOnblur()
                   }
                 }}
@@ -227,10 +221,6 @@ const FooterChat: FC<FooterChatProps> = ({
                 placeholder="Message"
                 placeholderTextColor={_color} />)}
             name="message" />
-          {/* <Paperclip
-            // size={25}
-            color={_color}
-          /> */}
           <Icon_Button
             theme={theme}
             backgroundEnable={false}

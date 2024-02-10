@@ -10,15 +10,10 @@ import MyButton from '../../../../components/shared/Button'
 import { CurrentTheme } from '../../../../types/theme'
 import * as ImagePicker from 'expo-image-picker';
 import uid from '../../../../utils/uuid'
-// import { uploadStatusApi } from '../../../../redux/slice/status'
 import { Video, ResizeMode } from 'expo-av'
-import { PrivateChat, PrivateMessage } from '../../../../types/private-chat'
-import { createPrivateChatConversation, sendMessagePrivate } from '../../../../redux/slice/private-chat'
+import {  sendMessagePrivate } from '../../../../redux/slice/private-chat'
 import { uploadStatusApi } from '../../../../redux/slice/profile'
-import { localhost } from '../../../../keys'
-import axios from 'axios'
 import { ProfileContext } from '../../../../provider/Profile_Provider'
-import { FlashList } from '@shopify/flash-list'
 
 
 interface StatusScreenProps {
@@ -73,48 +68,19 @@ const PreViewScreen = ({ navigation, route }: StatusScreenProps) => {
             await dispatch(uploadStatusApi({
                 _id: profileState?._id as string,
                 status: assets as Status[],
-            }) as any) //TODO: fix this
-            // console.log(assets)
+            }) as any)
             navigation.goBack()
         }
         else if (route?.params.type === "message" && route?.params.forDirectMessage) {
             const data = route?.params.forDirectMessage
-            // create new chat
-            if (route.params.newChat && profileState && data.receiver) {
-                const res = await axios.post(`${localhost}/private/chat/connection`, {
-                    users: [
-                        profileState._id, data.receiver._id
-                    ]
-                }) as { data: PrivateChat }
-                if (res.data) {
-                    dispatch(createPrivateChatConversation({
-                        users: [profileState, data.receiver],
-                        content: "Photo",
-                        conversation: { ...res.data, userDetails: profileState },
-                        assets: assets,
-                    }) as any)
-                    profileStateContext.fetchUserData()
-                    navigation.replace("Chat", {
-                        newChat: false,
-                        userDetail: data.receiver,
-                        chatDetails: res.data,
-                        chatId: res.data._id
-                    })
-                } else {
-                    ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
-                }
-            }
-            else {
-                // existing chat
-                dispatch(sendMessagePrivate({
-                    conversationId: data?.conversationId,
-                    content: data?.content,
-                    member: data?.member,
-                    receiver: data?.receiver,
-                    assets: assets,
-                }) as any)
-                navigation.goBack()
-            }
+            await dispatch(sendMessagePrivate({
+                conversationId: data?.conversationId,
+                content: data?.content,
+                member: data?.member,
+                receiver: data?.receiver,
+                assets: assets,
+            }) as any)
+            navigation.goBack()
         } else {
             ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         }
