@@ -19,6 +19,7 @@ import CameraAndMedia_Provider from './provider/CameraAndMedia_Provider';
 import PreViewScreen from './app/page/Camera/Preview/page';
 import AssetsScreen from './app/page/assets/page';
 import ButtonSheet from './provider/ButtomSheet';
+import LinkDevice from './app/page/setting/linkDevice/page';
 
 
 
@@ -61,9 +62,11 @@ function Routes() {
   }
   return (
     <Stack.Navigator>
+      {/* custom header */}
       <Stack.Screen name="home" component={isLogin ? Tabs : IntroScreen} options={Option2 as any} />
       <Stack.Screen name="login" component={LoginScreen} options={Option2 as any} />
       <Stack.Screen name="register" component={RegisterScreen} options={Option2 as any} />
+
 
       <Stack.Screen name="Chat" component={ChatScreen} options={{
         headerShown: false,
@@ -76,6 +79,8 @@ function Routes() {
         }
       }} />
 
+      {/* header */}
+      <Stack.Screen name="linkDevice" component={LinkDevice} options={options as any} />
       <Stack.Screen name="Message" component={NewMessageScreen} options={options as any} />
       <Stack.Screen name="Setting" component={SettingsScreen} options={options as any} />
       <Stack.Screen name="ViewStatus" component={ViewStatusScreen} options={Option2 as any} />
