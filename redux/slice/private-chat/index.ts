@@ -82,7 +82,14 @@ export const createPrivateChatConversation = createAsyncThunk(
         chatData: conversation
       });
       socket.emit('message_sender', newMessage2)
-
+      const conversationData: PrivateChat = {
+        ...conversation,
+        messages: [newMessage2],
+        lastMessageContent: newMessage2.content,
+        updatedAt: newMessage2.createdAt,
+        userDetails: users[1]
+      }
+      thunkApi.dispatch(addToPrivateChatList(conversationData))
       return conversation
     } catch (error: any) {
       return thunkApi.rejectWithValue(error.response.data)
