@@ -1,7 +1,7 @@
-import React, { useCallback} from 'react'
+import React, { useCallback } from 'react'
 import { View, Text, ScrollView, ToastAndroid } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChevronRight, UserRoundPlus } from 'lucide-react-native';
+import { ChevronRight, UserRoundPlus, UsersRound } from 'lucide-react-native';
 import { useForm } from "react-hook-form";
 import debounce from "lodash/debounce";
 import UserCard from './components/User-Card';
@@ -102,9 +102,10 @@ export default function NewMessageScreen({ navigation }: any) {
                         secondaryIcon={<ChevronRight color={iconColor} />} />
 
                     <SingleCard
+                        onPress={() => navigation.navigate('NewGroup')}
                         label={'New Group'}
                         iconBackgroundColor={useTheme.selectedItemColor}
-                        icon={<UserRoundPlus color={Color} />}
+                        icon={<UsersRound color={Color} />}
                         secondaryIcon={<ChevronRight color={iconColor} />} />
                 </> : <></>}
 

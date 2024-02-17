@@ -104,7 +104,7 @@ const FooterChat: FC<FooterChatProps> = ({
             conversation: { ...res?.payload, userDetails: profile },
             assets: []
           }) as any)
-          profileState.fetchUserData()
+          // profileState.fetchUserData()
           navigation.replace("Chat", {
             newChat: false,
             userDetail: user,

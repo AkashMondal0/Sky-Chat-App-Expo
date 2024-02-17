@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect } from 'react'
 import { View, Text, StyleSheet, ScrollView, Switch } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChevronRight, CircleDashed, LogOut, Palette, Pencil } from 'lucide-react-native';
+import { ChevronRight, CircleDashed, LogOut, MonitorSmartphone, Palette, Pencil } from 'lucide-react-native';
 import { RootState } from '../../../redux/store';
 import Padding from '../../../components/shared/Padding';
 import SingleCard from '../../../components/shared/Single-Card';
@@ -28,165 +28,9 @@ export default function SettingsScreen({ navigation }: any) {
         navigation.navigate('home')
     }, [])
 
-    const settings = [
-        {
-            id: 1,
-            typeName: "Account Settings",
-            settings: [
-                {
-                    id: 1,
-                    name: "Account",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                },
-                {
-                    id: 3,
-                    name: "Privacy and Safety",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }, {
-                    id: 4,
-                    name: "Notifications",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                },
-                {
-                    id: 5,
-                    name: "Data Usage",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }, {
-                    id: 6,
-                    name: "Accessibility",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }, {
-                    id: 7,
-                    name: "About",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }
-            ]
-        },
-        {
-            id: 2,
-            typeName: "App Settings",
-            settings: [
-                {
-                    id: 1,
-                    name: "Account",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                },
-                {
-                    id: 3,
-                    name: "Privacy and Safety",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }, {
-                    id: 4,
-                    name: "Notifications",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                },
-                {
-                    id: 5,
-                    name: "Data Usage",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }, {
-                    id: 6,
-                    name: "Accessibility",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }, {
-                    id: 7,
-                    name: "About",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }
-            ]
-        },
-        {
-            id: 3,
-            typeName: "Support",
-            settings: [
-                {
-                    id: 1,
-                    name: "Account",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                },
-                {
-                    id: 3,
-                    name: "Privacy and Safety",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }, {
-                    id: 4,
-                    name: "Notifications",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                },
-                {
-                    id: 5,
-                    name: "Data Usage",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }, {
-                    id: 6,
-                    name: "Accessibility",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }, {
-                    id: 7,
-                    name: "About",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }
-            ]
-        },
-        {
-            id: 4,
-            typeName: "What's New",
-            settings: [
-                {
-                    id: 1,
-                    name: "Account",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                },
-                {
-                    id: 3,
-                    name: "Privacy and Safety",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }, {
-                    id: 4,
-                    name: "Notifications",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                },
-                {
-                    id: 5,
-                    name: "Data Usage",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }, {
-                    id: 6,
-                    name: "Accessibility",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }, {
-                    id: 7,
-                    name: "About",
-                    icon: <Palette color={iconColor} />,
-                    secondaryIcon: <ChevronRight color={iconColor} />,
-                }
-            ]
-        }
-    ]
-
+    const handleLinkDevice = useCallback(() => {
+        navigation.navigate('linkDevice')
+    }, [])
 
 
     return (
@@ -226,10 +70,10 @@ export default function SettingsScreen({ navigation }: any) {
                     </>
                 ))
                 } */}
-                {/* <SingleCard
+                <SingleCard
                     icon={<Palette color={iconColor} />}
                     label={"Theme System"}
-                    onPress={handleLogOut}
+                    // onPress={handleLogOut}
                     secondaryIcon={
                         <View style={{
                             flexDirection: 'row',
@@ -241,14 +85,21 @@ export default function SettingsScreen({ navigation }: any) {
                     }
                     textColor={useTheme.currentTheme.textColor}
                     iconBackgroundColor={useTheme.currentTheme.background}
-                    theme={useTheme.currentTheme} /> */}
+                />
+                <SingleCard
+                    icon={<MonitorSmartphone color={iconColor} />}
+                    label={"Link Device"}
+                    onPress={handleLinkDevice}
+                    textColor={useTheme.currentTheme.textColor}
+                    iconBackgroundColor={useTheme.currentTheme.background}
+                />
                 <SingleCard
                     icon={<LogOut color={iconColor} />}
                     label={"Log Out"}
                     onPress={handleLogOut}
                     textColor={useTheme.currentTheme.DangerButtonColor}
                     iconBackgroundColor={useTheme.currentTheme.background}
-                    theme={useTheme.currentTheme} />
+                />
             </View>
             <Padding size={10} />
         </ScrollView>
