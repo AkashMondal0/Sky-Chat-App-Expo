@@ -62,3 +62,19 @@ export interface typingState {
     typing: boolean;
 
 }
+
+export interface GroupConversation {
+    _id?: string;
+    groupName?: string;
+    groupImage?: string;
+    groupDescription?: string;
+    members?: User['_id'][];
+    createdBy?: User['_id'];
+    createdAt?: string | Date;
+    updatedAt?: string | Date;
+    lastMessageContent?: string;
+    messages?: PrivateMessage[];
+    typing?: boolean;
+    loadAllMessages?: boolean;
+    page?: number;
+}

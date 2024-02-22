@@ -1,8 +1,5 @@
-// const localhost = 'http://192.168.31.232:4000';
-// const localhostStorage = 'http://192.168.31.212:4001'
-
-const localhostStorage = 'http://13.127.232.152:4001'
-const localhost = 'http://13.127.232.152:4000';
+const localhostStorage = process.env.REACT_APP_LOCALHOST_STORAGE || "http://192.168.31.212:4001"
+const localhost =  process.env.REACT_APP_LOCALHOST || "http://192.168.31.212:4000"
 export {
     localhost,
     localhostStorage

@@ -81,7 +81,7 @@ const SingleCard: React.FC<Props> = ({
                             }}>
                                 {icon}
                             </View> :
-                                <Avatar url={avatarUrl || ""} size={avatarSize} />
+                                <Avatar url={avatarUrl || ""} size={avatarSize} text={label}/>
                             }
                             <View>
                                 <Text style={{

@@ -82,13 +82,13 @@ function Routes() {
 
       {/* header */}
       <Stack.Screen name="linkDevice" component={LinkDevice} options={Options as any} />
-      <Stack.Screen name="Message" component={NewMessageScreen} options={Options as any} />
+      <Stack.Screen name="Message" component={NewMessageScreen} options={Option2 as any} />
       <Stack.Screen name="Setting" component={SettingsScreen} options={Options as any} />
       <Stack.Screen name="ViewStatus" component={ViewStatusScreen} options={Option2 as any} />
       <Stack.Screen name="CameraScreen" component={CameraScreen} options={Option2 as any} />
       <Stack.Screen name="Preview" component={PreViewScreen} options={Option2 as any} />
       <Stack.Screen name="AssetsScreen" component={AssetsScreen} options={Option2 as any} />
-      <Stack.Screen name="NewGroup" component={NewGroup} options={Options as any} />
+      <Stack.Screen name="NewGroup" component={NewGroup} options={Option2 as any} />
     </Stack.Navigator>
   );
 }

@@ -119,7 +119,10 @@ export const Profile_Slice = createSlice({
                 state.user = action.payload;
                 state.splashLoading = false
                 state.isLogin = true
-                socket.emit("user_connect", { id: action.payload._id }) // connect to socket
+                socket.emit("user_connect", {
+                    user: action.payload,
+                    socketId: socket.id
+                }) // connect to socket
             })
             .addCase(fetchProfileData.rejected, (state, action) => {
                 state.error = action.error.message;
