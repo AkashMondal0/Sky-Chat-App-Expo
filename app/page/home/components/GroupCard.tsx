@@ -41,8 +41,8 @@ const GroupConversationCard: FC<GroupConversationCardProps> = ({
     }, [])
 
     const navigateToChat = useCallback(() => {
-        navigation.navigate("Chat", {
-
+        navigation.navigate("Group_chat", {
+            groupId: data._id,
         })
     }, [])
 

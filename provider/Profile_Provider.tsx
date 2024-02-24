@@ -16,6 +16,7 @@ import { PrivateMessage, PrivateMessageSeen } from '../types/private-chat';
 import { Login, Logout } from '../redux/slice/auth';
 import NetInfo from '@react-native-community/netinfo'
 import { ToastAndroid } from 'react-native';
+import { addToGroupChatListMessage, getGroupChatList } from '../redux/slice/group-chat';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -34,7 +35,7 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
     children
 }) => {
     const dispatch = useDispatch()
-    const { isLogin } = useSelector((state: RootState) => state.authState)
+    const { isLogin, token } = useSelector((state: RootState) => state.authState)
 
 
 
@@ -73,10 +74,29 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
             dispatch(addToPrivateChatListMessageTyping(data))
         })
 
+        socket.on("group_message_receiver", (data: PrivateMessage) => {
+            // console.log("message_receiver update")
+            // if (AppState.currentState === "background") {
+            //     // @ts-ignore
+            //     notificationContext.onDisplayNotification(data)
+            // }
+            // ToastAndroid.show("New Message", ToastAndroid.SHORT)
+            dispatch(addToGroupChatListMessage(data))
+        })
+
+        socket.on("group_chat_connection_receiver", async (data) => {
+            const token = await AsyncStorage.getItem("token")
+            dispatch(getGroupChatList(token) as any)
+        })
+
         return () => {
             socket.off("update_Chat_List_Receiver")
             socket.off("message_receiver")
             socket.off("message_seen_receiver")
+            socket.off("message_typing_receiver")
+            socket.off("group_message_receiver")
+            socket.off("group_chat_connection_receiver")
+            
             // unsubscribe();
         }
     }, [])

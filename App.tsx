@@ -21,6 +21,7 @@ import AssetsScreen from './app/page/assets/page';
 import ButtonSheet from './provider/ButtomSheet';
 import LinkDevice from './app/page/setting/linkDevice/page';
 import NewGroup from './app/page/home/newMessage/NewGroup/page';
+import GroupChatScreen from './app/page/[group]/page';
 
 
 
@@ -79,6 +80,17 @@ function Routes() {
           height: "auto"
         }
       }} />
+      <Stack.Screen name="Group_chat" component={GroupChatScreen} options={{
+        headerShown: false,
+        animation: "slide_from_right",
+        animationDuration: 300,
+        contentStyle: {
+          backgroundColor: backgroundColor,
+          elevation: 0,
+          height: "auto"
+        }
+      }} />
+      
 
       {/* header */}
       <Stack.Screen name="linkDevice" component={LinkDevice} options={Options as any} />

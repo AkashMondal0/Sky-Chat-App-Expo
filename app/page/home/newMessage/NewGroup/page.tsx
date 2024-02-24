@@ -1,4 +1,4 @@
-import { Animated, FlatList, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Animated, FlatList, ScrollView, StatusBar, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
 import React, { Suspense, useContext, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AnimatedContext } from '../../../../../provider/Animated_Provider'
@@ -65,19 +65,27 @@ const NewCreateGroup = ({
   }
 
   async function handleRegister(data: { GroupName: string; GroupDescription: string }, image: any) {
-    if (!profileState) return alert('You are not logged in')
-    const NewGroup = {
-      name: data.GroupName,
-      description: data.GroupDescription,
-      picture: image,
-      members: params.users.map((i) => i._id),
-      authorId: profileState._id
+    if (!profileState) return {
+      ToastAndroid: ToastAndroid.show("You are not logged in", ToastAndroid.SHORT)
     }
-    // console.log(NewGroup)
-    const createNewGroup = await dispatch(createGroup(NewGroup) as any)
-    if (createNewGroup?.payload) {
-      navigation.replace('GroupChat', { groupId: createNewGroup.payload._id })
+    if (params.users.length <= 1) return {
+      ToastAndroid: ToastAndroid.show("Group must have at least 2 members", ToastAndroid.SHORT)
     }
+    else {
+      const NewGroup = {
+        name: data.GroupName,
+        description: data.GroupDescription,
+        picture: image,
+        members: params.users.map((i) => i._id),
+        authorId: profileState._id
+      }
+      const createNewGroup = await dispatch(createGroup(NewGroup) as any)
+      if (createNewGroup?.payload) {
+        // await refresh the group chat list
+        navigation.replace("Group_chat", { groupId: createNewGroup.payload._id })
+      }
+    }
+
   }
 
   return (
