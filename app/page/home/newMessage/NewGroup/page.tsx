@@ -1,6 +1,6 @@
 import { Animated, FlatList, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { Suspense, useContext } from 'react'
-import { useSelector } from 'react-redux'
+import React, { Suspense, useContext, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { AnimatedContext } from '../../../../../provider/Animated_Provider'
 import { RootState } from '../../../../../redux/store'
 import Header from '../components/header'
@@ -16,6 +16,7 @@ import * as ImagePicker from 'expo-image-picker';
 import MyInput from '../../../../../components/shared/Input'
 import MyButton from '../../../../../components/shared/Button'
 import Padding from '../../../../../components/shared/Padding'
+import { createGroup } from '../../../../../redux/slice/group-chat'
 
 const schema = z.object({
   GroupDescription: z.string()
@@ -37,8 +38,10 @@ const NewCreateGroup = ({
   navigation,
   route: { params }
 }: NewCreateGroupProps) => {
+  const dispatch = useDispatch()
   const AnimatedState = useContext(AnimatedContext)
   const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
+  const profileState = useSelector((state: RootState) => state.profile.user)
   const [image, setImage] = React.useState<any>(null);
   const { error, loading, isLogin } = useSelector((state: RootState) => state.authState)
   const { control, watch, handleSubmit, formState: { errors } } = useForm({
@@ -48,14 +51,7 @@ const NewCreateGroup = ({
     },
     resolver: zodResolver(schema)
   });
-  // const NewGroup = {
-  //   groupName: '',
-  //   groupDescription: '',
-  //   groupImage: '',
-  //   members: users,
-  //   lastMessageContent: '',
-  //   groupId: groupId,
-  // }
+
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -68,8 +64,20 @@ const NewCreateGroup = ({
     }
   }
 
-  function handleRegister(data: { GroupName: string; GroupDescription: string }, image: any) {
-    
+  async function handleRegister(data: { GroupName: string; GroupDescription: string }, image: any) {
+    if (!profileState) return alert('You are not logged in')
+    const NewGroup = {
+      name: data.GroupName,
+      description: data.GroupDescription,
+      picture: image,
+      members: params.users.map((i) => i._id),
+      authorId: profileState._id
+    }
+    // console.log(NewGroup)
+    const createNewGroup = await dispatch(createGroup(NewGroup) as any)
+    if (createNewGroup?.payload) {
+      navigation.replace('GroupChat', { groupId: createNewGroup.payload._id })
+    }
   }
 
   return (

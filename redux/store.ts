@@ -6,6 +6,7 @@ import privateChatReducer from './slice/private-chat'
 import AuthReducer from './slice/auth'
 import NotificationReducer from './slice/notification'
 import StatusReducer from './slice/status'
+import GroupChatReducer from './slice/group-chat'
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     authState: AuthReducer,
     notification: NotificationReducer,
     statusState: StatusReducer,
+    groupChat: GroupChatReducer
   },
 })
 

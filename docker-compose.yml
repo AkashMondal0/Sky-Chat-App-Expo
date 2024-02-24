@@ -39,8 +39,9 @@ services:
     container_name: storage
     volumes:
       - ./storage:/app/storage
-    env_file:
-      - ./.env
+    environment:
+      - PORT=4001
+      - HOST=http://192.168.31.212:4001
   
   zookeeper:
     image: confluentinc/cp-zookeeper:latest

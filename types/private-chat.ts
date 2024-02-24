@@ -65,9 +65,9 @@ export interface typingState {
 
 export interface GroupConversation {
     _id?: string;
-    groupName?: string;
-    groupImage?: string;
-    groupDescription?: string;
+    name?: string;
+    picture?: string;
+    description?: string;
     members?: User['_id'][];
     createdBy?: User['_id'];
     createdAt?: string | Date;
