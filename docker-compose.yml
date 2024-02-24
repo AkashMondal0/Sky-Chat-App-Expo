@@ -1,84 +1,64 @@
 version: '3.1'
 
 services:
-  # backend:
-  #   image: akashmondal0/react-native-backend:test
-  #   # build: .
-  #   restart: always
-  #   ports:
-  #     - 4000:4000
-  #   env_file:
-  #     - ./.env
+  app:
+    image: akashmondal0/react-native-backend:latest
+    restart: always
+    ports:
+      - 4000:4000
+    env_file:
+      - ./.env
 
-  # frontend:
-  #   image: akashmondal0/react-native-backend:test
-  #   # build: .
-  #   restart: always
-  #   ports:
-  #     - 3000:3000
-  #   env_file:
-  #     - ./.env
+  mongo:
+    image: mongo:latest
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data:/data/db
+    env_file:
+      - ./.env
 
-  # nginx:
-  #   image: nginx:latest
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf
-  #   ports:
-  #     - 80:80
-  #   restart: always
-  #   depends_on:
-  #     - app
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 60 1
+    volumes:
+      - ./rdata:/rdata
+      - ./docker_datas/redis.conf:/usr/local/etc/redis/redis.conf
+    env_file:
+      - ./.env
 
-  # mongo:
-  #   image: mongo:latest
-  #   restart: always
-  #   ports:
-  #     - 27017:27017
-  #   volumes:
-  #     - ./data:/data/db
-  #   env_file:
-  #     - ./.env
-
-  # redis:
-  #   image: redis:latest
-  #   restart: always
-  #   ports:
-  #     - "6379:6379"
-  #   command: redis-server --save 60 1
-  #   volumes:
-  #     - ./rdata:/rdata
-  #     - ./docker_datas/redis.conf:/usr/local/etc/redis/redis.conf
-  #   env_file:
-  #     - ./.env
-
-  # storage:
-  #   image: akashmondal0/sky-storage:latest
-  #   restart: always
-  #   ports:
-  #     - 4001:4001
-  #   container_name: storage
-  #   volumes:
-  #     - ./storage:/app/storage
-  #   env_file:
-  #     - ./.env
+  storage:
+    image: akashmondal0/sky-storage:latest
+    restart: always
+    ports:
+      - 4001:4001
+    container_name: storage
+    volumes:
+      - ./storage:/app/storage
+    env_file:
+      - ./.env
   
-  # zookeeper:
-  #   image: confluentinc/cp-zookeeper:latest
-  #   environment:
-  #     ZOOKEEPER_CLIENT_PORT: 2181
-  #     ZOOKEEPER_TICK_TIME: 2000
-  #   ports:
-  #     - 2181:2181
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
     
-  # kafka:
-  #   image: confluentinc/cp-kafka:latest
-  #   depends_on:
-  #     - zookeeper
-  #   ports:
-  #     - 9092:9092
-  #     - 29092:29092
-  #   env_file:
-  #     - ./.env
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+      - 29092:29092
+    env_file:
+      - ./.env
 
   # prom-server:
   #   image: prom/prometheus
@@ -99,3 +79,4 @@ services:
   #   restart: always
   #   ports:
   #     - "3100:3100"
+
