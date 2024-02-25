@@ -20,10 +20,10 @@ This is a real time chat application developed using Expo React Native and Nodej
 - User authentication with JWT and bcrypt
 - Real time chat using Socket io
 - Image uploading feature with Multer
-- Group real chat feature
 - Share Status with your friends
 - Light/dark mode toggle
 - Application is fully responsive
+- Group real chat feature [coming  soon]
 
 ## Screenshot
 

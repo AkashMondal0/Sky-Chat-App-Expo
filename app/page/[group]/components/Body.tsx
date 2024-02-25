@@ -95,7 +95,7 @@ const BodyChat: FC<BodyChatProps> = ({
 
     const groupUserLength = conversation?.members?.length || 0
 
-
+// console.log(conversation)
     const ItemView = memo(({ item }: { item: PrivateMessage }) => {
         if (item.typeDate) {
             return (
@@ -128,6 +128,7 @@ const BodyChat: FC<BodyChatProps> = ({
 
         return (
             <ChatCard
+                senderData={conversation?.Users?.find(user => user._id === item.memberId) as User}
                 key={item._id}
                 sender={item.memberId === profile?._id}
                 seen={item.seenBy.length >= groupUserLength && item.seenBy.includes(profile?._id as string)}

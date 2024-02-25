@@ -157,7 +157,7 @@ export default function NewMessageScreen({ navigation }: any) {
                             </View>
                         }}
                     />
-                    {watch("search").length <= 0 || addToListUser.length <= 0 ? <>
+                    {/* {watch("search").length <= 0 || addToListUser.length <= 0 ? <>
                         <SingleCard
                             label={'Add a Friend'}
                             iconBackgroundColor={useTheme.primary}
@@ -170,7 +170,7 @@ export default function NewMessageScreen({ navigation }: any) {
                             iconBackgroundColor={useTheme.selectedItemColor}
                             icon={<Users color={Color} />}
                             secondaryIcon={<ChevronRight color={iconColor} />} />
-                    </> : <></>}
+                    </> : <></>} */}
 
 
                     <View style={{ width: "100%" }}>

@@ -93,4 +93,5 @@ export interface GroupConversation {
     typing?: boolean;
     loadAllMessages?: boolean;
     page?: number;
+    Users?: User[];
 }

@@ -102,16 +102,17 @@ const FooterChat: FC<FooterChatProps> = ({
   }, [])
 
   const sendPhoto = useCallback(async () => {
-  
-      navigation.navigate('CameraScreen', {
-        type: "message",
-        forDirectMessage: {
-          conversationId: conversation?._id as string,
-          content: "Photo",
-          member: profile,
-          // receiver: user,
-        }
-      })
+
+    return ToastAndroid.show("Photo Share feature is coming soon", ToastAndroid.SHORT)
+      // navigation.navigate('CameraScreen', {
+      //   type: "message",
+      //   forDirectMessage: {
+      //     conversationId: conversation?._id as string,
+      //     content: "Photo",
+      //     member: profile,
+      //     // receiver: user,
+      //   }
+      // })
   
   }, [])
 

@@ -4,6 +4,7 @@ import { CheckCheck } from 'lucide-react-native';
 import { CurrentTheme } from '../../../../types/theme';
 import { PrivateMessage } from '../../../../types/private-chat';
 import { timeFormat } from '../../../../utils/timeFormat';
+import { User } from '../../../../types/profile';
 
 interface MessageCardProps {
     content: string;
@@ -11,13 +12,15 @@ interface MessageCardProps {
     theme: CurrentTheme
     seen?: boolean
     data?:PrivateMessage
+    senderData:User
 }
 const MessageCard: FC<MessageCardProps> = ({
     content,
     theme,
     sender,
     seen,
-    data
+    data,
+    senderData
 }) => {
     const senderColor = theme.primary;
     const receiverColor = theme.cardBackground;
@@ -42,6 +45,13 @@ const MessageCard: FC<MessageCardProps> = ({
                 elevation: 2,
                 gap: 5,
             }}>
+                {!sender&&<Text style={{
+                    color: theme.subTextColor,
+                    fontSize: 16,
+                    fontWeight: "900",
+                }}>
+                    {senderData?.username}
+                </Text>}
                 <Text style={{
                     color: textColor,
                     fontSize: 16,
