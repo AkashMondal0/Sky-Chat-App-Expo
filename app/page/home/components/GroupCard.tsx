@@ -46,11 +46,10 @@ const GroupConversationCard: FC<GroupConversationCardProps> = ({
         })
     }, [])
 
-
-    const title = data.name || "No title"
+    const title = data.name as string
     const avatarUrl = data.picture
-    const lastMessage = data?.messages?.[data?.messages?.length - 1]?.content || "No message"
-    const date = sortedDate(data?.messages)
+    const lastMessage = data.messages && data.messages.length > 0 ? data?.messages?.[data?.messages.length-1]?.content : "New group"
+    const date = data.messages && data.messages.length > 0 ? data?.messages?.[data?.messages.length-1]?.createdAt : data.createdAt
     const isSeen = seenCount(data?.messages)
     const isTyping = data?.typing
 

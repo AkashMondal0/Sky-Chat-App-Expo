@@ -4,7 +4,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import axios from 'axios';
 import { localhost } from '../../../keys';
 import { skyUploadImage, skyUploadVideo } from '../../../utils/upload-file';
-import { GroupConversation, PrivateMessage } from '../../../types/private-chat';
+import { GroupConversation, PrivateMessage, PrivateMessageSeen } from '../../../types/private-chat';
 import { Assets, User } from '../../../types/profile';
 import socket from '../../../utils/socket-connect';
 
@@ -30,7 +30,7 @@ export const createGroup = createAsyncThunk(
       thunkApi.dispatch(addOneGroupChatListItem(response.data))
       const refreshUserList = {
         receiverIds: data.members,
-      } 
+      }
       socket.emit('group_chat_connection_sender', refreshUserList)
       return response.data
     } catch (error: any) {
@@ -128,6 +128,19 @@ export const sendMessageGroup = createAsyncThunk(
   }
 );
 
+export const sendMessageSeenGroup = createAsyncThunk(
+  'sendMessageSeenGroup/fetch',
+  async (data: PrivateMessageSeen, thunkApi) => {
+    try {
+      socket.emit('group_message_seen_sender', data)
+      thunkApi.dispatch(addToGroupChatListMessageSeen(data))
+      return data
+    } catch (error: any) {
+      return thunkApi.rejectWithValue(error.response.data)
+    }
+  }
+);
+
 export interface Group_conversation_State {
   loading: boolean
   error: string | null
@@ -160,6 +173,18 @@ export const Group_conversation_Slice = createSlice({
         state.groupChatList[index].messages?.push(action.payload)
       }
     },
+    addToGroupChatListMessageSeen : (state, action: PayloadAction<PrivateMessageSeen>) => {
+      const index = state.groupChatList.findIndex(item => item._id === action.payload.conversationId)
+      if (index !== -1) {
+        state.groupChatList[index].messages?.forEach(item => {
+          action.payload.messageIds.map(messageId => {
+            if (item._id === messageId && !item.seenBy.includes(action.payload.memberId)) {
+              item.seenBy.push(action.payload.memberId)
+            }
+          })
+        })
+      }
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -189,7 +214,8 @@ export const Group_conversation_Slice = createSlice({
 export const {
   setAllGroupChatList,
   addToGroupChatListMessage,
-  addOneGroupChatListItem
+  addOneGroupChatListItem,
+  addToGroupChatListMessageSeen
 } = Group_conversation_Slice.actions
 
 export default Group_conversation_Slice.reducer

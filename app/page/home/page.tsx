@@ -29,7 +29,6 @@ const HomeScreen = ({ navigation }: any) => {
     const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
     const AnimatedState = useContext(AnimatedContext)
     const profileState = useContext(ProfileContext)
-    const [bottomSheetData, setBottomSheetData] = useState<User>()
     // search form
     const { control, watch, reset } = useForm({
         defaultValues: {
@@ -37,13 +36,14 @@ const HomeScreen = ({ navigation }: any) => {
         }
     });
 
-    const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-    const snapPoints = useMemo(() => ["30%", "50%", "90%"], [])
+    // const [bottomSheetData, setBottomSheetData] = useState<User>()
+    // const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+    // const snapPoints = useMemo(() => ["30%", "50%", "90%"], [])
 
-    const handleSheetChanges = useCallback((userData: User) => {
-        setBottomSheetData(userData)
-        bottomSheetModalRef.current?.present()
-    }, [])
+    // const handleSheetChanges = useCallback((userData: User) => {
+    //     setBottomSheetData(userData)
+    //     bottomSheetModalRef.current?.present()
+    // }, [])
 
     const margeList: CardList[] = useMemo(() => {
         // marge group and private chat list
@@ -59,78 +59,68 @@ const HomeScreen = ({ navigation }: any) => {
                 item
             }
         })
-        return [...privateList, ...groupList]
-            .sort((a, b) => {
-                const A = a.type === "private" ? a.item.messages?.[a.item.messages?.length - 1]?.createdAt : a.item.messages?.[a.item.messages?.length - 1]?.createdAt
-                const B = b.type === "private" ? b.item.messages?.[b.item.messages?.length - 1]?.createdAt : b.item.messages?.[b.item.messages?.length - 1]?.createdAt
-                return new Date(B).getTime() - new Date(A).getTime()
-            })
-            // .filter((item) => {
-            //     if (item.type === "private") {
-            //         const user = item.item.userDetails as User
-            //         if (user) {
-            //             return user.username?.toLowerCase().includes(watch('search').toLowerCase())
-            //         }
-            //     }
-            //     else {
-            //         return item.item.name?.toLowerCase().includes(watch('search').toLowerCase())
-            //     }
-            // })
-}, [usePrivateChat.List, useGroupChat.groupChatList]) as CardList[]
 
-return (
-    <Animated.View style={{
-        flex: 1,
-        backgroundColor: AnimatedState.backgroundColor
-    }}>
-        <ActionSheet
-            BottomSheetComponent={<ProfileBottomSheet UserData={bottomSheetData as User} />}
-            bottomSheetModalRef={bottomSheetModalRef}
-            snapPoints={snapPoints} />
-        <SearchList theme={useTheme}
-            reset={reset}
-            inputHandleControl={control} />
-        <Header theme={useTheme}
-            AnimatedState={AnimatedState}
-            navigation={navigation} />
-        {usePrivateChat.loading ? <ScrollView>
-            {Array.from({ length: 15 }).fill(0).map((item, i) => <LoadingUserCard theme={useTheme} key={i} />)}
-        </ScrollView>
-            : <FlatList
-                // optimization
-                initialNumToRender={10}
-                windowSize={5}
-                maxToRenderPerBatch={10}
-                updateCellsBatchingPeriod={30}
-                removeClippedSubviews={true}
-                data={margeList}
-                renderItem={({ item }) => {
-                    if (item.type === "private") {
-                        return <PrivateChatCard
-                            navigation={navigation}
-                            data={item.item as PrivateChat} />
-                    }
-                    else {
-                        return <GroupConversationCard
-                            navigation={navigation}
-                            data={item.item as PrivateChat} />
-                    }
+        return [...privateList, ...groupList].sort((a, b) => {
+            const _a = a.item.messages && a.item.messages?.length > 0 ? a.item.messages[a.item.messages.length - 1].createdAt : a.item.createdAt
+            const _b = b.item.messages && b.item.messages?.length > 0 ? b.item.messages[b.item.messages.length - 1].createdAt : b.item.createdAt
+            return new Date(_b).getTime() - new Date(_a).getTime()
+        })
+    }, [usePrivateChat.List, useGroupChat.groupChatList]) as CardList[]
+
+
+    return (
+        <Animated.View style={{
+            flex: 1,
+            backgroundColor: AnimatedState.backgroundColor
+        }}>
+            {/* <ActionSheet
+                BottomSheetComponent={<ProfileBottomSheet UserData={bottomSheetData as User} />}
+                bottomSheetModalRef={bottomSheetModalRef}
+                snapPoints={snapPoints} /> */}
+            <SearchList theme={useTheme}
+                reset={reset}
+                inputHandleControl={control} />
+            <Header theme={useTheme}
+                AnimatedState={AnimatedState}
+                navigation={navigation} />
+            {usePrivateChat.loading ? <ScrollView>
+                {Array.from({ length: 15 }).fill(0).map((item, i) => <LoadingUserCard theme={useTheme} key={i} />)}
+            </ScrollView>
+                : <FlatList
+                    // optimization
+                    initialNumToRender={10}
+                    windowSize={5}
+                    maxToRenderPerBatch={10}
+                    updateCellsBatchingPeriod={30}
+                    removeClippedSubviews={true}
+                    data={margeList}
+                    renderItem={({ item }) => {
+                        if (item.type === "private") {
+                            return <PrivateChatCard
+                                navigation={navigation}
+                                data={item.item as PrivateChat} />
+                        }
+                        else {
+                            return <GroupConversationCard
+                                navigation={navigation}
+                                data={item.item as PrivateChat} />
+                        }
+                    }}
+                    ListEmptyComponent={() => <NoItem them={useTheme} />}
+                    onRefresh={profileState.fetchUserData}
+                    refreshing={usePrivateChat.loading}
+                    keyExtractor={(item) => item.item._id as any}
+                />}
+
+            <FloatingButton
+                onPress={() => {
+                    navigation.navigate('Message')
                 }}
-                ListEmptyComponent={() => <NoItem them={useTheme} />}
-                onRefresh={profileState.fetchUserData}
-                refreshing={usePrivateChat.loading}
-                keyExtractor={(item) => item.item._id as any}
-            />}
-
-        <FloatingButton
-            onPress={() => {
-                navigation.navigate('Message')
-            }}
-            theme={useTheme}
-            icon={<UserPlus color={useTheme.color}
-                size={35} />} />
-    </Animated.View>
-)
+                theme={useTheme}
+                icon={<UserPlus color={useTheme.color}
+                    size={35} />} />
+        </Animated.View>
+    )
 }
 
 export default memo(HomeScreen)

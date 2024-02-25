@@ -11,6 +11,7 @@ import _ from 'lodash';
 import { dateFormat } from '../../../../utils/timeFormat';
 import { FlashList } from '@shopify/flash-list';
 import MessageType from './MessageType';
+import { sendMessageSeenGroup } from '../../../../redux/slice/group-chat';
 
 interface BodyChatProps {
     theme: CurrentTheme
@@ -61,13 +62,13 @@ const BodyChat: FC<BodyChatProps> = ({
 
 
     const messageSeen = useCallback(() => {
-        // const seen: PrivateMessageSeen = {
-        //     messageIds: seenCount as string[],
-        //     memberId: profile?._id as string,
-        //     receiverIds: "" as string,
-        //     conversationId: conversation?._id as string
-        // }
-        // dispatch(sendMessageSeenPrivate({ seen }) as any)
+        const seen: PrivateMessageSeen = {
+            messageIds: seenCount as string[],
+            memberId: profile?._id as string,
+            receiverIds: conversation?.members?.map(item => item.userId).filter((u) => u !== profile?._id) as string[],
+            conversationId: conversation?._id as string
+        }
+        dispatch(sendMessageSeenGroup(seen) as any)
     }, [messages])
 
     const getMoreData = async () => {
@@ -92,6 +93,8 @@ const BodyChat: FC<BodyChatProps> = ({
         }
     }, [messages])
 
+    const groupUserLength = conversation?.members?.length || 0
+
 
     const ItemView = memo(({ item }: { item: PrivateMessage }) => {
         if (item.typeDate) {
@@ -115,7 +118,7 @@ const BodyChat: FC<BodyChatProps> = ({
             return <MessageType
                 files={item.fileUrl}
                 sender={item.memberId === profile?._id}
-                seen={item.seenBy.length >= 2 && item.seenBy.includes(profile?._id as string)}
+                seen={item.seenBy.length >= groupUserLength && item.seenBy.includes(profile?._id as string)}
                 theme={theme}
                 receiver={profile as User}
                 time={item.createdAt}
@@ -127,7 +130,7 @@ const BodyChat: FC<BodyChatProps> = ({
             <ChatCard
                 key={item._id}
                 sender={item.memberId === profile?._id}
-                seen={item.seenBy.length >= 2 && item.seenBy.includes(profile?._id as string)}
+                seen={item.seenBy.length >= groupUserLength && item.seenBy.includes(profile?._id as string)}
                 theme={theme}
                 data={item}
                 content={item.content}

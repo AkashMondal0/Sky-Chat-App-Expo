@@ -37,10 +37,6 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
         }).filter(item => item !== undefined).length
     }, [useProfile?.user?._id])
 
-    const sortedDate = useCallback((messages?: PrivateMessage[]) => {
-
-        return messages && [...messages]?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]?.createdAt
-    }, [])
 
     const navigateToChat = useCallback(() => {
         navigation.navigate("Chat", {
@@ -61,11 +57,12 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
             })
         }
     }, [])
+    
 
     const title = userData?.username as string
     const avatarUrl = userData?.profilePicture
-    const lastMessage = data?.messages?.[data?.messages?.length - 1]?.content || "No message"
-    const date = sortedDate(data?.messages)
+    const lastMessage = data.messages && data.messages.length > 0 ? data?.messages?.[data?.messages.length-1]?.content : "New Friend"
+    const date = data.messages && data.messages.length > 0 ? data?.messages?.[data?.messages.length-1]?.createdAt : data.createdAt
     const isSeen = seenCount(data?.messages)
     const isTyping = data?.typing
 

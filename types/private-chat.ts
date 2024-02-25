@@ -50,10 +50,11 @@ export interface PrivateChat {
 export interface PrivateMessageSeen {
     messageIds: string[];
     memberId: string;
-    receiverId: string;
+    receiverId?: string;
     conversationId: string;
     createdAt?: string;
     updatedAt?: string;
+    receiverIds?: string[];
 }
 
 export interface typingState {

@@ -16,7 +16,7 @@ import { PrivateMessage, PrivateMessageSeen } from '../types/private-chat';
 import { Login, Logout } from '../redux/slice/auth';
 import NetInfo from '@react-native-community/netinfo'
 import { ToastAndroid } from 'react-native';
-import { addToGroupChatListMessage, getGroupChatList } from '../redux/slice/group-chat';
+import { addToGroupChatListMessage, addToGroupChatListMessageSeen, getGroupChatList } from '../redux/slice/group-chat';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -48,22 +48,11 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
 
     useEffect(() => {
         fetchUserData()
-        // const unsubscribe = NetInfo.addEventListener(state => {
-        //     console.log('Connection type', state.type);
-        //     console.log('Is connected?', state.isConnected);
-        // });
         socket.on("update_Chat_List_Receiver", async (data) => {
             dispatch(addToPrivateChatList(data.chatData) as any)
-            // fetchUserData()
         })
 
         socket.on("message_receiver", (data: PrivateMessage) => {
-            // console.log("message_receiver update")
-            // if (AppState.currentState === "background") {
-            //     // @ts-ignore
-            //     notificationContext.onDisplayNotification(data)
-            // }
-            // ToastAndroid.show("New Message", ToastAndroid.SHORT)
             dispatch(addToPrivateChatListMessage(data))
         })
 
@@ -75,18 +64,16 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
         })
 
         socket.on("group_message_receiver", (data: PrivateMessage) => {
-            // console.log("message_receiver update")
-            // if (AppState.currentState === "background") {
-            //     // @ts-ignore
-            //     notificationContext.onDisplayNotification(data)
-            // }
-            // ToastAndroid.show("New Message", ToastAndroid.SHORT)
             dispatch(addToGroupChatListMessage(data))
         })
 
         socket.on("group_chat_connection_receiver", async (data) => {
             const token = await AsyncStorage.getItem("token")
             dispatch(getGroupChatList(token) as any)
+        })
+
+        socket.on("group_message_seen_receiver", (data: PrivateMessageSeen) => {
+            dispatch(addToGroupChatListMessageSeen(data))
         })
 
         return () => {
@@ -96,7 +83,7 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
             socket.off("message_typing_receiver")
             socket.off("group_message_receiver")
             socket.off("group_chat_connection_receiver")
-            
+            socket.off("group_message_seen_receiver")
             // unsubscribe();
         }
     }, [])
