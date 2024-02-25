@@ -145,6 +145,7 @@ const FooterChat: FC<FooterChatProps> = ({
           content: "Photo",
           member: profile,
           receiver: user,
+          receiverIds:null
         }
       })
     } else {

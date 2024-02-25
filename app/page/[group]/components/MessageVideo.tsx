@@ -5,6 +5,7 @@ import { CurrentTheme } from '../../../../types/theme';
 import { File } from '../../../../types/private-chat';
 import { timeFormat } from '../../../../utils/timeFormat';
 import { ResizeMode, Video } from 'expo-av';
+import { User } from '../../../../types/profile';
 
 interface MessageVideoProps {
     sender: boolean
@@ -12,6 +13,7 @@ interface MessageVideoProps {
     seen?: boolean
     file: File
     time: string
+    senderData?: User
     onPress?: () => void
 }
 const MessageVideo: FC<MessageVideoProps> = ({
@@ -20,6 +22,7 @@ const MessageVideo: FC<MessageVideoProps> = ({
     seen,
     time,
     file,
+    senderData,
     onPress
 }) => {
     const senderColor = theme.primary;
@@ -49,6 +52,13 @@ const MessageVideo: FC<MessageVideoProps> = ({
                     elevation: 2,
                     gap: 5,
                 }}>
+                <Text style={{
+                    color: textColor,
+                    fontSize: 16,
+                    fontWeight: "bold",
+                }}>
+                    {senderData?.username}
+                </Text>
                 <Suspense>
                     <Video
                         ref={video}

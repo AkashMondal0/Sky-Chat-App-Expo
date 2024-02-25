@@ -1,7 +1,7 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { Animated, Button, FlatList, SafeAreaView, ScrollView, Text, ToastAndroid, View } from 'react-native'
+import React, { memo, useContext, useMemo } from 'react'
+import { Animated, FlatList, ScrollView } from 'react-native'
 import PrivateChatCard from './components/UserCard';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { UserPlus } from 'lucide-react-native';
 import NoItem from './components/No_Item';
 import LoadingUserCard from './components/LoadingUserCard';
@@ -12,15 +12,12 @@ import SearchList from './components/SearchList';
 import Header from './components/header';
 import { useForm } from 'react-hook-form';
 import { AnimatedContext } from '../../../provider/Animated_Provider';
-import ActionSheet from '../../../components/shared/ActionSheet';
-import { BottomSheetModal, useBottomSheetModal } from '@gorhom/bottom-sheet';
-import { User } from '../../../types/profile';
-import ProfileBottomSheet from './components/ProfileBottomSheet';
 import { ProfileContext } from '../../../provider/Profile_Provider';
 import GroupConversationCard from './components/GroupCard';
 interface CardList {
     type: "private" | "group"
     item: PrivateChat | GroupConversation
+    name?: string
 }
 
 const HomeScreen = ({ navigation }: any) => {
@@ -50,22 +47,32 @@ const HomeScreen = ({ navigation }: any) => {
         const privateList = [...usePrivateChat.List].map((item) => {
             return {
                 type: "private",
-                item
+                item,
+                name: item.userDetails?.username
             }
         })
         const groupList = [...useGroupChat.groupChatList].map((item) => {
             return {
                 type: "group",
-                item
+                item,
+                name: item.name
             }
         })
 
+        const sortedNewDate = (messages:PrivateMessage[]) => {
+            return messages && [...messages].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]?.createdAt
+        }
+
         return [...privateList, ...groupList].sort((a, b) => {
-            const _a = a.item.messages && a.item.messages?.length > 0 ? a.item.messages[a.item.messages.length - 1].createdAt : a.item.createdAt
-            const _b = b.item.messages && b.item.messages?.length > 0 ? b.item.messages[b.item.messages.length - 1].createdAt : b.item.createdAt
+            const _a = a.item.messages && a.item.messages?.length > 0 ? sortedNewDate(a.item.messages): a.item.createdAt
+            const _b = b.item.messages && b.item.messages?.length > 0 ? sortedNewDate(b.item.messages): b.item.createdAt
             return new Date(_b).getTime() - new Date(_a).getTime()
         })
-    }, [usePrivateChat.List, useGroupChat.groupChatList]) as CardList[]
+        // search filter
+        .filter((item) => {
+            return item.name?.toLowerCase().includes(watch("search").toLowerCase()) || ""
+        })
+    }, [usePrivateChat.List, useGroupChat.groupChatList, watch("search")]) as CardList[]
 
 
     return (

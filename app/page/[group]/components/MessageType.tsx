@@ -16,7 +16,8 @@ interface MessageTypeProps {
     seen?: boolean
     files: File[]
     time: string
-    receiver?: User
+    receiver?: User,
+    senderData?: User
 }
 const MessageType: FC<MessageTypeProps> = ({
     theme,
@@ -24,7 +25,8 @@ const MessageType: FC<MessageTypeProps> = ({
     seen,
     files,
     time,
-    receiver
+    receiver,
+    senderData
 }) => {
     const navigation = useNavigation()
 
@@ -36,22 +38,30 @@ const MessageType: FC<MessageTypeProps> = ({
                         onPress={() => {
                             navigation.navigate("AssetsScreen", {
                                 asset: file,
-                                user: receiver,
+                                user: senderData,
                                 time: time
                             })
                         }}
-                        file={file} sender={sender} seen={seen} theme={theme} time={time} />
+                        file={file} 
+                        sender={sender} 
+                        seen={seen}
+                        senderData={senderData}
+                        theme={theme} time={time} />
                 }
                 else if (file.type === "video") {
                     return <MessageVideo key={index}
                         onPress={() => {
                             navigation.navigate("AssetsScreen", {
                                 asset: file,
-                                user: receiver,
+                                user: senderData,
                                 time: time
                             })
                         }}
-                        file={file} sender={sender} seen={seen} theme={theme} time={time} />
+                        file={file} 
+                        sender={sender}
+                        senderData={senderData}
+                        seen={seen} 
+                        theme={theme} time={time} />
                 }
             })
         }</>

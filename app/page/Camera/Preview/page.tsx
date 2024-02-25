@@ -11,9 +11,10 @@ import { CurrentTheme } from '../../../../types/theme'
 import * as ImagePicker from 'expo-image-picker';
 import uid from '../../../../utils/uuid'
 import { Video, ResizeMode } from 'expo-av'
-import {  sendMessagePrivate } from '../../../../redux/slice/private-chat'
+import { sendMessagePrivate } from '../../../../redux/slice/private-chat'
 import { uploadStatusApi } from '../../../../redux/slice/profile'
 import { ProfileContext } from '../../../../provider/Profile_Provider'
+import { sendMessageGroup } from '../../../../redux/slice/group-chat'
 
 
 interface StatusScreenProps {
@@ -28,7 +29,8 @@ interface StatusScreenProps {
                 conversationId: string,
                 content: string,
                 member: User,
-                receiver: User,
+                receiver: User | null,
+                receiverIds: string[] | null,
             } | null,
         }
     }
@@ -73,14 +75,27 @@ const PreViewScreen = ({ navigation, route }: StatusScreenProps) => {
         }
         else if (route?.params.type === "message" && route?.params.forDirectMessage) {
             const data = route?.params.forDirectMessage
-            await dispatch(sendMessagePrivate({
-                conversationId: data?.conversationId,
-                content: data?.content,
-                member: data?.member,
-                receiver: data?.receiver,
-                assets: assets,
-            }) as any)
-            navigation.goBack()
+
+            if (data?.receiver) {
+                await dispatch(sendMessagePrivate({
+                    conversationId: data?.conversationId,
+                    content: data?.content,
+                    member: data?.member,
+                    receiver: data?.receiver,
+                    assets: assets,
+                }) as any)
+                navigation.goBack()
+            }
+            else if (data?.receiverIds) {
+                await dispatch(sendMessageGroup({
+                    conversationId: data?.conversationId,
+                    content: data?.content,
+                    member: data?.member,
+                    receiverIds: data?.receiverIds,
+                    assets: assets,
+                }) as any)
+                navigation.goBack()
+            }
         } else {
             ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         }

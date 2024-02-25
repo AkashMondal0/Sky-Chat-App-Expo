@@ -5,6 +5,7 @@ import { CurrentTheme } from '../../../../types/theme';
 import { File } from '../../../../types/private-chat';
 import { timeFormat } from '../../../../utils/timeFormat';
 import { ResizeMode, Video } from 'expo-av';
+import { User } from '../../../../types/profile';
 
 interface MessageImageProps {
     sender: boolean
@@ -12,6 +13,7 @@ interface MessageImageProps {
     seen?: boolean
     file: File
     time: string
+    senderData?:User
     onPress?: () => void
 }
 const MessageImage: FC<MessageImageProps> = ({
@@ -20,12 +22,12 @@ const MessageImage: FC<MessageImageProps> = ({
     seen,
     file,
     time,
+    senderData,
     onPress
 }) => {
     const senderColor = theme.primary;
     const receiverColor = theme.background;
     const textColor = sender ? theme.color : theme.textColor;
-    const video = React.useRef(null);
 
     return (
         <View style={{
@@ -48,6 +50,13 @@ const MessageImage: FC<MessageImageProps> = ({
                 elevation: 2,
                 gap: 5,
             }}>
+                <Text style={{
+                    color: textColor,
+                    fontSize: 16,
+                    fontWeight: "bold",
+                }}>
+                    {senderData?.username}
+                </Text>
                 <Image source={{ uri: file.url }} style={{
                     width: 250,
                     maxHeight: 350,

@@ -58,11 +58,15 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
         }
     }, [])
     
+    const sortedNewDate = (messages: PrivateMessage[]) => {
+        return messages && [...messages].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+    }
+
 
     const title = userData?.username as string
     const avatarUrl = userData?.profilePicture
-    const lastMessage = data.messages && data.messages.length > 0 ? data?.messages?.[data?.messages.length-1]?.content : "New Friend"
-    const date = data.messages && data.messages.length > 0 ? data?.messages?.[data?.messages.length-1]?.createdAt : data.createdAt
+    const lastMessage = data.messages && data.messages.length > 0 ? sortedNewDate(data?.messages)?.content : "New friend"
+    const date = data.messages && data.messages.length > 0 ? sortedNewDate(data?.messages).createdAt : data.createdAt
     const isSeen = seenCount(data?.messages)
     const isTyping = data?.typing
 

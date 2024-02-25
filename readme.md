@@ -23,7 +23,7 @@ This is a real time chat application developed using Expo React Native and Nodej
 - Share Status with your friends
 - Light/dark mode toggle
 - Application is fully responsive
-- Group real chat feature [coming  soon]
+- Group real chat feature
 
 ## Screenshot
 

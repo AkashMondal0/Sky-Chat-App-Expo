@@ -117,6 +117,7 @@ const BodyChat: FC<BodyChatProps> = ({
 
             return <MessageType
                 files={item.fileUrl}
+                senderData={conversation?.Users?.find(user => user._id === item.memberId) as User}
                 sender={item.memberId === profile?._id}
                 seen={item.seenBy.length >= groupUserLength && item.seenBy.includes(profile?._id as string)}
                 theme={theme}

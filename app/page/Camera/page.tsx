@@ -25,7 +25,8 @@ interface SendImagesScreenProps {
                 conversationId: string,
                 content: string,
                 member: User,
-                receiver: User,
+                receiver: User|null,
+                receiverIds: string[]|null,
             } | null,
         }
     }
