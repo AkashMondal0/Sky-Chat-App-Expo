@@ -97,7 +97,10 @@ const UsersSlice = createSlice({
             })
             .addCase(fetchSearchUser.fulfilled, (state, action) => {
                 state.loading = false;
-                state.searchUser = action.payload;
+                //filter new array from old array
+                state.searchUser = action.payload.filter((user: User) => {
+                    return !state.searchUser.some((oldUser: User) => oldUser._id === user._id);
+                })
             })
             .addCase(fetchSearchUser.rejected, (state, action) => {
                 state.error = action.payload;

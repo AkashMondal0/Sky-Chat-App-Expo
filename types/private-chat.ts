@@ -3,7 +3,7 @@ import { User } from "./profile";
 export interface File {
     url: string;
     type: 'image' | 'video' | 'audio' | 'file';
-    caption?:string
+    caption?: string
 }
 
 export interface PrivateMessage {
@@ -13,7 +13,8 @@ export interface PrivateMessage {
     fileUrl?: File[] | null;
     memberId: string;
     senderId: string;
-    receiverId: string;
+    receiverId?: string;
+    receiverIds?: string[];
     conversationId: string;
     deleted: boolean;
     seenBy: [User['_id']];
@@ -49,10 +50,11 @@ export interface PrivateChat {
 export interface PrivateMessageSeen {
     messageIds: string[];
     memberId: string;
-    receiverId: string;
+    receiverId?: string;
     conversationId: string;
     createdAt?: string;
     updatedAt?: string;
+    receiverIds?: string[];
 }
 
 export interface typingState {
@@ -61,4 +63,35 @@ export interface typingState {
     receiverId: string;
     typing: boolean;
 
+}
+
+enum Role {
+    admin =
+    "admin",
+    member =
+    "member",
+    coAdmin =
+    "co-admin",
+}
+export interface GroupConversation {
+    _id?: string;
+    name?: string;
+    picture?: string;
+    description?: string;
+    members?: [
+        {
+            role: Role,
+            userId: string,
+            _id: string
+        },
+    ];
+    createdBy?: User['_id'];
+    createdAt?: string | Date;
+    updatedAt?: string | Date;
+    lastMessageContent?: string;
+    messages?: PrivateMessage[];
+    typing?: boolean;
+    loadAllMessages?: boolean;
+    page?: number;
+    Users?: User[];
 }

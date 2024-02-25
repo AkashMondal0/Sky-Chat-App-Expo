@@ -99,4 +99,4 @@ const ChatScreen = ({ navigation, route: { params } }: ChatScreenProps) => {
     )
 }
 
-export default memo(ChatScreen)
+export default ChatScreen

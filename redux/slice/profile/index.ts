@@ -8,6 +8,7 @@ import { localhost } from '../../../keys';
 import { Login } from '../auth';
 import { getProfileChatList } from '../private-chat';
 import { skyUploadImage, skyUploadVideo } from '../../../utils/upload-file';
+import { getGroupChatList } from '../group-chat';
 
 export const fetchProfileData = createAsyncThunk(
     'profileData/fetch',
@@ -21,6 +22,7 @@ export const fetchProfileData = createAsyncThunk(
             })
             thunkApi.dispatch(Login({ token }))
             thunkApi.dispatch(getProfileChatList(token) as any)
+            thunkApi.dispatch(getGroupChatList(token) as any)
             return response.data;
         } catch (error: any) {
             return thunkApi.rejectWithValue(error.response.data)
@@ -119,7 +121,10 @@ export const Profile_Slice = createSlice({
                 state.user = action.payload;
                 state.splashLoading = false
                 state.isLogin = true
-                socket.emit("user_connect", { id: action.payload._id }) // connect to socket
+                socket.emit("user_connect", {
+                    user: action.payload,
+                    socketId: socket.id
+                }) // connect to socket
             })
             .addCase(fetchProfileData.rejected, (state, action) => {
                 state.error = action.error.message;

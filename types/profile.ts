@@ -40,3 +40,13 @@ export interface Assets {
     type: 'image' | 'video' | 'audio' | "text"
     caption: string;
 }
+
+export interface ListCardType {
+    image: string,
+    name: string,
+    message: string,
+    date: string,
+    onPress?: () => void,
+    _id?: string,
+    unread?: number
+}

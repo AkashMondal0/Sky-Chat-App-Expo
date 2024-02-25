@@ -16,6 +16,7 @@ interface Props {
     height?: number
     onPress?: () => void
     user: User
+    onLongPress?: () => void
 }
 
 const UserCard: React.FC<Props> = ({
@@ -28,7 +29,8 @@ const UserCard: React.FC<Props> = ({
     textColor,
     height,
     onPress,
-    user
+    user,
+    onLongPress
 }) => {
     const AnimatedState = useContext(AnimatedContext);
     const titleTextSize = 16;
@@ -44,6 +46,7 @@ const UserCard: React.FC<Props> = ({
             }}>
                 <Pressable
                     onPress={onPress}
+                    onLongPress={onLongPress}
                     android_ripple={{ color: theme.selectedItemColor, borderless: false, }}
                     style={{
                         backgroundColor: theme.cardBackground,

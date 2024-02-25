@@ -1,4 +1,4 @@
-import { FC, useContext, useEffect } from 'react';
+import { FC, useCallback, useContext, useEffect } from 'react';
 import { View, TouchableOpacity, Text, Pressable, Animated } from 'react-native';
 import React from 'react';
 import { truncate } from 'lodash';
@@ -8,41 +8,44 @@ import { timeFormat } from '../../../../utils/timeFormat';
 import { User } from '../../../../types/profile';
 import Padding from '../../../../components/shared/Padding';
 import socket from '../../../../utils/socket-connect';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setUserStatus } from '../../../../redux/slice/private-chat';
+import { PrivateChat, PrivateMessage } from '../../../../types/private-chat';
+import { RootState } from '../../../../redux/store';
+import { AnimatedContext } from '../../../../provider/Animated_Provider';
 
 interface PrivateChatCardProps {
-    title: string;
-    date: Date | string | any;
-    lastMessage: string;
-    onPress?: () => void;
-    onLongPress?: () => void;
-    indicator: number;
-    avatarUrl?: string;
-    them: CurrentTheme
-    isTyping?: boolean;
-    profile?: User | null;
-    AnimatedState: any;
-    userData?: User | null;
-    avatarOnPress?: () => void;
+    data: PrivateChat,
+    navigation: any
 }
 const PrivateChatCard: FC<PrivateChatCardProps> = ({
-    title,
-    date,
-    lastMessage,
-    onPress,
-    onLongPress,
-    indicator,
-    avatarUrl,
-    them,
-    isTyping,
-    profile,
-    AnimatedState,
-    userData,
-    avatarOnPress
+    data,
+    navigation
 }) => {
     const dispatch = useDispatch()
+    const useProfile = useSelector((state: RootState) => state.profile)
+    const usePrivateChat = useSelector((state: RootState) => state.privateChat)
+    const theme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
+    const AnimatedState = useContext(AnimatedContext)
+    const userData = usePrivateChat.friendListWithDetails.find((user) => user._id === data.userDetails?._id)
 
+    const seenCount = useCallback((messages?: PrivateMessage[]) => {
+        return messages && [...messages]?.map(item => {
+            if (!item.seenBy.includes(useProfile?.user?._id as string)) {
+                return item._id
+            }
+        }).filter(item => item !== undefined).length
+    }, [useProfile?.user?._id])
+
+
+    const navigateToChat = useCallback(() => {
+        navigation.navigate("Chat", {
+            newChat: false,
+            userDetail: data?.userDetails,
+            profileDetail: useProfile?.user,
+            chatDetails: data
+        })
+    }, [])
 
     useEffect(() => {
         if (userData) {
@@ -54,12 +57,21 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
             })
         }
     }, [])
+    
+
+    const title = userData?.username as string
+    const avatarUrl = userData?.profilePicture
+    const lastMessage = data.messages && data.messages.length > 0 ? data?.messages?.[data?.messages.length-1]?.content : "New Friend"
+    const date = data.messages && data.messages.length > 0 ? data?.messages?.[data?.messages.length-1]?.createdAt : data.createdAt
+    const isSeen = seenCount(data?.messages)
+    const isTyping = data?.typing
+
 
     return (
         <Animated.View style={{
             borderRadius: 20,
             overflow: 'hidden',
-            backgroundColor: AnimatedState.BackgroundColor,
+            backgroundColor: AnimatedState.backgroundColor,
         }}>
             <Pressable
                 style={{
@@ -71,19 +83,20 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
                     paddingLeft: 5,
                     width: '100%',
                 }}
-                onPress={onPress}
+                onPress={navigateToChat}
                 android_ripple={{
-                    color: them.selectedItemColor,
+                    color: theme.selectedItemColor,
                 }}>
                 <>
                     <TouchableOpacity
-                        onPress={avatarOnPress}>
+                    // onPress={avatarOnPress}
+                    >
                         <View
                             style={{
                                 width: 15,
                                 height: 15,
                                 borderRadius: 30,
-                                backgroundColor: userData?.isOnline ? them.SuccessButtonColor : them.subTextColor,
+                                backgroundColor: userData?.isOnline ? theme.SuccessButtonColor : theme.subTextColor,
                                 position: 'absolute',
                                 right: 6,
                                 bottom: 4,
@@ -108,13 +121,13 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
                             <Text style={{
                                 fontSize: 18,
                                 fontWeight: '600',
-                                color: them.textColor,
+                                color: theme.textColor,
                             }}>{truncate(title, { separator: "...", length: 14 })}</Text>
                             <Text
                                 style={{
                                     fontSize: 16,
                                     fontWeight: '400',
-                                    color: isTyping ? them.primary : them.subTextColor,
+                                    color: isTyping ? theme.primary : theme.subTextColor,
                                 }}
                             >{isTyping ? "typing..." : truncate(lastMessage, {
                                 length: 15,
@@ -131,22 +144,22 @@ const PrivateChatCard: FC<PrivateChatCardProps> = ({
                             <Text style={{
                                 fontSize: 14,
                                 fontWeight: '400',
-                                color: them.subTextColor,
+                                color: theme.subTextColor,
                             }}>{timeFormat(date)}</Text>
-                            {indicator > 0 ?
+                            {isSeen && isSeen > 0 ?
                                 <View style={{
                                     width: 25,
                                     height: 25,
                                     borderRadius: 100,
-                                    backgroundColor: them.primary,
+                                    backgroundColor: theme.primary,
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                 }}>
                                     <Text style={{
                                         fontSize: 14,
                                         fontWeight: 'bold',
-                                        color: them.color,
-                                    }}>{indicator}</Text>
+                                        color: theme.color,
+                                    }}>{isSeen}</Text>
                                 </View>
                                 : <Padding size={25} />}
                         </View>

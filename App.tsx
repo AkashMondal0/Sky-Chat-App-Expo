@@ -21,6 +21,7 @@ import AssetsScreen from './app/page/assets/page';
 import ButtonSheet from './provider/ButtomSheet';
 import LinkDevice from './app/page/setting/linkDevice/page';
 import NewGroup from './app/page/home/newMessage/NewGroup/page';
+import GroupChatScreen from './app/page/[group]/page';
 
 
 
@@ -79,16 +80,27 @@ function Routes() {
           height: "auto"
         }
       }} />
+      <Stack.Screen name="Group_chat" component={GroupChatScreen} options={{
+        headerShown: false,
+        animation: "slide_from_right",
+        animationDuration: 300,
+        contentStyle: {
+          backgroundColor: backgroundColor,
+          elevation: 0,
+          height: "auto"
+        }
+      }} />
+      
 
       {/* header */}
       <Stack.Screen name="linkDevice" component={LinkDevice} options={Options as any} />
-      <Stack.Screen name="Message" component={NewMessageScreen} options={Options as any} />
+      <Stack.Screen name="Message" component={NewMessageScreen} options={Option2 as any} />
       <Stack.Screen name="Setting" component={SettingsScreen} options={Options as any} />
       <Stack.Screen name="ViewStatus" component={ViewStatusScreen} options={Option2 as any} />
       <Stack.Screen name="CameraScreen" component={CameraScreen} options={Option2 as any} />
       <Stack.Screen name="Preview" component={PreViewScreen} options={Option2 as any} />
       <Stack.Screen name="AssetsScreen" component={AssetsScreen} options={Option2 as any} />
-      <Stack.Screen name="NewGroup" component={NewGroup} options={Options as any} />
+      <Stack.Screen name="NewGroup" component={NewGroup} options={Option2 as any} />
     </Stack.Navigator>
   );
 }

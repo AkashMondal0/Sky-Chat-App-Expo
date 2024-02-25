@@ -42,4 +42,4 @@ const FloatingButton: FC<FloatingButtonProps> = ({
     );
 };
 
-export default memo(FloatingButton);
+export default FloatingButton;
