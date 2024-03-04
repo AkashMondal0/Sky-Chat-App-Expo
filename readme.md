@@ -4,7 +4,7 @@
 
 # Sky Chat Android App
 
-This is a real time chat application developed using Expo React Native and Nodejs. It has features like Whatsapp, Realtime Chat, and Push messages, upload status and share photo with your friends.
+This is a real-time chat application developed using Expo React Native and Nodejs. It has features like WhatsApp, Realtime Chat, Push messages, upload status, and share photos with your friends.
 
 ## Tech Stack
 
@@ -18,12 +18,11 @@ This is a real time chat application developed using Expo React Native and Nodej
 ## Features
 
 - User authentication with JWT and bcrypt
-- Real time chat using Socket io
+- Real-time chat using Socket io
 - Image uploading feature with Multer
-- Share Status with your friends
+- Share your Status with your friends
 - Light/dark mode toggle
-- Application is fully responsive
-- Group real chat feature
+- Group chat feature
 
 ## Screenshot
 
@@ -67,7 +66,7 @@ build app for start app
 
 To run this project, you will need to add the following variables to your `keys.ts` file
 
-`1. change ip address to your local ip address (192.168.31.212)`
+`1. Change IP address to your local IP address (192.168.31.212)`
 
 `localhost`
 
@@ -85,14 +84,14 @@ Docker  is required to set up a local instance of MongoDB and Redis. You can dow
 docker-compose up -d
 ```
 
-## Expo Sever running  on 
+## Expo Server running  on 
 `http://localhost:8081`
 ## Server API running on 
 `http://localhost:4000`
 ## Storage Server  running on 
 `http://localhost:4001`
 
-## Backend github repository
+## Backend GitHub repository
 
 backend repository link : [https://github.com/AkashMondal0/sky-chat-backend.git](https://github.com/AkashMondal0/sky-chat-backend.git)
 
