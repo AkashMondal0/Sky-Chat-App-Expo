@@ -1,5 +1,5 @@
-import React, { memo, useEffect } from 'react'
-import { Camera, CameraType, } from 'expo-camera';
+import React, { memo } from 'react'
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState } from 'react';
 import { Button, FlatList, Text, TouchableOpacity, View, Image, StatusBar, Vibration, Platform } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -13,7 +13,6 @@ import uid from '../../../utils/uuid';
 import * as MediaLibrary from 'expo-media-library';
 import MyButton from '../../../components/shared/Button';
 import _ from 'lodash';
-import { FlashList } from '@shopify/flash-list';
 
 interface SendImagesScreenProps {
     navigation?: any
@@ -25,8 +24,8 @@ interface SendImagesScreenProps {
                 conversationId: string,
                 content: string,
                 member: User,
-                receiver: User|null,
-                receiverIds: string[]|null,
+                receiver: User | null,
+                receiverIds: string[] | null,
             } | null,
         }
     }
@@ -34,9 +33,9 @@ interface SendImagesScreenProps {
 const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
     const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
     const profileState = useSelector((state: RootState) => state.profile.user)
-    const [type, setType] = useState(CameraType.back);
-    const cameraRef = React.useRef<Camera>(null);
-    const [permission, requestPermission] = Camera.useCameraPermissions();
+    const [facing, setFacing] = useState<"front" | "back">('back');
+    const cameraRef = React.useRef<CameraView>(null);
+    const [permission, requestPermission] = useCameraPermissions();
     const [media, setMedia] = useState<MediaLibrary.Asset[]>([]);
     const [totalCount, setTotalCount] = useState<number>(0);
     const [selectedAssets, setSelectedAssets] = useState<MediaLibrary.Asset[]>([]);
@@ -69,7 +68,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
 
 
     const toggleCameraType = () => {
-        setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
+        setFacing(current => (current === 'back' ? 'front' : 'back'));
     }
 
     const photoCapture = async () => {
@@ -80,19 +79,21 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
         };
         if (cameraRef.current) {
             const photo = await cameraRef.current.takePictureAsync(options);
-            const data: Assets[] = [{
-                _id: uid(),
-                url: photo.uri,
-                type: "image",
-                caption: "",
-            }]
-            navigation.replace('Preview', {
-                assets: data,
-                user: profileState,
-                type: route?.params.type,
-                newChat: route?.params.newChat,
-                forDirectMessage: route?.params.forDirectMessage,
-            })
+            if (photo?.uri) {
+                const data: Assets[] = [{
+                    _id: uid(),
+                    url: photo.uri,
+                    type: "image",
+                    caption: "",
+                }]
+                navigation.replace('Preview', {
+                    assets: data,
+                    user: profileState,
+                    type: route?.params.type,
+                    newChat: route?.params.newChat,
+                    forDirectMessage: route?.params.forDirectMessage,
+                })
+            }
         }
     }
     // Asset ID of the last item returned on the previous page. 
@@ -172,14 +173,13 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
             backgroundColor: useTheme.background,
         }}>
             <StatusBar barStyle={"light-content"} />
-            <Camera
+            <CameraView
                 ref={cameraRef}
                 style={{
-                    // flex: 1,
                     aspectRatio: 9 / 16,
                 }}
-                type={type}
-                ratio="16:9">
+                facing={facing}
+            >
                 <Padding size={StatusBar.currentHeight} />
                 <Header
                     navigation={navigation}
@@ -283,7 +283,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
                     />
                     <Padding size={StatusBar.currentHeight} />
                 </View>
-            </Camera>
+            </CameraView>
         </View>
     );
 }
