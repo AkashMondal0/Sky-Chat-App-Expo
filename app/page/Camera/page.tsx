@@ -139,7 +139,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
                 caption: ""
             }
         })
-        navigation.replace('Preview', {
+        navigation.push('Preview', {
             assets: data,
             user: profileState,
             type: route?.params.type,
@@ -189,7 +189,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
                     justifyContent: "flex-end",
                     alignItems: "flex-end",
                     flex: 1,
-
+                    borderTopWidth: 0.1,
                 }}>
                     <View style={{
                         justifyContent: "flex-end",
