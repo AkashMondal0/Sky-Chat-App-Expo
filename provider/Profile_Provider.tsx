@@ -13,7 +13,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import socket from '../utils/socket-connect';
 import { PrivateMessage, PrivateMessageSeen } from '../types/private-chat';
-import { Login, Logout } from '../redux/slice/auth';
+import { Login, Logout, StartServer } from '../redux/slice/auth';
 import NetInfo from '@react-native-community/netinfo'
 import { ToastAndroid } from 'react-native';
 import { addToGroupChatListMessage, addToGroupChatListMessageSeen, getGroupChatList } from '../redux/slice/group-chat';
@@ -41,8 +41,17 @@ const Profile_Provider: FC<Profile_ProviderProps> = ({
 
     const fetchUserData = useCallback(async () => {
         const token = await AsyncStorage.getItem("token")
-        await dispatch(fetchProfileData(token) as any)
-        SplashScreen.hideAsync()
+        const mUrl = await AsyncStorage.getItem("mainUrl")
+        const sUrl = await AsyncStorage.getItem("storageUrl")
+        if (mUrl) {
+            await dispatch(StartServer({ token: mUrl }) as any)
+        }
+        setTimeout(() => {
+            SplashScreen.hideAsync()
+        }, 1000);
+        if (token) {
+            await dispatch(fetchProfileData(token) as any)
+        }
     }, [])
 
 

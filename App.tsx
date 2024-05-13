@@ -22,12 +22,13 @@ import ButtonSheet from './provider/ButtomSheet';
 import LinkDevice from './app/page/setting/linkDevice/page';
 import NewGroup from './app/page/home/newMessage/NewGroup/page';
 import GroupChatScreen from './app/page/[group]/page';
+import SystemVariableScreen from './app/page/setting/systemVariable/page';
 
 
 
 
 function Routes() {
-  const { isLogin } = useSelector((state: RootState) => state.authState)
+  const { isLogin, HostUrl } = useSelector((state: RootState) => state.authState)
   const useTheme = useSelector((state: RootState) => state.ThemeMode.currentTheme)
 
   const backgroundColor = useTheme.background
@@ -62,15 +63,17 @@ function Routes() {
       height: "auto"
     }
   }
+
   return (
     <Stack.Navigator>
       {/* custom header */}
-      <Stack.Screen name="home" component={isLogin ? Tabs : IntroScreen} options={Option2 as any} />
+      <Stack.Screen name="home" component={HostUrl ? (isLogin ? Tabs : IntroScreen) : SystemVariableScreen} options={Option2 as any} />
       <Stack.Screen name="login" component={LoginScreen} options={Option2 as any} />
       <Stack.Screen name="register" component={RegisterScreen} options={Option2 as any} />
 
+      <Stack.Screen name="SystemVariable" component={SystemVariableScreen} options={Option2 as any} />
 
-      <Stack.Screen name="Chat" component={ChatScreen} options={{
+      <Stack.Screen name="Chat" component={ChatScreen as any} options={{
         headerShown: false,
         animation: "slide_from_right",
         animationDuration: 300,
@@ -80,7 +83,7 @@ function Routes() {
           height: "auto"
         }
       }} />
-      <Stack.Screen name="Group_chat" component={GroupChatScreen} options={{
+      <Stack.Screen name="Group_chat" component={GroupChatScreen as any} options={{
         headerShown: false,
         animation: "slide_from_right",
         animationDuration: 300,
@@ -90,7 +93,7 @@ function Routes() {
           height: "auto"
         }
       }} />
-      
+
 
       {/* header */}
       <Stack.Screen name="linkDevice" component={LinkDevice} options={Options as any} />
@@ -100,7 +103,7 @@ function Routes() {
       <Stack.Screen name="CameraScreen" component={CameraScreen} options={Option2 as any} />
       <Stack.Screen name="Preview" component={PreViewScreen} options={Option2 as any} />
       <Stack.Screen name="AssetsScreen" component={AssetsScreen} options={Option2 as any} />
-      <Stack.Screen name="NewGroup" component={NewGroup} options={Option2 as any} />
+      <Stack.Screen name="NewGroup" component={NewGroup as any} options={Option2 as any} />
     </Stack.Navigator>
   );
 }

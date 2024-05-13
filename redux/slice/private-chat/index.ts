@@ -3,11 +3,15 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { File, PrivateChat, PrivateMessage, PrivateMessageSeen, typingState } from '../../../types/private-chat';
 import axios from 'axios';
 import socket from '../../../utils/socket-connect';
-import { localhost } from '../../../keys';
 import { Assets, User } from '../../../types/profile';
 import uid from '../../../utils/uuid';
 import { skyUploadImage, skyUploadVideo } from '../../../utils/upload-file';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const getLocalhost = async () => {
+  return AsyncStorage.getItem('mainUrl')
+}
+
 export const createConnectionApi = createAsyncThunk(
   'createConnectionApi/post',
   async ({
@@ -18,6 +22,7 @@ export const createConnectionApi = createAsyncThunk(
     userId: string
   }, thunkApi) => {
     try {
+      const localhost = await getLocalhost()
       const res = await axios.post(`${localhost}/private/chat/connection`, {
         users: [
           profileId, userId
@@ -107,6 +112,7 @@ export const getMoreMessagePrivate = createAsyncThunk(
     page: number,
   }, thunkApi) => {
     try {
+      const localhost = await getLocalhost()
       const res = await axios.get(`${localhost}/private/chat/list/messages/${conversationId}?page=${page}&size=${20}`)
 
       if (res.data?.length === 0) {
@@ -217,7 +223,7 @@ export const getProfileChatList = createAsyncThunk(
   'chatList/fetch',
   async (token: string | null, thunkApi) => {
     try {
-
+      const localhost = await getLocalhost()
       const response = await axios.get(`${localhost}/private/chat/list`, {
         headers: {
           token: token ? token : await AsyncStorage.getItem("token")

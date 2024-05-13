@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import axios from 'axios';
-import { localhost } from '../../../keys';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { skyUploadImage } from '../../../utils/upload-file';
 export type Theme = "light" | "dark" | "system"
@@ -12,6 +11,9 @@ const SaveTokenLocal = async (token: string) => {
         console.log("Error in saving theme from redux async storage", err)
     }
 }
+const getLocalhost = async () => {
+    return AsyncStorage.getItem('mainUrl')
+}
 
 export const loginApi = createAsyncThunk(
     'loginApi/fetch',
@@ -20,6 +22,7 @@ export const loginApi = createAsyncThunk(
         password: string
     }, thunkApi) => {
         try {
+            const localhost = await getLocalhost()
             const response = await axios.get(`${localhost}/auth/login`, {
                 headers: {
                     email: data.email,
@@ -42,6 +45,7 @@ export const registerApi = createAsyncThunk(
         image?: string
     }, thunkApi) => {
         try {
+            const localhost = await getLocalhost()
             const response = await axios.post(`${localhost}/auth/register`, data);
             if (response.data?._id, data.image) {
                 const url = await skyUploadImage([data.image], response.data._id);
@@ -56,18 +60,22 @@ export const registerApi = createAsyncThunk(
         }
     }
 );
+
+
 export interface Auth_State {
     token?: string | null,
     isLogin: boolean
     loading: boolean
     error?: string | null | any
     success?: string | null | any
+    HostUrl: boolean
 }
 
 
 const initialState: Auth_State = {
     token: null,
     isLogin: false,
+    HostUrl: false,
     loading: false,
     error: null,
     success: null,
@@ -86,6 +94,12 @@ export const Auth_Slice = createSlice({
         Logout: (state) => {
             state.isLogin = false
             state.token = null
+        },
+        StartServer: (state, action: PayloadAction<{
+            token: string
+        }>) => {
+            state.HostUrl = true
+            state.token = action.payload.token
         },
     },
     extraReducers(builder) {
@@ -123,6 +137,23 @@ export const Auth_Slice = createSlice({
                 state.loading = false;
                 state.isLogin = false;
             })
+            // StartApp
+            // .addCase(StartApp.pending, (state, action) => {
+            //     state.loading = true;
+            //     state.error = null;
+            // })
+            // .addCase(StartApp.fulfilled, (state, action) => {
+            //     state.loading = false;
+            //     state.error = null;
+            //     state.isLogin = true;
+            //     state.HostUrl = true;
+            //     state.token = action.payload;
+            // })
+            // .addCase(StartApp.rejected, (state, action) => {
+            //     state.error = action.payload;
+            //     state.loading = false;
+            //     state.isLogin = false;
+            // })
             .addDefaultCase((state, action) => {
                 state.loading = false;
             });
@@ -132,7 +163,8 @@ export const Auth_Slice = createSlice({
 // Action creators are generated for each case reducer function
 export const {
     Login,
-    Logout
+    Logout,
+    StartServer
 } = Auth_Slice.actions
 
 export default Auth_Slice.reducer

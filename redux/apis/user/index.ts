@@ -2,13 +2,19 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { User } from '../../../types/profile';
 import { PrivateChat } from '../../../types/private-chat';
-import { localhost } from '../../../keys';
+
 import socket from '../../../utils/socket-connect';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const getLocalhost = async () => {
+    return AsyncStorage.getItem('mainUrl')
+}
 
 export const fetchSearchUser = createAsyncThunk(
     'searchKeyWord/fetch',
     async (searchKeyWord: string, thunkApi) => {
         try {
+            const localhost = await getLocalhost()
             const response = await axios.get(`${localhost}/user/search/${searchKeyWord}`);
             // console.log(response.data)
             return response.data;
@@ -25,6 +31,7 @@ export const fetchUsers = createAsyncThunk(
         authorId: string;
     }, thunkApi) => {
         try {
+            const localhost = await getLocalhost()
             const response = await axios.post(`${localhost}/user/users`, {
                 users, authorId
             });
@@ -39,6 +46,7 @@ export const CreateConnectionUser = createAsyncThunk(
     'CreateConnectionUser/post',
     async (users: string[], thunkApi) => {
         try {
+            const localhost = await getLocalhost()
             const response = await axios.post(`${localhost}/private/chat/connection`, { users });
             socket.emit('update_Chat_List_Sender', {
                 senderId: users[0],

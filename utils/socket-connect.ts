@@ -1,5 +1,11 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import io from "socket.io-client";
-import { localhost } from "../keys";
+
+const getLocalhost = async () => {
+    return AsyncStorage.getItem('mainUrl')
+}
+
+const localhost = getLocalhost();
 
 const socket = io(`${localhost}/`);
 

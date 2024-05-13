@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { Status } from '../../../types/profile'
 import axios from 'axios';
-import { localhost } from '../../../keys';
 import { skyUploadImage, skyUploadVideo } from '../../../utils/upload-file';
 
 // export const getFriendStatuses = createAsyncThunk(

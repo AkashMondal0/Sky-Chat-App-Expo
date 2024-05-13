@@ -4,18 +4,20 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { Status, User } from '../../../types/profile';
 import axios from 'axios';
 import socket from '../../../utils/socket-connect';
-import { localhost } from '../../../keys';
 import { Login } from '../auth';
 import { getProfileChatList } from '../private-chat';
 import { skyUploadImage, skyUploadVideo } from '../../../utils/upload-file';
 import { getGroupChatList } from '../group-chat';
-
+const getLocalhost = async () => {
+    return AsyncStorage.getItem('mainUrl')
+}
 export const fetchProfileData = createAsyncThunk(
     'profileData/fetch',
     async (token: string | null, thunkApi) => {
         try {
+            const localhost = await getLocalhost()
             token = token ? token : await AsyncStorage.getItem('token') as string
-            const response = await axios.get(`${localhost}/auth/authorization`, {
+            const response = await axios.get(`${await localhost}/auth/authorization`, {
                 headers: {
                     Authorization: token
                 }
@@ -55,6 +57,7 @@ export const uploadStatusApi = createAsyncThunk(
                 _id,
                 status
             }
+            const localhost = await getLocalhost()
             await axios.post(`${localhost}/status/upload`, data)
             return data.status;
         } catch (error: any) {

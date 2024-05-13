@@ -2,11 +2,14 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { PayloadAction } from '@reduxjs/toolkit'
 import axios from 'axios';
-import { localhost } from '../../../keys';
 import { skyUploadImage, skyUploadVideo } from '../../../utils/upload-file';
 import { GroupConversation, PrivateMessage, PrivateMessageSeen } from '../../../types/private-chat';
 import { Assets, User } from '../../../types/profile';
 import socket from '../../../utils/socket-connect';
+
+const getLocalhost = async () => {
+  return AsyncStorage.getItem('mainUrl')
+}
 
 export const createGroup = createAsyncThunk(
   'createGroup/fetch',
@@ -18,6 +21,7 @@ export const createGroup = createAsyncThunk(
     authorId: string[0]
   }, thunkApi) => {
     try {
+      const localhost = await getLocalhost()
       const image = data?.picture ? await skyUploadImage([data.picture], data.authorId).then(res => res.data[0]) : null
       const _data = {
         users: [...data.members, data.authorId],
@@ -43,7 +47,7 @@ export const getGroupChatList = createAsyncThunk(
   'getGroupChatList/fetch',
   async (token: string | null, thunkApi) => {
     try {
-
+      const localhost = await getLocalhost()
       const response = await axios.get(`${localhost}/groupConversation/chat/list/`, {
         headers: {
           token: token ? token : await AsyncStorage.getItem("token")

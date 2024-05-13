@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect } from 'react'
 import { View, Text, StyleSheet, ScrollView, Switch } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChevronRight, CircleDashed, LogOut, MonitorSmartphone, Palette, Pencil } from 'lucide-react-native';
+import { ChevronRight, CircleDashed, LogOut, MonitorSmartphone, Palette, Pencil, Variable } from 'lucide-react-native';
 import { RootState } from '../../../redux/store';
 import Padding from '../../../components/shared/Padding';
 import SingleCard from '../../../components/shared/Single-Card';
@@ -94,6 +94,13 @@ export default function SettingsScreen({ navigation }: any) {
                     iconBackgroundColor={useTheme.currentTheme.background}
                 />
                 <SingleCard
+                    icon={<Variable color={iconColor} />}
+                    label={"System Variable"}
+                    onPress={() => navigation.navigate('SystemVariable')}
+                    textColor={useTheme.currentTheme.textColor}
+                    iconBackgroundColor={useTheme.currentTheme.background}
+                />
+                   <SingleCard
                     icon={<LogOut color={iconColor} />}
                     label={"Log Out"}
                     onPress={handleLogOut}
