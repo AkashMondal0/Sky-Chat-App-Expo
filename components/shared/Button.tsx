@@ -31,7 +31,7 @@ const MyButton: FC<MyButtonProps> = ({
     fontWeight,
     radius,
     width,
-    height,
+    height = 40,
     backgroundColor,
     variant,
     disabled,
