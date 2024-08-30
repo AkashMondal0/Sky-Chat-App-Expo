@@ -1,6 +1,6 @@
-import ThemedView from "./ThemedView";
-
-
+import ScrollView from "./ScrollView";
+import View from "./View";
 export {
-    ThemedView,
+    View,
+    ScrollView
 }

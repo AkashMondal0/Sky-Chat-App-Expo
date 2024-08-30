@@ -13,7 +13,7 @@ const SkysoloView = ({ style, ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme, (prev, next) => prev?.primary === next?.primary)
     if (!currentTheme) return null
     return (
-        <View style={[{ backgroundColor: `hsl(${currentTheme.destructive})` }, style]} {...otherProps} />
+        <View style={[{ backgroundColor: `hsl(${currentTheme.background})` }, style]} {...otherProps} />
     )
 }
 

@@ -7,6 +7,7 @@ import { RootState, store } from '@/redux/store';
 import * as SplashScreen from 'expo-splash-screen';
 import { HomeScreen, MessageScreen } from '@/app/screens';
 import ThemeProvider from '@/provider/ThemeProvider'
+import Tabs from '@/app/tabs';
 
 const Stack = createNativeStackNavigator();
 SplashScreen.preventAutoHideAsync();
@@ -48,8 +49,8 @@ function Routes() {
   //   }
   // }
   return (
-    <Stack.Navigator>
-      <Stack.Screen name="home" component={HomeScreen} options={{ headerShown: false }} />
+    <Stack.Navigator initialRouteName='main'>
+      <Stack.Screen name="main" component={Tabs} options={{ headerShown: false }} />
       <Stack.Screen name="message" component={MessageScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
@@ -58,11 +59,10 @@ function Routes() {
 function Root() {
   const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
   // console.log(currentTheme?.accent)
-  return (<GestureHandlerRootView style={{ flex: 1, backgroundColor: `hsl(${currentTheme?.destructive})` }}>
+  return (<GestureHandlerRootView style={{ flex: 1, backgroundColor: `hsl(${currentTheme?.background})` }}>
     <NavigationContainer>
-      <ThemeProvider>
+      <ThemeProvider/>
         <Routes />
-      </ThemeProvider>
     </NavigationContainer>
   </GestureHandlerRootView>)
 

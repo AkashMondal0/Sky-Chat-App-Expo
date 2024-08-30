@@ -1,9 +1,9 @@
-import { memo } from "react";
 import { View } from "@/components/skysolo-ui";
+import { memo } from "react";
 import { Button, Text } from "react-native";
 
 
-const MessageScreen = memo(function MessageScreen({navigation}:any) {
+const SettingScreen = memo(function HomeScreen({navigation}:any) {
     return (
         <View style={{
             width: '100%',
@@ -11,18 +11,17 @@ const MessageScreen = memo(function MessageScreen({navigation}:any) {
             flex: 1,
             padding: 20
         }}>
-            
+             <Button title="Go to Home" onPress={() => {
+                navigation?.navigate("message")
+            }} />
             <Text style={{
                 fontSize: 20,
                 fontWeight: 'bold',
                 color: 'red',
                 textAlign: 'center',
                 marginTop: 100
-            }}>Message Screen</Text>
-             <Button title="Go to Home"  onPress={() => {
-                navigation?.navigate("home")
-            }} />
+            }}>Home Screen</Text>
         </View>
     )
 })
-export default MessageScreen;
+export default SettingScreen;
