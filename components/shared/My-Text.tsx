@@ -18,18 +18,15 @@ const MyText: FC<MyTextProps> = ({
     fontWeight,
     fontFamily
 }) => {
-    // const themeValue = useSelector((state: RootState) => state.ThemeMode.current_theme)
-    
+
     return (
         <>
-            <Text
-                style={{
-                    // color: color ? color : themeValue === "dark" ? "white" : "black",
-                    fontSize: fontSize ? fontSize : 15,
-                    fontWeight: fontWeight ? fontWeight : "normal" as any,
-                    fontFamily: fontFamily,
-                }}
-            >
+            <Text style={{
+                color: "white",
+                fontSize: fontSize ? fontSize : 15,
+                fontWeight: fontWeight ? fontWeight : "normal" as any,
+                fontFamily: fontFamily,
+            }}>
                 {children}
             </Text>
         </>

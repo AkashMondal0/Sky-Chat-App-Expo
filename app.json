@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Sky Chat",
-    "slug": "Sky-chat",
-    "version": "1.0.0",
+    "name": "Skylight",
+    "slug": "Skylight",
+    "version": "2.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
