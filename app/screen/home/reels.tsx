@@ -3,7 +3,7 @@ import { memo } from "react";
 import { Button, Text } from "react-native";
 
 
-const HomeScreen = memo(function HomeScreen({ navigation }: any) {
+const ReelsScreen = memo(function ReelsScreen({ navigation }: any) {
     return (
         <ScrollView>
             <Button title="Go to Home" onPress={() => {
@@ -15,8 +15,8 @@ const HomeScreen = memo(function HomeScreen({ navigation }: any) {
                 color: 'red',
                 textAlign: 'center',
                 marginTop: 100
-            }}>Home Screen</Text>
+            }}>Reels Screen</Text>
         </ScrollView>
     )
 })
-export default HomeScreen;
+export default ReelsScreen;

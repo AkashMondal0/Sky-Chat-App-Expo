@@ -10,10 +10,10 @@ export type Props = ViewProps & {
 
 
 const SkysoloView = ({ style, ...otherProps }: Props) => {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme, (prev, next) => prev?.primary === next?.primary)
-    if (!currentTheme) return null
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    if (!currentTheme) return <View />
     return (
-        <View style={[{ backgroundColor: `hsl(${currentTheme.background})` }, style]} {...otherProps} />
+        <View style={[{ backgroundColor: `hsl(${currentTheme.primary})` }, style]} {...otherProps} />
     )
 }
 

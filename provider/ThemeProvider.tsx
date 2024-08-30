@@ -3,7 +3,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import { changeTheme, setThemeLoaded } from "@/redux/slice/theme";
+import { changeColorSchema, setThemeLoaded } from "@/redux/slice/theme";
 import { StatusBar, View, Appearance } from 'react-native';
 import { localStorage } from '@/lib/LocalStorage';
 import { ThemeNames } from '@/components/skysolo-ui/colors';
@@ -43,7 +43,7 @@ const ThemeProvider = () => {
         // console.log("changing Theme", theme)
         await localStorage("set", "skysolo-theme", theme)
         await localStorage("set", "skysolo-theme-name", "Zinc")
-        dispatch(changeTheme(theme))
+        dispatch(changeColorSchema(theme))
     }, [])
 
     useEffect(() => {

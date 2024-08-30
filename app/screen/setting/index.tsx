@@ -3,7 +3,7 @@ import { memo } from "react";
 import { Button, Text } from "react-native";
 
 
-const SettingScreen = memo(function HomeScreen({navigation}:any) {
+const SettingScreen = memo(function HomeScreen({ navigation }: any) {
     return (
         <View style={{
             width: '100%',
@@ -11,8 +11,9 @@ const SettingScreen = memo(function HomeScreen({navigation}:any) {
             flex: 1,
             padding: 20
         }}>
-             <Button title="Go to Home" onPress={() => {
-                navigation?.navigate("message")
+            <Button title="Go to Theme" onPress={() => {
+                // navigation?.navigate("")
+                navigation?.navigate("settingTheme")
             }} />
             <Text style={{
                 fontSize: 20,
@@ -20,7 +21,7 @@ const SettingScreen = memo(function HomeScreen({navigation}:any) {
                 color: 'red',
                 textAlign: 'center',
                 marginTop: 100
-            }}>Home Screen</Text>
+            }}>Setting Screen</Text>
         </View>
     )
 })

@@ -1,17 +1,32 @@
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useSelector } from 'react-redux';
 import { RootState, store } from '@/redux/store';
 import * as SplashScreen from 'expo-splash-screen';
-import { HomeScreen, MessageScreen } from '@/app/screens';
 import ThemeProvider from '@/provider/ThemeProvider'
-import Tabs from '@/app/tabs';
+import { SettingScreen, ThemeSettingScreen, CameraScreen, MessageScreen } from '@/app/screen';
+import BottomTab from '@/app/screen/home/bottomTabs';
 
-const Stack = createNativeStackNavigator();
 SplashScreen.preventAutoHideAsync();
+const Stack = createNativeStackNavigator();
+const Tab = createMaterialTopTabNavigator();
 
+const TopTabBar = ({ navigation }: any) => {
+  return (
+    <Tab.Navigator
+      style={{ flex: 1 }}
+      initialRouteName='home_2'
+      overScrollMode={'never'}
+      screenOptions={{ tabBarStyle: { height: 0 } }}>
+      <Tab.Screen name="camera" component={CameraScreen} />
+      <Tab.Screen name="home_2" component={BottomTab} />
+      <Tab.Screen name="message" component={MessageScreen} />
+    </Tab.Navigator>
+  )
+}
 
 function Routes() {
   // const { isLogin } = useSelector((state: RootState) => state.authState)
@@ -49,9 +64,22 @@ function Routes() {
   //   }
   // }
   return (
-    <Stack.Navigator initialRouteName='main'>
-      <Stack.Screen name="main" component={Tabs} options={{ headerShown: false }} />
-      <Stack.Screen name="message" component={MessageScreen} options={{ headerShown: false }} />
+    <Stack.Navigator initialRouteName='home_1'>
+      {/* feeds */}
+      <Stack.Screen name="home_1" component={TopTabBar} options={{ headerShown: false }} />
+      {/* <Stack.Screen name="notification" component={SettingScreen} options={{ headerShown: false }} /> */}
+      {/* settings */}
+      <Stack.Screen name="setting" component={SettingScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="settingTheme" component={ThemeSettingScreen} options={{ headerShown: false }} />
+
+      {/* profile */}
+      {/* <Stack.Screen name="profile" component={SettingScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="editProfile" component={SettingScreen} options={{ headerShown: false }} /> */}
+
+      {/* post */}
+      {/* <Stack.Screen name="post" component={SettingScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="like" component={SettingScreen} options={{ headerShown: false }} /> */}
+
     </Stack.Navigator>
   );
 }
@@ -61,13 +89,12 @@ function Root() {
   // console.log(currentTheme?.accent)
   return (<GestureHandlerRootView style={{ flex: 1, backgroundColor: `hsl(${currentTheme?.background})` }}>
     <NavigationContainer>
-      <ThemeProvider/>
-        <Routes />
+      <ThemeProvider />
+      <Routes />
     </NavigationContainer>
   </GestureHandlerRootView>)
 
 }
-
 
 function App() {
   return (
